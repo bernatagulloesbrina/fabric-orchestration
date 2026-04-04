@@ -1,0 +1,5 @@
+{
+  "type": "DataPipeline",
+  "displayName": "Load Artifacts",
+  "description": "Calls the Fabric REST API to load Workspaces, Dataflows, Semantic Models and Pipelines from all workspaces into the Metadata database."
+}

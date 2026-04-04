@@ -1,0 +1,10 @@
+{
+  "version": "2.0",
+  "logicalId": "a1b2c3d4-e5f6-7890-abcd-ef0000000002",
+  "connections": [
+    {
+      "connectionName": "MetadataConnection",
+      "logicalId": "c0000000-0000-0000-0000-000000000002"
+    }
+  ]
+}
