@@ -1,5 +1,0 @@
-{
-  "type": "SQLDatabase",
-  "displayName": "Metadata",
-  "description": "SQL database storing workspace metadata, pipeline logs, dataflows, and semantic model information."
-}
