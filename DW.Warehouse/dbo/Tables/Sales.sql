@@ -1,7 +1,7 @@
 CREATE TABLE [dbo].[Sales] (
-    [SaleId]    INT            IDENTITY(1, 1) NOT NULL,
+    [SaleId]    INT            NOT NULL,
     [SaleDate]  DATE           NOT NULL,
     [Amount]    DECIMAL(10, 2) NOT NULL,
     [CreatedAt] DATETIME2      NOT NULL,
-    CONSTRAINT [PK_Sales] PRIMARY KEY ([SaleId])
+    CONSTRAINT [PK_Sales] PRIMARY KEY NONCLUSTERED ([SaleId]) NOT ENFORCED
 );
