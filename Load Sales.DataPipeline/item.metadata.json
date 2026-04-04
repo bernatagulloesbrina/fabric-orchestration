@@ -1,0 +1,5 @@
+{
+  "type": "DataPipeline",
+  "displayName": "Load Sales",
+  "description": "Loads dummy sales data into DW.Sales and writes an execution log record to Metadata.refresh_logs."
+}
