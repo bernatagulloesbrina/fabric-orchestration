@@ -1,0 +1,5 @@
+{
+  "type": "Warehouse",
+  "displayName": "DW",
+  "description": "Data warehouse storing sales and other analytical data."
+}
