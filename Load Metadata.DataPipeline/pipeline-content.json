@@ -1,0 +1,426 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "name": "SetJobName",
+        "type": "SetVariable",
+        "dependsOn": [],
+        "typeProperties": {
+          "variableName": "job_name",
+          "value": {
+            "value": "@concat(pipeline().parameters.workspace_name, ' - Load Metadata')",
+            "type": "Expression"
+          }
+        }
+      },
+      {
+        "name": "JobStart",
+        "type": "Script",
+        "dependsOn": [
+          {
+            "activity": "SetJobName",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "linkedServiceName": {
+          "referenceName": "Metadata",
+          "type": "LinkedServiceReference"
+        },
+        "typeProperties": {
+          "scripts": [
+            {
+              "type": "NonQuery",
+              "text": {
+                "value": "MERGE [dbo].[jobs] AS target\nUSING (SELECT N'@{variables('job_name')}' AS job_name) AS source\nON target.job_name = source.job_name\nWHEN MATCHED THEN\n    UPDATE SET [start] = GETDATE(), [end] = NULL, [result] = N'Running'\nWHEN NOT MATCHED THEN\n    INSERT ([job_name], [start], [result])\n    VALUES (N'@{variables('job_name')}', GETDATE(), N'Running');",
+                "type": "Expression"
+              }
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        }
+      },
+      {
+        "name": "DropAndRecreateTables",
+        "type": "Script",
+        "dependsOn": [
+          {
+            "activity": "JobStart",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "linkedServiceName": {
+          "referenceName": "Metadata",
+          "type": "LinkedServiceReference"
+        },
+        "typeProperties": {
+          "scripts": [
+            {
+              "type": "NonQuery",
+              "text": "IF OBJECT_ID('[dbo].[workspaces]', 'U') IS NOT NULL DROP TABLE [dbo].[workspaces];\nCREATE TABLE [dbo].[workspaces] (\n    [id]          NVARCHAR(100) NOT NULL,\n    [displayName] NVARCHAR(255) NOT NULL,\n    [capacityId]  NVARCHAR(100) NULL,\n    [type]        NVARCHAR(50)  NULL,\n    [loaded_at]   DATETIME2(6)  NOT NULL DEFAULT GETDATE(),\n    CONSTRAINT [PK_workspaces] PRIMARY KEY ([id])\n);"
+            },
+            {
+              "type": "NonQuery",
+              "text": "IF OBJECT_ID('[dbo].[semantic_models]', 'U') IS NOT NULL DROP TABLE [dbo].[semantic_models];\nCREATE TABLE [dbo].[semantic_models] (\n    [workspace_id]  NVARCHAR(100) NOT NULL,\n    [id]            NVARCHAR(100) NOT NULL,\n    [displayName]   NVARCHAR(255) NOT NULL,\n    [isRefreshable] BIT           NULL,\n    [loaded_at]     DATETIME2(6)  NOT NULL DEFAULT GETDATE(),\n    CONSTRAINT [PK_semantic_models] PRIMARY KEY ([workspace_id], [id])\n);"
+            },
+            {
+              "type": "NonQuery",
+              "text": "IF OBJECT_ID('[dbo].[dataflows]', 'U') IS NOT NULL DROP TABLE [dbo].[dataflows];\nCREATE TABLE [dbo].[dataflows] (\n    [workspace_id] NVARCHAR(100) NOT NULL,\n    [id]           NVARCHAR(100) NOT NULL,\n    [displayName]  NVARCHAR(255) NOT NULL,\n    [type]         NVARCHAR(50)  NULL,\n    [loaded_at]    DATETIME2(6)  NOT NULL DEFAULT GETDATE(),\n    CONSTRAINT [PK_dataflows] PRIMARY KEY ([workspace_id], [id])\n);"
+            },
+            {
+              "type": "NonQuery",
+              "text": "IF OBJECT_ID('[dbo].[pipelines]', 'U') IS NOT NULL DROP TABLE [dbo].[pipelines];\nCREATE TABLE [dbo].[pipelines] (\n    [workspace_id] NVARCHAR(100) NOT NULL,\n    [id]           NVARCHAR(100) NOT NULL,\n    [displayName]  NVARCHAR(255) NOT NULL,\n    [type]         NVARCHAR(50)  NULL,\n    [loaded_at]    DATETIME2(6)  NOT NULL DEFAULT GETDATE(),\n    CONSTRAINT [PK_pipelines] PRIMARY KEY ([workspace_id], [id])\n);"
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        }
+      },
+      {
+        "name": "GetWorkspaces",
+        "type": "WebActivity",
+        "dependsOn": [
+          {
+            "activity": "DropAndRecreateTables",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "typeProperties": {
+          "url": "https://api.fabric.microsoft.com/v1/workspaces",
+          "method": "GET",
+          "authentication": {
+            "type": "MSI",
+            "resource": "https://analysis.windows.net/powerbi/api"
+          }
+        }
+      },
+      {
+        "name": "ProcessWorkspaces",
+        "type": "ForEach",
+        "dependsOn": [
+          {
+            "activity": "GetWorkspaces",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "typeProperties": {
+          "items": {
+            "value": "@activity('GetWorkspaces').output.value",
+            "type": "Expression"
+          },
+          "isSequential": true,
+          "activities": [
+            {
+              "name": "SetCurrentWorkspaceId",
+              "type": "SetVariable",
+              "dependsOn": [],
+              "typeProperties": {
+                "variableName": "current_workspace_id",
+                "value": {
+                  "value": "@item().id",
+                  "type": "Expression"
+                }
+              }
+            },
+            {
+              "name": "SetCurrentWorkspaceName",
+              "type": "SetVariable",
+              "dependsOn": [
+                {
+                  "activity": "SetCurrentWorkspaceId",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ],
+              "typeProperties": {
+                "variableName": "current_workspace_name",
+                "value": {
+                  "value": "@item().displayName",
+                  "type": "Expression"
+                }
+              }
+            },
+            {
+              "name": "InsertWorkspace",
+              "type": "Script",
+              "dependsOn": [
+                {
+                  "activity": "SetCurrentWorkspaceName",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ],
+              "linkedServiceName": {
+                "referenceName": "Metadata",
+                "type": "LinkedServiceReference"
+              },
+              "typeProperties": {
+                "scripts": [
+                  {
+                    "type": "NonQuery",
+                    "text": {
+                      "value": "INSERT INTO [dbo].[workspaces] ([id], [displayName], [capacityId], [type], [loaded_at])\nVALUES (\n    N'@{item().id}',\n    N'@{item().displayName}',\n    NULLIF(N'@{item().capacityId}', N'null'),\n    NULLIF(N'@{item().type}', N'null'),\n    GETDATE()\n);",
+                      "type": "Expression"
+                    }
+                  }
+                ],
+                "scriptBlockExecutionTimeout": "02:00:00"
+              }
+            },
+            {
+              "name": "GetSemanticModels",
+              "type": "WebActivity",
+              "dependsOn": [
+                {
+                  "activity": "InsertWorkspace",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ],
+              "typeProperties": {
+                "url": {
+                  "value": "@concat('https://api.fabric.microsoft.com/v1/workspaces/', variables('current_workspace_id'), '/semanticModels')",
+                  "type": "Expression"
+                },
+                "method": "GET",
+                "authentication": {
+                  "type": "MSI",
+                  "resource": "https://analysis.windows.net/powerbi/api"
+                }
+              }
+            },
+            {
+              "name": "LoadSemanticModels",
+              "type": "ForEach",
+              "dependsOn": [
+                {
+                  "activity": "GetSemanticModels",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ],
+              "typeProperties": {
+                "items": {
+                  "value": "@activity('GetSemanticModels').output.value",
+                  "type": "Expression"
+                },
+                "isSequential": false,
+                "activities": [
+                  {
+                    "name": "InsertSemanticModel",
+                    "type": "Script",
+                    "dependsOn": [],
+                    "linkedServiceName": {
+                      "referenceName": "Metadata",
+                      "type": "LinkedServiceReference"
+                    },
+                    "typeProperties": {
+                      "scripts": [
+                        {
+                          "type": "NonQuery",
+                          "text": {
+                            "value": "INSERT INTO [dbo].[semantic_models] ([workspace_id], [id], [displayName], [isRefreshable], [loaded_at])\nVALUES (\n    N'@{variables('current_workspace_id')}',\n    N'@{item().id}',\n    N'@{item().displayName}',\n    @{if(equals(item().isRefreshable, true), '1', if(equals(item().isRefreshable, false), '0', 'NULL'))},\n    GETDATE()\n);",
+                            "type": "Expression"
+                          }
+                        }
+                      ],
+                      "scriptBlockExecutionTimeout": "02:00:00"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "GetDataflows",
+              "type": "WebActivity",
+              "dependsOn": [
+                {
+                  "activity": "LoadSemanticModels",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ],
+              "typeProperties": {
+                "url": {
+                  "value": "@concat('https://api.fabric.microsoft.com/v1/workspaces/', variables('current_workspace_id'), '/dataflows')",
+                  "type": "Expression"
+                },
+                "method": "GET",
+                "authentication": {
+                  "type": "MSI",
+                  "resource": "https://analysis.windows.net/powerbi/api"
+                }
+              }
+            },
+            {
+              "name": "LoadDataflows",
+              "type": "ForEach",
+              "dependsOn": [
+                {
+                  "activity": "GetDataflows",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ],
+              "typeProperties": {
+                "items": {
+                  "value": "@activity('GetDataflows').output.value",
+                  "type": "Expression"
+                },
+                "isSequential": false,
+                "activities": [
+                  {
+                    "name": "InsertDataflow",
+                    "type": "Script",
+                    "dependsOn": [],
+                    "linkedServiceName": {
+                      "referenceName": "Metadata",
+                      "type": "LinkedServiceReference"
+                    },
+                    "typeProperties": {
+                      "scripts": [
+                        {
+                          "type": "NonQuery",
+                          "text": {
+                            "value": "INSERT INTO [dbo].[dataflows] ([workspace_id], [id], [displayName], [type], [loaded_at])\nVALUES (\n    N'@{variables('current_workspace_id')}',\n    N'@{item().id}',\n    N'@{item().displayName}',\n    NULLIF(N'@{item().type}', N'null'),\n    GETDATE()\n);",
+                            "type": "Expression"
+                          }
+                        }
+                      ],
+                      "scriptBlockExecutionTimeout": "02:00:00"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "GetPipelines",
+              "type": "WebActivity",
+              "dependsOn": [
+                {
+                  "activity": "LoadDataflows",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ],
+              "typeProperties": {
+                "url": {
+                  "value": "@concat('https://api.fabric.microsoft.com/v1/workspaces/', variables('current_workspace_id'), '/dataPipelines')",
+                  "type": "Expression"
+                },
+                "method": "GET",
+                "authentication": {
+                  "type": "MSI",
+                  "resource": "https://analysis.windows.net/powerbi/api"
+                }
+              }
+            },
+            {
+              "name": "LoadPipelines",
+              "type": "ForEach",
+              "dependsOn": [
+                {
+                  "activity": "GetPipelines",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ],
+              "typeProperties": {
+                "items": {
+                  "value": "@activity('GetPipelines').output.value",
+                  "type": "Expression"
+                },
+                "isSequential": false,
+                "activities": [
+                  {
+                    "name": "InsertPipeline",
+                    "type": "Script",
+                    "dependsOn": [],
+                    "linkedServiceName": {
+                      "referenceName": "Metadata",
+                      "type": "LinkedServiceReference"
+                    },
+                    "typeProperties": {
+                      "scripts": [
+                        {
+                          "type": "NonQuery",
+                          "text": {
+                            "value": "INSERT INTO [dbo].[pipelines] ([workspace_id], [id], [displayName], [type], [loaded_at])\nVALUES (\n    N'@{variables('current_workspace_id')}',\n    N'@{item().id}',\n    N'@{item().displayName}',\n    NULLIF(N'@{item().type}', N'null'),\n    GETDATE()\n);",
+                            "type": "Expression"
+                          }
+                        }
+                      ],
+                      "scriptBlockExecutionTimeout": "02:00:00"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "JobSuccess",
+        "type": "Script",
+        "dependsOn": [
+          {
+            "activity": "ProcessWorkspaces",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "linkedServiceName": {
+          "referenceName": "Metadata",
+          "type": "LinkedServiceReference"
+        },
+        "typeProperties": {
+          "scripts": [
+            {
+              "type": "NonQuery",
+              "text": {
+                "value": "UPDATE [dbo].[jobs] SET [end] = GETDATE(), [result] = N'Completed' WHERE [job_name] = N'@{variables('job_name')}';\nINSERT INTO [dbo].[executions] ([execution_date], [job_name], [start], [end], [result])\nSELECT GETDATE(), [job_name], [start], GETDATE(), N'Completed' FROM [dbo].[jobs] WHERE [job_name] = N'@{variables('job_name')}';",
+                "type": "Expression"
+              }
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        }
+      },
+      {
+        "name": "JobFailed",
+        "type": "Script",
+        "dependsOn": [
+          {
+            "activity": "ProcessWorkspaces",
+            "dependencyConditions": ["Failed", "Skipped"]
+          }
+        ],
+        "linkedServiceName": {
+          "referenceName": "Metadata",
+          "type": "LinkedServiceReference"
+        },
+        "typeProperties": {
+          "scripts": [
+            {
+              "type": "NonQuery",
+              "text": {
+                "value": "UPDATE [dbo].[jobs] SET [end] = GETDATE(), [result] = N'Failed' WHERE [job_name] = N'@{variables('job_name')}';\nINSERT INTO [dbo].[executions] ([execution_date], [job_name], [start], [end], [result])\nSELECT GETDATE(), [job_name], [start], GETDATE(), N'Failed' FROM [dbo].[jobs] WHERE [job_name] = N'@{variables('job_name')}';",
+                "type": "Expression"
+              }
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        }
+      }
+    ],
+    "variables": {
+      "job_name": {
+        "type": "String",
+        "defaultValue": ""
+      },
+      "current_workspace_id": {
+        "type": "String",
+        "defaultValue": ""
+      },
+      "current_workspace_name": {
+        "type": "String",
+        "defaultValue": ""
+      }
+    },
+    "parameters": {
+      "workspace_name": {
+        "type": "String",
+        "defaultValue": ""
+      }
+    }
+  }
+}

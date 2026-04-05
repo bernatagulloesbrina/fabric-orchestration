@@ -1,0 +1,135 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "name": "SetJobName",
+        "type": "SetVariable",
+        "dependsOn": [],
+        "typeProperties": {
+          "variableName": "job_name",
+          "value": {
+            "value": "@concat(pipeline().parameters.workspace_name, ' - Load Sales')",
+            "type": "Expression"
+          }
+        }
+      },
+      {
+        "name": "JobStart",
+        "type": "Script",
+        "dependsOn": [
+          {
+            "activity": "SetJobName",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "linkedServiceName": {
+          "referenceName": "Metadata",
+          "type": "LinkedServiceReference"
+        },
+        "typeProperties": {
+          "scripts": [
+            {
+              "type": "NonQuery",
+              "text": {
+                "value": "MERGE [dbo].[jobs] AS target\nUSING (SELECT N'@{variables('job_name')}' AS job_name) AS source\nON target.job_name = source.job_name\nWHEN MATCHED THEN\n    UPDATE SET [start] = GETDATE(), [end] = NULL, [result] = N'Running'\nWHEN NOT MATCHED THEN\n    INSERT ([job_name], [start], [result])\n    VALUES (N'@{variables('job_name')}', GETDATE(), N'Running');",
+                "type": "Expression"
+              }
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        }
+      },
+      {
+        "name": "LoadSalesData",
+        "type": "Script",
+        "dependsOn": [
+          {
+            "activity": "JobStart",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "linkedServiceName": {
+          "referenceName": "DW",
+          "type": "LinkedServiceReference"
+        },
+        "typeProperties": {
+          "scripts": [
+            {
+              "type": "NonQuery",
+              "text": "IF OBJECT_ID('[dbo].[Sales]', 'U') IS NOT NULL TRUNCATE TABLE [dbo].[Sales];"
+            },
+            {
+              "type": "NonQuery",
+              "text": "INSERT INTO [dbo].[Sales] ([SaleId], [SaleDate], [Amount], [CreatedAt]) VALUES\n(1, '2024-01-15', 150.00, GETDATE()),\n(2, '2024-01-16', 230.50, GETDATE()),\n(3, '2024-01-17', 89.99, GETDATE()),\n(4, '2024-01-18', 412.75, GETDATE()),\n(5, '2024-01-19', 67.25, GETDATE()),\n(6, '2024-02-01', 310.00, GETDATE()),\n(7, '2024-02-14', 520.00, GETDATE());"
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        }
+      },
+      {
+        "name": "JobSuccess",
+        "type": "Script",
+        "dependsOn": [
+          {
+            "activity": "LoadSalesData",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ],
+        "linkedServiceName": {
+          "referenceName": "Metadata",
+          "type": "LinkedServiceReference"
+        },
+        "typeProperties": {
+          "scripts": [
+            {
+              "type": "NonQuery",
+              "text": {
+                "value": "UPDATE [dbo].[jobs] SET [end] = GETDATE(), [result] = N'Completed' WHERE [job_name] = N'@{variables('job_name')}';\nINSERT INTO [dbo].[executions] ([execution_date], [job_name], [start], [end], [result])\nSELECT GETDATE(), [job_name], [start], GETDATE(), N'Completed' FROM [dbo].[jobs] WHERE [job_name] = N'@{variables('job_name')}';",
+                "type": "Expression"
+              }
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        }
+      },
+      {
+        "name": "JobFailed",
+        "type": "Script",
+        "dependsOn": [
+          {
+            "activity": "LoadSalesData",
+            "dependencyConditions": ["Failed", "Skipped"]
+          }
+        ],
+        "linkedServiceName": {
+          "referenceName": "Metadata",
+          "type": "LinkedServiceReference"
+        },
+        "typeProperties": {
+          "scripts": [
+            {
+              "type": "NonQuery",
+              "text": {
+                "value": "UPDATE [dbo].[jobs] SET [end] = GETDATE(), [result] = N'Failed' WHERE [job_name] = N'@{variables('job_name')}';\nINSERT INTO [dbo].[executions] ([execution_date], [job_name], [start], [end], [result])\nSELECT GETDATE(), [job_name], [start], GETDATE(), N'Failed' FROM [dbo].[jobs] WHERE [job_name] = N'@{variables('job_name')}';",
+                "type": "Expression"
+              }
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        }
+      }
+    ],
+    "variables": {
+      "job_name": {
+        "type": "String",
+        "defaultValue": ""
+      }
+    },
+    "parameters": {
+      "workspace_name": {
+        "type": "String",
+        "defaultValue": ""
+      }
+    }
+  }
+}
