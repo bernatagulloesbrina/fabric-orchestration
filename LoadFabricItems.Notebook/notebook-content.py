@@ -14,20 +14,57 @@
 # # Load Fabric Items
 # 
 # Harvests workspaces, semantic models, dataflows (Gen2), and pipelines from the Fabric REST API
-# and loads them into the **Metadata** SQL Database (same workspace).
+# and loads them into the **Metadata** SQL Database.
 # 
-# Uses `%%tsql` magic command - no connection string needed!
+# **Before running:** Set `SQL_DATABASE_SERVER` in the Parameters cell (get from Fabric portal).
+# Authentication uses session token automatically - no password needed!
 
 # CELL ********************
 
 import sempy.fabric as fabric
+import pyodbc
+import struct  
 import notebookutils
 from datetime import datetime, timezone
 
 # PARAMETERS CELL ********************
 
-# Name of the SQL Database artifact in the current workspace
+# Name of the SQL Database artifact in the current workspace  
 SQL_DATABASE_NAME = 'Metadata'
+
+# CELL ********************
+
+def get_sql_connection_from_workspace(database_name):
+    """
+    Gets SQL Database connection using workspace context.
+    
+    SETUP (one-time):
+    1. In Fabric portal, go to your Metadata SQL Database
+    2. Go to Settings > Connection strings
+    3. Copy the SERVER value (e.g., abc12-xyz34.database.fabric.microsoft.com)
+    4. Store it as an environment variable or update this function
+    
+    OR add the SQL Database as a connection/data source to this notebook in Fabric UI.
+    """
+    # Get server from settings (one-time configuration needed)
+    # TODO: Replace with your server name from connection strings
+    server = 'your-server-id.database.fabric.microsoft.com'
+    
+    # Use session token for authentication (no password needed)
+    token = notebookutils.credentials.getToken('https://database.windows.net/')
+    token_bytes = token.encode('utf-16-le')
+    token_struct = struct.pack('=I', len(token_bytes)) + token_bytes
+    
+    conn_str = (
+        f'DRIVER={{ODBC Driver 18 for SQL Server}};'
+        f'SERVER={server};'
+        f'DATABASE={database_name};'
+        'Encrypt=yes;TrustServerCertificate=no;'
+    )
+    
+    conn = pyodbc.connect(conn_str, attrs_before={1256: token_struct})
+    conn.autocommit = True
+    return conn
 
 # CELL ********************
 
@@ -78,12 +115,15 @@ print(f'Pipelines       : {len(pipelines)}')
 
 # ## Load data into SQL Database
 # 
-# Connects to the SQL Database artifact by name (no hardcoded server/connection string needed!)
+# Uses token authentication - no password needed!
+#
+# **ONE-TIME SETUP**: Update the server name in `get_sql_connection_from_workspace()` below
 
 # CELL ********************
 
-# Connect to SQL Database artifact in the current workspace
-connection = notebookutils.data.connect_to_artifact(SQL_DATABASE_NAME, artifact_type="SQLDatabase")
+# Connect to SQL Database using session token
+connection = get_sql_connection_from_workspace(SQL_DATABASE_NAME)
+cursor = connection.cursor()
 
 # Helper function to escape single quotes for SQL
 def escape_sql(value):
@@ -92,7 +132,7 @@ def escape_sql(value):
 
 # Truncate tables
 for table in ['dbo.workspaces', 'dbo.semantic_models', 'dbo.dataflows', 'dbo.pipelines']:
-    connection.execute(f'TRUNCATE TABLE {table}')
+    cursor.execute(f'TRUNCATE TABLE {table}')
 
 print('Tables truncated.')
 
@@ -107,7 +147,7 @@ if workspaces:
         state = escape_sql(ws.get('state', ''))
         workspaces_values.append(f"('{ws_id}', '{display_name}', '{ws_type}', '{state}', '{harvested_at}')")
     workspaces_sql += ",\n".join(workspaces_values) + ";"
-    connection.execute(workspaces_sql)
+    cursor.execute(workspaces_sql)
     print(f'Inserted {len(workspaces)} workspaces.')
 
 # Insert semantic models
@@ -121,7 +161,7 @@ if semantic_models:
         description = escape_sql(d)
         semantic_models_values.append(f"('{workspace_id}', '{item_id}', '{display_name}', '{description}', '{harvested_at}')")
     semantic_models_sql += ",\n".join(semantic_models_values) + ";"
-    connection.execute(semantic_models_sql)
+    cursor.execute(semantic_models_sql)
     print(f'Inserted {len(semantic_models)} semantic models.')
 
 # Insert dataflows
@@ -134,7 +174,7 @@ if dataflows:
         display_name = escape_sql(n)
         dataflows_values.append(f"('{workspace_id}', '{item_id}', '{display_name}', '{harvested_at}')")
     dataflows_sql += ",\n".join(dataflows_values) + ";"
-    connection.execute(dataflows_sql)
+    cursor.execute(dataflows_sql)
     print(f'Inserted {len(dataflows)} dataflows.')
 
 # Insert pipelines
@@ -147,7 +187,8 @@ if pipelines:
         display_name = escape_sql(n)
         pipelines_values.append(f"('{workspace_id}', '{item_id}', '{display_name}', '{harvested_at}')")
     pipelines_sql += ",\n".join(pipelines_values) + ";"
-    connection.execute(pipelines_sql)
+    cursor.execute(pipelines_sql)
     print(f'Inserted {len(pipelines)} pipelines.')
 
+connection.close()
 print('✓ Artifact tables refreshed successfully.')
