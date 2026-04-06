@@ -14,41 +14,22 @@
 # # Load Fabric Items
 # 
 # Harvests workspaces, semantic models, dataflows (Gen2), and pipelines from the Fabric REST API
-# and loads them into the **Metadata** SQL Database.
+# and loads them into the **Metadata** SQL Database (same workspace).
 # 
-# **Before running:** update `METADATA_SERVER` in the Parameters cell below.
+# Uses `%%tsql` magic command - no connection string needed!
 
 # CELL ********************
 
 import sempy.fabric as fabric
-import pyodbc
-import struct
 import notebookutils
 from datetime import datetime, timezone
 
 # PARAMETERS CELL ********************
 
-# UPDATE: replace with your Metadata SQL Database fully-qualified server name
-# Found in: Fabric portal -> Metadata SQL Database -> Settings -> Connection strings
-METADATA_SERVER   = 'your-server.database.fabric.microsoft.com'
-METADATA_DATABASE = 'Metadata'
+# Name of the SQL Database artifact in the current workspace
+SQL_DATABASE_NAME = 'Metadata'
 
 # CELL ********************
-
-def get_sql_connection(server, database):
-    """Opens a pyodbc connection to a Fabric SQL Database using the session identity token."""
-    token        = notebookutils.credentials.getToken('https://database.windows.net/')
-    token_bytes  = token.encode('utf-16-le')
-    token_struct = struct.pack('=I', len(token_bytes)) + token_bytes
-    conn_str = (
-        f'DRIVER={{ODBC Driver 18 for SQL Server}};'
-        f'SERVER={server};'
-        f'DATABASE={database};'
-        'Encrypt=yes;TrustServerCertificate=no;'
-    )
-    conn = pyodbc.connect(conn_str, attrs_before={1256: token_struct})
-    conn.autocommit = True
-    return conn
 
 
 def fetch_all(client, url):
@@ -93,34 +74,65 @@ print(f'Semantic models : {len(semantic_models)}')
 print(f'Dataflows (Gen2): {len(dataflows)}')
 print(f'Pipelines       : {len(pipelines)}')
 
+# MARKDOWN ********************
+
+# ## Load data into SQL Database
+# 
+# Connects to the SQL Database artifact by name (no hardcoded server/connection string needed!)
+
 # CELL ********************
 
-conn   = get_sql_connection(METADATA_SERVER, METADATA_DATABASE)
-cursor = conn.cursor()
+# Connect to SQL Database artifact in the current workspace
+connection = notebookutils.data.connect_to_artifact(SQL_DATABASE_NAME, artifact_type="SQLDatabase")
 
-for tbl in ['dbo.workspaces', 'dbo.semantic_models', 'dbo.dataflows', 'dbo.pipelines']:
-    cursor.execute(f'TRUNCATE TABLE {tbl}')
+# Truncate tables
+for table in ['dbo.workspaces', 'dbo.semantic_models', 'dbo.dataflows', 'dbo.pipelines']:
+    connection.execute(f'TRUNCATE TABLE {table}')
 
-cursor.executemany(
-    'INSERT INTO dbo.workspaces (workspace_id, display_name, type, state, harvested_at) VALUES (?,?,?,?,?)',
-    [(ws.get('id'), ws.get('displayName', ''), ws.get('type', ''), ws.get('state', ''), harvested_at)
-     for ws in workspaces]
-)
+print('Tables truncated.')
 
-cursor.executemany(
-    'INSERT INTO dbo.semantic_models (workspace_id, item_id, display_name, description, harvested_at) VALUES (?,?,?,?,?)',
-    [(w, i, n, d, harvested_at) for w, i, n, d in semantic_models]
-)
+# Insert workspaces
+if workspaces:
+    workspaces_sql = "INSERT INTO dbo.workspaces (workspace_id, display_name, type, state, harvested_at) VALUES\n"
+    workspaces_values = [
+        f"('{ws.get('id')}', '{ws.get('displayName', '').replace("'", "''")}', '{ws.get('type', '')}', '{ws.get('state', '')}', '{harvested_at}')"
+        for ws in workspaces
+    ]
+    workspaces_sql += ",\n".join(workspaces_values) + ";"
+    connection.execute(workspaces_sql)
+    print(f'Inserted {len(workspaces)} workspaces.')
 
-cursor.executemany(
-    'INSERT INTO dbo.dataflows (workspace_id, item_id, display_name, harvested_at) VALUES (?,?,?,?)',
-    [(w, i, n, harvested_at) for w, i, n in dataflows]
-)
+# Insert semantic models
+if semantic_models:
+    semantic_models_sql = "INSERT INTO dbo.semantic_models (workspace_id, item_id, display_name, description, harvested_at) VALUES\n"
+    semantic_models_values = [
+        f"('{w}', '{i}', '{n.replace("'", "''")}', '{d.replace("'", "''")}', '{harvested_at}')"
+        for w, i, n, d in semantic_models
+    ]
+    semantic_models_sql += ",\n".join(semantic_models_values) + ";"
+    connection.execute(semantic_models_sql)
+    print(f'Inserted {len(semantic_models)} semantic models.')
 
-cursor.executemany(
-    'INSERT INTO dbo.pipelines (workspace_id, item_id, display_name, harvested_at) VALUES (?,?,?,?)',
-    [(w, i, n, harvested_at) for w, i, n in pipelines]
-)
+# Insert dataflows
+if dataflows:
+    dataflows_sql = "INSERT INTO dbo.dataflows (workspace_id, item_id, display_name, harvested_at) VALUES\n"
+    dataflows_values = [
+        f"('{w}', '{i}', '{n.replace("'", "''")}', '{harvested_at}')"
+        for w, i, n in dataflows
+    ]
+    dataflows_sql += ",\n".join(dataflows_values) + ";"
+    connection.execute(dataflows_sql)
+    print(f'Inserted {len(dataflows)} dataflows.')
 
-conn.close()
-print('Artifact tables refreshed successfully.')
+# Insert pipelines
+if pipelines:
+    pipelines_sql = "INSERT INTO dbo.pipelines (workspace_id, item_id, display_name, harvested_at) VALUES\n"
+    pipelines_values = [
+        f"('{w}', '{i}', '{n.replace("'", "''")}', '{harvested_at}')"
+        for w, i, n in pipelines
+    ]
+    pipelines_sql += ",\n".join(pipelines_values) + ";"
+    connection.execute(pipelines_sql)
+    print(f'Inserted {len(pipelines)} pipelines.')
+
+print('✓ Artifact tables refreshed successfully.')
