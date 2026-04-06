@@ -10,8 +10,8 @@
 -- ============================================================
 
 CREATE TABLE dbo.Sales (
-    sale_id    NVARCHAR(50)    NULL,
+    sale_id    VARCHAR(50)     NULL,
     sale_date  DATETIME2(0)    NULL,   -- date only precision
     amount     DECIMAL(10, 2)  NULL,
-    created_at DATETIME2(7)    NULL
+    created_at DATETIME2(6)    NULL
 );
