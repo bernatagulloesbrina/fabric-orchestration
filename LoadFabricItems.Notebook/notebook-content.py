@@ -23,7 +23,7 @@
 
 import sempy.fabric as fabric
 import pyodbc
-import struct
+import struct  
 import notebookutils
 from datetime import datetime, timezone
 
@@ -32,23 +32,36 @@ from datetime import datetime, timezone
 # Name of the SQL Database artifact in the current workspace  
 SQL_DATABASE_NAME = 'Metadata'
 
-# SQL Database server name (required - get from Fabric portal > SQL Database > Settings > Connection strings)
-# Format: xxxxx-yyyyy.database.fabric.microsoft.com
-SQL_DATABASE_SERVER = 'your-server.database.fabric.microsoft.com'  # TODO: Update this value
-
 # CELL ********************
 
-def get_sql_connection(server, database):
-    """Opens a pyodbc connection to a Fabric SQL Database using the session identity token."""
-    token        = notebookutils.credentials.getToken('https://database.windows.net/')
-    token_bytes  = token.encode('utf-16-le')
+def get_sql_connection_from_workspace(database_name):
+    """
+    Gets SQL Database connection using workspace context.
+    
+    SETUP (one-time):
+    1. In Fabric portal, go to your Metadata SQL Database
+    2. Go to Settings > Connection strings
+    3. Copy the SERVER value (e.g., abc12-xyz34.database.fabric.microsoft.com)
+    4. Store it as an environment variable or update this function
+    
+    OR add the SQL Database as a connection/data source to this notebook in Fabric UI.
+    """
+    # Get server from settings (one-time configuration needed)
+    # TODO: Replace with your server name from connection strings
+    server = 'your-server-id.database.fabric.microsoft.com'
+    
+    # Use session token for authentication (no password needed)
+    token = notebookutils.credentials.getToken('https://database.windows.net/')
+    token_bytes = token.encode('utf-16-le')
     token_struct = struct.pack('=I', len(token_bytes)) + token_bytes
+    
     conn_str = (
         f'DRIVER={{ODBC Driver 18 for SQL Server}};'
         f'SERVER={server};'
-        f'DATABASE={database};'
+        f'DATABASE={database_name};'
         'Encrypt=yes;TrustServerCertificate=no;'
     )
+    
     conn = pyodbc.connect(conn_str, attrs_before={1256: token_struct})
     conn.autocommit = True
     return conn
@@ -102,12 +115,14 @@ print(f'Pipelines       : {len(pipelines)}')
 
 # ## Load data into SQL Database
 # 
-# Uses pyodbc with session token authentication (no password needed!)
+# Uses token authentication - no password needed!
+#
+# **ONE-TIME SETUP**: Update the server name in `get_sql_connection_from_workspace()` below
 
 # CELL ********************
 
 # Connect to SQL Database using session token
-connection = get_sql_connection(SQL_DATABASE_SERVER, SQL_DATABASE_NAME)
+connection = get_sql_connection_from_workspace(SQL_DATABASE_NAME)
 cursor = connection.cursor()
 
 # Helper function to escape single quotes for SQL
