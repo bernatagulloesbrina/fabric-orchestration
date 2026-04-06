@@ -64,7 +64,7 @@ for ws in workspaces:
             item.get('description', ''),
         ))
 
-    for item in fetch_all(client, f'/v1/workspaces/{ws_id}/items?type=DataflowsGen2'):
+    for item in fetch_all(client, f'/v1/workspaces/{ws_id}/items?type=Dataflow'):
         dataflows.append((ws_id, item['id'], item.get('displayName', '')))
 
     for item in fetch_all(client, f'/v1/workspaces/{ws_id}/items?type=DataPipeline'):
