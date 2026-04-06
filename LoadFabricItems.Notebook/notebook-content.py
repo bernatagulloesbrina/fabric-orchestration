@@ -14,60 +14,57 @@
 # # Load Fabric Items
 # 
 # Harvests workspaces, semantic models, dataflows (Gen2), and pipelines from the Fabric REST API
-# and loads them into the **Metadata** SQL Database.
+# and loads them into **Delta tables** in a Lakehouse.
 # 
-# **Before running:** Set `SQL_DATABASE_SERVER` in the Parameters cell (get from Fabric portal).
-# Authentication uses session token automatically - no password needed!
+# **Zero configuration required!** The Lakehouse is created automatically if it doesn't exist.
 
 # CELL ********************
 
 import sempy.fabric as fabric
-import pyodbc
-import struct  
 import notebookutils
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType, StructField, StringType, TimestampType
 from datetime import datetime, timezone
 
 # PARAMETERS CELL ********************
 
-# Name of the SQL Database artifact in the current workspace  
-SQL_DATABASE_NAME = 'Metadata'
+# Lakehouse name - will be created if it doesn't exist
+LAKEHOUSE_NAME = 'MetadataLakehouse'
+
+# Database name for Delta tables (will be created if it doesn't exist)
+DATABASE_NAME = 'metadata'
+
+# MARKDOWN ********************
+
+# ## Setup: Create Lakehouse if needed
 
 # CELL ********************
 
-def get_sql_connection_from_workspace(database_name):
-    """
-    Gets SQL Database connection using workspace context.
-    
-    SETUP (one-time):
-    1. In Fabric portal, go to your Metadata SQL Database
-    2. Go to Settings > Connection strings
-    3. Copy the SERVER value (e.g., abc12-xyz34.database.fabric.microsoft.com)
-    4. Store it as an environment variable or update this function
-    
-    OR add the SQL Database as a connection/data source to this notebook in Fabric UI.
-    """
-    # Get server from settings (one-time configuration needed)
-    # TODO: Replace with your server name from connection strings
-    server = 'your-server-id.database.fabric.microsoft.com'
-    
-    # Use session token for authentication (no password needed)
-    token = notebookutils.credentials.getToken('https://database.windows.net/')
-    token_bytes = token.encode('utf-16-le')
-    token_struct = struct.pack('=I', len(token_bytes)) + token_bytes
-    
-    conn_str = (
-        f'DRIVER={{ODBC Driver 18 for SQL Server}};'
-        f'SERVER={server};'
-        f'DATABASE={database_name};'
-        'Encrypt=yes;TrustServerCertificate=no;'
+# Check if lakehouse exists, create if needed
+try:
+    lakehouse = notebookutils.lakehouse.get(LAKEHOUSE_NAME)
+    print(f'✓ Using existing lakehouse: {lakehouse.displayName}')
+except Exception:
+    # Lakehouse doesn't exist, create it
+    print(f'Creating lakehouse: {LAKEHOUSE_NAME}...')
+    lakehouse = notebookutils.lakehouse.create(
+        name=LAKEHOUSE_NAME,
+        description="Metadata repository for Fabric workspaces, semantic models, dataflows, and pipelines"
     )
-    
-    conn = pyodbc.connect(conn_str, attrs_before={1256: token_struct})
-    conn.autocommit = True
-    return conn
+    print(f'✓ Created lakehouse: {lakehouse.displayName} (ID: {lakehouse.id})')
+
+# Attach the lakehouse to this notebook for easy access
+try:
+    notebookutils.notebook.attachLakehouse(lakehouse.id)
+    print(f'✓ Lakehouse attached to notebook')
+except Exception as e:
+    print(f'Note: Lakehouse attachment: {e}')
+
+# MARKDOWN ********************
+
+# ## Fetch Fabric Artifacts
 
 # CELL ********************
-
 
 def fetch_all(client, url):
     """Calls a Fabric REST API endpoint and follows continuationUri pagination."""
@@ -125,70 +122,141 @@ print(f'Pipelines       : {len(pipelines)}')
 connection = get_sql_connection_from_workspace(SQL_DATABASE_NAME)
 cursor = connection.cursor()
 
+# Verify connection and database
+cursor.execute("SELECT DB_NAME() AS CurrentDatabase")
+current_db = cursor.fetchone()[0]
+print(f'Connected to database: {current_db}')
+
+# Check if tables exist
+cursor.execute("""
+    SELECT TABLE_SCHEMA, TABLE_NAME 
+    FROM INFORMATION_SCHEMA.TABLES 
+    WHERE TABLE_SCHEMA = 'dbo' 
+    AND TABLE_NAME IN ('workspaces', 'semantic_models', 'dataflows', 'pipelines')
+    ORDER BY TABLE_NAME
+""")
+tables = cursor.fetchall()
+print(f'Found {len(tables)} metadata tables:')
+for schema, table in tables:
+    print(f'  - {schema}.{table}')
+
+if len(tables) < 4:
+    raise RuntimeError(f'Expected 4 tables but found {len(tables)}. Please run the table creation script first.')
+
 # Helper function to escape single quotes for SQL
 def escape_sql(value):
-    """Escape single quotes in SQL string values."""
-    return str(value).replace("'", "''")
+    "Write to Delta Tables in Lakehouse
+# 
+# Converts the harvested data to Spark DataFrames and writes as Delta tables.
+# Tables are automatically created or replaced - **no setup required!**
 
-# Delete all rows from tables (TRUNCATE not supported in Fabric SQL Database)
-for table in ['dbo.workspaces', 'dbo.semantic_models', 'dbo.dataflows', 'dbo.pipelines']:
-    cursor.execute(f'DELETE FROM {table}')
+# CELL ********************
 
-print('Tables cleared.')
+# Get Spark session
+spark = SparkSession.builder.getOrCreate()
 
-# Insert workspaces
-if workspaces:
-    workspaces_sql = "INSERT INTO dbo.workspaces (workspace_id, display_name, type, state, harvested_at) VALUES\n"
-    workspaces_values = []
-    for ws in workspaces:
-        ws_id = escape_sql(ws.get('id'))
-        display_name = escape_sql(ws.get('displayName', ''))
-        ws_type = escape_sql(ws.get('type', ''))
-        state = escape_sql(ws.get('state', ''))
-        workspaces_values.append(f"('{ws_id}', '{display_name}', '{ws_type}', '{state}', '{harvested_at}')")
-    workspaces_sql += ",\n".join(workspaces_values) + ";"
-    cursor.execute(workspaces_sql)
-    print(f'Inserted {len(workspaces)} workspaces.')
+# Create database if it doesn't exist
+spark.sql(f"CREATE DATABASE IF NOT EXISTS {DATABASE_NAME}")
+spark.sql(f"USE {DATABASE_NAME}")
 
-# Insert semantic models
-if semantic_models:
-    semantic_models_sql = "INSERT INTO dbo.semantic_models (workspace_id, item_id, display_name, description, harvested_at) VALUES\n"
-    semantic_models_values = []
-    for w, i, n, d in semantic_models:
-        workspace_id = escape_sql(w)
-        item_id = escape_sql(i)
-        display_name = escape_sql(n)
-        description = escape_sql(d)
-        semantic_models_values.append(f"('{workspace_id}', '{item_id}', '{display_name}', '{description}', '{harvested_at}')")
-    semantic_models_sql += ",\n".join(semantic_models_values) + ";"
-    cursor.execute(semantic_models_sql)
-    print(f'Inserted {len(semantic_models)} semantic models.')
+print(f'Using database: {DATABASE_NAME}')
 
-# Insert dataflows
-if dataflows:
-    dataflows_sql = "INSERT INTO dbo.dataflows (workspace_id, item_id, display_name, harvested_at) VALUES\n"
-    dataflows_values = []
-    for w, i, n in dataflows:
-        workspace_id = escape_sql(w)
-        item_id = escape_sql(i)
-        display_name = escape_sql(n)
-        dataflows_values.append(f"('{workspace_id}', '{item_id}', '{display_name}', '{harvested_at}')")
-    dataflows_sql += ",\n".join(dataflows_values) + ";"
-    cursor.execute(dataflows_sql)
-    print(f'Inserted {len(dataflows)} dataflows.')
+# CELL ********************
 
-# Insert pipelines
-if pipelines:
-    pipelines_sql = "INSERT INTO dbo.pipelines (workspace_id, item_id, display_name, harvested_at) VALUES\n"
-    pipelines_values = []
-    for w, i, n in pipelines:
-        workspace_id = escape_sql(w)
-        item_id = escape_sql(i)
-        display_name = escape_sql(n)
-        pipelines_values.append(f"('{workspace_id}', '{item_id}', '{display_name}', '{harvested_at}')")
-    pipelines_sql += ",\n".join(pipelines_values) + ";"
-    cursor.execute(pipelines_sql)
-    print(f'Inserted {len(pipelines)} pipelines.')
+# Write workspaces table
+workspaces_data = [
+    (
+        ws.get('id'),
+        ws.get('displayName', ''),
+        ws.get('type', ''),
+        ws.get('state', ''),
+        harvested_at
+    )
+    for ws in workspaces
+]
 
-connection.close()
-print('✓ Artifact tables refreshed successfully.')
+workspaces_schema = StructType([
+    StructField("workspace_id", StringType(), False),
+    StructField("display_name", StringType(), True),
+    StructField("type", StringType(), True),
+    StructField("state", StringType(), True),
+    StructField("harvested_at", StringType(), True)
+])
+
+df_workspaces = spark.createDataFrame(workspaces_data, schema=workspaces_schema)
+df_workspaces.write.format("delta").mode("overwrite").saveAsTable(f"{DATABASE_NAME}.workspaces")
+
+print(f'✓ Wrote {len(workspaces)} workspaces to {DATABASE_NAME}.workspaces')
+
+# CELL ********************
+
+# Write semantic_models table
+semantic_models_schema = StructType([
+    StructField("workspace_id", StringType(), False),
+    StructField("item_id", StringType(), False),
+    StructField("display_name", StringType(), True),
+    StructField("description", StringType(), True),
+    StructField("harvested_at", StringType(), True)
+])
+
+semantic_models_data = [
+    (ws_id, item_id, display_name, description, harvested_at)
+    for ws_id, item_id, display_name, description in semantic_models
+]
+
+df_semantic_models = spark.createDataFrame(semantic_models_data, schema=semantic_models_schema)
+df_semantic_models.write.format("delta").mode("overwrite").saveAsTable(f"{DATABASE_NAME}.semantic_models")
+
+print(f'✓ Wrote {len(semantic_models)} semantic models to {DATABASE_NAME}.semantic_models')
+
+# CELL ********************
+
+# Write dataflows table
+dataflows_schema = StructType([
+    StructField("workspace_id", StringType(), False),
+    StructField("item_id", StringType(), False),
+    StructField("display_name", StringType(), True),
+    StructField("harvested_at", StringType(), True)
+])
+
+dataflows_data = [
+    (ws_id, item_id, display_name, harvested_at)
+    for ws_id, item_id, display_name in dataflows
+]
+
+df_dataflows = spark.createDataFrame(dataflows_data, schema=dataflows_schema)
+df_dataflows.write.format("delta").mode("overwrite").saveAsTable(f"{DATABASE_NAME}.dataflows")
+
+print(f'✓ Wrote {len(dataflows)} dataflows to {DATABASE_NAME}.dataflows')
+
+# CELL ********************
+
+# Write pipelines table
+pipelines_schema = StructType([
+    StructField("workspace_id", StringType(), False),
+    StructField("item_id", StringType(), False),
+    StructField("display_name", StringType(), True),
+    StructField("harvested_at", StringType(), True)
+])
+
+pipelines_data = [
+    (ws_id, item_id, display_name, harvested_at)
+    for ws_id, item_id, display_name in pipelines
+]
+
+df_pipelines = spark.createDataFrame(pipelines_data, schema=pipelines_schema)
+df_pipelines.write.format("delta").mode("overwrite").saveAsTable(f"{DATABASE_NAME}.pipelines")
+
+print(f'✓ Wrote {len(pipelines)} pipelines to {DATABASE_NAME}.pipelines')
+
+# CELL ********************
+
+print('=' * 60)
+print('✓ All artifact tables refreshed successfully!')
+print('=' * 60)
+print(f'\nYou can now query these tables using SQL or Spark:')
+print(f'  - {DATABASE_NAME}.workspaces')
+print(f'  - {DATABASE_NAME}.semantic_models')
+print(f'  - {DATABASE_NAME}.dataflows')
+print(f'  - {DATABASE_NAME}.pipelines')
+print(f'\nExample: spark.sql("SELECT * FROM {DATABASE_NAME}.workspaces").show()
