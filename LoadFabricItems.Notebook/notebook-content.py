@@ -130,11 +130,11 @@ def escape_sql(value):
     """Escape single quotes in SQL string values."""
     return str(value).replace("'", "''")
 
-# Truncate tables
+# Delete all rows from tables (TRUNCATE not supported in Fabric SQL Database)
 for table in ['dbo.workspaces', 'dbo.semantic_models', 'dbo.dataflows', 'dbo.pipelines']:
-    cursor.execute(f'TRUNCATE TABLE {table}')
+    cursor.execute(f'DELETE FROM {table}')
 
-print('Tables truncated.')
+print('Tables cleared.')
 
 # Insert workspaces
 if workspaces:
