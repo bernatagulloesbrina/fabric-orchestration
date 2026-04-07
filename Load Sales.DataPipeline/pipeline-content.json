@@ -3,27 +3,34 @@
     "activities": [
       {
         "name": "Log Execution Start",
-        "type": "Script",
+        "type": "SynapseNotebook",
         "dependsOn": [],
         "policy": {
           "timeout": "0.00:05:00",
           "retry": 0
         },
         "typeProperties": {
-          "scripts": [
-            {
-              "type": "Query",
-              "text": "INSERT INTO dbo.executions (execution_id, job_name, start_time, created_at)\nVALUES (\n    '@{pipeline().RunId}',\n    'Load Sales',\n    '@{utcnow()}',\n    '@{utcnow()}'\n);"
+          "notebook": {
+            "referenceName": "LogPipelineExecution",
+            "type": "NotebookReference"
+          },
+          "parameters": {
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "job_name": {
+              "value": "Load Sales",
+              "type": "string"
+            },
+            "action": {
+              "value": "start",
+              "type": "string"
             }
-          ],
-          "scriptBlockExecutionTimeout": "02:00:00",
-          "logSettings": {
-            "logDestination": "ActivityOutput"
           }
-        },
-        "linkedServiceName": {
-          "referenceName": "Metadata",
-          "type": "LinkedServiceReference"
         }
       },
       {
@@ -55,8 +62,8 @@
         }
       },
       {
-        "name": "Log Success and Update Jobs",
-        "type": "Script",
+        "name": "Log Success",
+        "type": "SynapseNotebook",
         "dependsOn": [
           {
             "activity": "Load Sales Data",
@@ -70,25 +77,32 @@
           "retry": 0
         },
         "typeProperties": {
-          "scripts": [
-            {
-              "type": "Query",
-              "text": "-- Update executions table\nUPDATE dbo.executions\nSET end_time = '@{utcnow()}',\n    result = 'Success'\nWHERE execution_id = '@{pipeline().RunId}';\n\n-- Merge to jobs table\nMERGE dbo.jobs AS target\nUSING (SELECT \n    'Load Sales' AS job_name,\n    '@{utcnow()}' AS last_start_time,\n    '@{utcnow()}' AS last_end_time,\n    'Success' AS last_result,\n    NULL AS error_message,\n    '@{utcnow()}' AS updated_at\n) AS source\nON target.job_name = source.job_name\nWHEN MATCHED THEN\n    UPDATE SET\n        last_start_time = source.last_start_time,\n        last_end_time = source.last_end_time,\n        last_result = source.last_result,\n        error_message = source.error_message,\n        updated_at = source.updated_at\nWHEN NOT MATCHED THEN\n    INSERT (job_name, last_start_time, last_end_time, last_result, error_message, updated_at)\n    VALUES (source.job_name, source.last_start_time, source.last_end_time, source.last_result, source.error_message, source.updated_at);"
+          "notebook": {
+            "referenceName": "LogPipelineExecution",
+            "type": "NotebookReference"
+          },
+          "parameters": {
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "job_name": {
+              "value": "Load Sales",
+              "type": "string"
+            },
+            "action": {
+              "value": "success",
+              "type": "string"
             }
-          ],
-          "scriptBlockExecutionTimeout": "02:00:00",
-          "logSettings": {
-            "logDestination": "ActivityOutput"
           }
-        },
-        "linkedServiceName": {
-          "referenceName": "Metadata",
-          "type": "LinkedServiceReference"
         }
       },
       {
         "name": "Log Failure",
-        "type": "Script",
+        "type": "SynapseNotebook",
         "dependsOn": [
           {
             "activity": "Load Sales Data",
@@ -102,20 +116,34 @@
           "retry": 0
         },
         "typeProperties": {
-          "scripts": [
-            {
-              "type": "Query",
-              "text": "-- Update executions table\nUPDATE dbo.executions\nSET end_time = '@{utcnow()}',\n    result = 'Failed',\n    error_message = '@{activity('Load Sales Data').error.message}'\nWHERE execution_id = '@{pipeline().RunId}';\n\n-- Merge to jobs table\nMERGE dbo.jobs AS target\nUSING (SELECT \n    'Load Sales' AS job_name,\n    '@{utcnow()}' AS last_start_time,\n    '@{utcnow()}' AS last_end_time,\n    'Failed' AS last_result,\n    '@{activity('Load Sales Data').error.message}' AS error_message,\n    '@{utcnow()}' AS updated_at\n) AS source\nON target.job_name = source.job_name\nWHEN MATCHED THEN\n    UPDATE SET\n        last_start_time = source.last_start_time,\n        last_end_time = source.last_end_time,\n        last_result = source.last_result,\n        error_message = source.error_message,\n        updated_at = source.updated_at\nWHEN NOT MATCHED THEN\n    INSERT (job_name, last_start_time, last_end_time, last_result, error_message, updated_at)\n    VALUES (source.job_name, source.last_start_time, source.last_end_time, source.last_result, source.error_message, source.updated_at);"
+          "notebook": {
+            "referenceName": "LogPipelineExecution",
+            "type": "NotebookReference"
+          },
+          "parameters": {
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "job_name": {
+              "value": "Load Sales",
+              "type": "string"
+            },
+            "action": {
+              "value": "failure",
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@activity('Load Sales Data').error.message",
+                "type": "Expression"
+              },
+              "type": "string"
             }
-          ],
-          "scriptBlockExecutionTimeout": "02:00:00",
-          "logSettings": {
-            "logDestination": "ActivityOutput"
           }
-        },
-        "linkedServiceName": {
-          "referenceName": "Metadata",
-          "type": "LinkedServiceReference"
         }
       }
     ],
