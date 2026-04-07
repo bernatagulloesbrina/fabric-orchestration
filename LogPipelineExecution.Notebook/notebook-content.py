@@ -246,7 +246,34 @@ if action == 'start':
     VALUES ('{execution_id}', '{job_name}', '{current_time}', '{current_time}')
     """
     cursor.execute(sql)
-    print(f'✓ Logged execution start')
+    
+    # MERGE to jobs table - record start time
+    sql_merge = f"""
+    MERGE dbo.jobs AS target
+    USING (SELECT 
+        '{job_name}' AS job_name,
+        '{current_time}' AS last_start_time,
+        '{current_time}' AS updated_at
+    ) AS source
+    ON target.job_name = source.job_name
+    WHEN MATCHED THEN
+        UPDATE SET
+            last_start_time = source.last_start_time,
+            updated_at = source.updated_at
+    WHEN NOT MATCHED THEN
+        INSERT (job_name, last_start_time, updated_at)
+        VALUES (source.job_name, source.last_start_time, source.updated_at);
+    """
+    
+    try:
+        cursor.execute(sql_merge)
+        rows_affected = cursor.rowcount
+        print(f'✓ Logged execution start (executions table)')
+        print(f'✓ Updated jobs table ({rows_affected} row affected)')
+    except Exception as merge_error:
+        print(f'⚠️  Warning: Failed to update jobs table: {str(merge_error)}')
+        print(f'   Execution was logged in executions table successfully')
+        # Don't raise - execution logging succeeded
 
 elif action == 'success':
     # Update execution end
@@ -278,8 +305,16 @@ elif action == 'success':
         INSERT (job_name, last_end_time, last_result, error_message, updated_at)
         VALUES (source.job_name, source.last_end_time, source.last_result, source.error_message, source.updated_at);
     """
-    cursor.execute(sql_merge)
-    print(f'✓ Logged success and updated jobs table')
+    
+    try:
+        cursor.execute(sql_merge)
+        rows_affected = cursor.rowcount
+        print(f'✓ Logged success (executions table)')
+        print(f'✓ Updated jobs table ({rows_affected} row affected)')
+    except Exception as merge_error:
+        print(f'⚠️  Warning: Failed to update jobs table: {str(merge_error)}')
+        print(f'   Execution was logged in executions table successfully')
+        # Don't raise - execution logging succeeded
 
 elif action == 'failure':
     # Escape single quotes in error message
@@ -314,8 +349,16 @@ elif action == 'failure':
         INSERT (job_name, last_end_time, last_result, error_message, updated_at)
         VALUES (source.job_name, source.last_end_time, source.last_result, source.error_message, source.updated_at);
     """
-    cursor.execute(sql_merge)
-    print(f'✓ Logged failure and updated jobs table')
+    
+    try:
+        cursor.execute(sql_merge)
+        rows_affected = cursor.rowcount
+        print(f'✓ Logged failure (executions table)')
+        print(f'✓ Updated jobs table ({rows_affected} row affected)')
+    except Exception as merge_error:
+        print(f'⚠️  Warning: Failed to update jobs table: {str(merge_error)}')
+        print(f'   Execution was logged in executions table successfully')
+        # Don't raise - execution logging succeeded
 
 connection.close()
 print(f'✓ Execution logging complete')
