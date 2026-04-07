@@ -1,5 +1,7 @@
 {
   "properties": {
-    "activities": []
+    "activities": [],
+    "annotations": [],
+    "description": "Placeholder - will be configured in Fabric UI after notebooks sync"
   }
 }

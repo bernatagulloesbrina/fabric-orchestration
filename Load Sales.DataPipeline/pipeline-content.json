@@ -1,29 +1,7 @@
 {
   "properties": {
-    "activities": [
-      {
-        "name": "Load Sales Data",
-        "type": "SynapseNotebook",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.00:30:00",
-          "retry": 1
-        },
-        "typeProperties": {
-          "notebook": {
-            "referenceName": "LoadSalesData",
-            "type": "NotebookReference"
-          },
-          "parameters": {
-            "rows_to_generate": {
-              "value": 100,
-              "type": "int"
-            }
-          }
-        }
-      }
-    ],
+    "activities": [],
     "annotations": [],
-    "description": "Loads dummy sales data to DW warehouse. Execution logging will be added after notebooks are synced."
+    "description": "Placeholder - will be configured in Fabric UI after notebooks sync"
   }
 }
