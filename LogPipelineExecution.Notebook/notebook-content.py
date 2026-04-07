@@ -21,7 +21,10 @@
 # - `job_name` - Logical job name
 # - `action` - 'start' | 'success' | 'failure'
 # - `error_message` - Error details (only for failure)
-# - `sql_database_server` - SQL Database server (one-time config)
+# 
+# **One-Time Setup:**
+# - Update `sql_database_server` default value below (only once)
+# - Or set as notebook parameter in Fabric UI settings
 
 # CELL ********************
 
@@ -37,9 +40,12 @@ job_name = ''
 action = 'start'  # 'start' | 'success' | 'failure'
 error_message = ''
 
-# SQL Database server - UPDATE THIS with your Metadata SQL Database server
-# Get from: Fabric portal > Metadata SQL Database > Settings > Connection strings
-sql_database_server = 'your-server.database.fabric.microsoft.com'
+# ═══════════════════════════════════════════════════════════════
+# ONE-TIME CONFIGURATION: Update this default value once
+# Get from: Fabric portal > Metadata SQL Database > Settings > SQL connection string
+# Format example: abc123xyz.datawarehouse.fabric.microsoft.com
+# ═══════════════════════════════════════════════════════════════
+sql_database_server = 'your-workspace.datawarehouse.fabric.microsoft.com'
 
 # CELL ********************
 
