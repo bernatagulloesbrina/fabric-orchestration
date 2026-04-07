@@ -6,7 +6,12 @@
 # META   "kernel_info": {
 # META     "name": "synapse_pyspark"
 # META   },
-# META   "dependencies": {}
+# META   "dependencies": {
+# META     "environment": {
+# META       "environmentId": "c2e16b6d-5a9e-ae09-42cf-d0385ba8ec5f",
+# META       "workspaceId": "00000000-0000-0000-0000-000000000000"
+# META     }
+# META   }
 # META }
 
 # MARKDOWN ********************
@@ -34,12 +39,26 @@ import notebookutils
 from pyspark.sql import SparkSession
 from datetime import datetime
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # PARAMETERS CELL ********************
 
 execution_id = ''
 job_name = ''
 action = 'start'  # 'start' | 'success' | 'failure'
 error_message = ''
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
 
 # MARKDOWN ********************
 
@@ -66,6 +85,13 @@ sql_database_server = spark.conf.get(
 
 print(f'Using SQL Database server: {sql_database_server}')
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # CELL ********************
 
 # Validate parameters
@@ -77,6 +103,13 @@ if action not in ['start', 'success', 'failure']:
 
 print(f'Logging {action} for job: {job_name}')
 print(f'Execution ID: {execution_id}')
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
 
 # MARKDOWN ********************
 
@@ -114,6 +147,13 @@ connection.autocommit = True
 cursor = connection.cursor()
 
 print(f'✓ Connected to Metadata SQL Database')
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
 
 # MARKDOWN ********************
 
@@ -203,3 +243,10 @@ elif action == 'failure':
 
 connection.close()
 print(f'✓ Execution logging complete')
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
