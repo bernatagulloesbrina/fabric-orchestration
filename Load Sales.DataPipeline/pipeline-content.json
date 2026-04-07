@@ -2,48 +2,9 @@
   "properties": {
     "activities": [
       {
-        "name": "Log Execution Start",
-        "type": "SynapseNotebook",
-        "dependsOn": [],
-        "policy": {
-          "timeout": "0.00:05:00",
-          "retry": 0
-        },
-        "typeProperties": {
-          "notebook": {
-            "referenceName": "LogPipelineExecution",
-            "type": "NotebookReference"
-          },
-          "parameters": {
-            "execution_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "job_name": {
-              "value": "Load Sales",
-              "type": "string"
-            },
-            "action": {
-              "value": "start",
-              "type": "string"
-            }
-          }
-        }
-      },
-      {
         "name": "Load Sales Data",
         "type": "SynapseNotebook",
-        "dependsOn": [
-          {
-            "activity": "Log Execution Start",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ],
+        "dependsOn": [],
         "policy": {
           "timeout": "0.00:30:00",
           "retry": 1
@@ -60,93 +21,9 @@
             }
           }
         }
-      },
-      {
-        "name": "Log Success",
-        "type": "SynapseNotebook",
-        "dependsOn": [
-          {
-            "activity": "Load Sales Data",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ],
-        "policy": {
-          "timeout": "0.00:05:00",
-          "retry": 0
-        },
-        "typeProperties": {
-          "notebook": {
-            "referenceName": "LogPipelineExecution",
-            "type": "NotebookReference"
-          },
-          "parameters": {
-            "execution_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "job_name": {
-              "value": "Load Sales",
-              "type": "string"
-            },
-            "action": {
-              "value": "success",
-              "type": "string"
-            }
-          }
-        }
-      },
-      {
-        "name": "Log Failure",
-        "type": "SynapseNotebook",
-        "dependsOn": [
-          {
-            "activity": "Load Sales Data",
-            "dependencyConditions": [
-              "Failed"
-            ]
-          }
-        ],
-        "policy": {
-          "timeout": "0.00:05:00",
-          "retry": 0
-        },
-        "typeProperties": {
-          "notebook": {
-            "referenceName": "LogPipelineExecution",
-            "type": "NotebookReference"
-          },
-          "parameters": {
-            "execution_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "job_name": {
-              "value": "Load Sales",
-              "type": "string"
-            },
-            "action": {
-              "value": "failure",
-              "type": "string"
-            },
-            "error_message": {
-              "value": {
-                "value": "@activity('Load Sales Data').error.message",
-                "type": "Expression"
-              },
-              "type": "string"
-            }
-          }
-        }
       }
     ],
-    "annotations": []
+    "annotations": [],
+    "description": "Loads dummy sales data to DW warehouse. Execution logging will be added after notebooks are synced."
   }
 }
