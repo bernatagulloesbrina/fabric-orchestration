@@ -1,0 +1,12 @@
+enable_native_execution_engine: false
+driver_cores: 8
+driver_memory: 56g
+executor_cores: 8
+executor_memory: 56g
+dynamic_executor_allocation:
+  enabled: true
+  min_executors: 1
+  max_executors: 9
+spark_conf:
+  spark.fabric.metadata.sql.server: swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.datawarehouse.fabric.microsoft.com
+runtime_version: 1.3

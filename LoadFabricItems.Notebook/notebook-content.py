@@ -6,7 +6,27 @@
 # META   "kernel_info": {
 # META     "name": "synapse_pyspark"
 # META   },
-# META   "dependencies": {}
+# META   "dependencies": {
+# META     "lakehouse": {
+# META       "default_lakehouse": "c1d1fc8c-6ef3-4d36-a24d-e81a3a472e8f",
+# META       "default_lakehouse_name": "MetadataLakehouse",
+# META       "default_lakehouse_workspace_id": "d1cce96c-953e-4c7e-8bc3-6f6e375f304c",
+# META       "known_lakehouses": [
+# META         {
+# META           "id": "c1d1fc8c-6ef3-4d36-a24d-e81a3a472e8f"
+# META         }
+# META       ]
+# META     },
+# META     "warehouse": {
+# META       "default_warehouse": "a5a12705-8c48-48ed-baef-8e490a9c0bee",
+# META       "known_warehouses": [
+# META         {
+# META           "id": "a5a12705-8c48-48ed-baef-8e490a9c0bee",
+# META           "type": "MountedWarehouse"
+# META         }
+# META       ]
+# META     }
+# META   }
 # META }
 
 # MARKDOWN ********************
@@ -26,10 +46,24 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType
 from datetime import datetime, timezone
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # PARAMETERS CELL ********************
 
 # Lakehouse name (will be created automatically if it doesn't exist)
 LAKEHOUSE_NAME = 'MetadataLakehouse'
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
 
 # MARKDOWN ********************
 
@@ -75,6 +109,13 @@ except Exception as e:
     print(f'   3. Choose "{LAKEHOUSE_NAME}"\n')
     raise RuntimeError(f'Lakehouse attachment required')
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # MARKDOWN ********************
 
 # ## Fetch Fabric Artifacts from REST API
@@ -91,6 +132,13 @@ def fetch_all(client, url):
         rows.extend(body.get('value', []))
         url  = body.get('continuationUri')
     return rows
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
 
 # CELL ********************
 
@@ -123,6 +171,13 @@ print(f'Semantic models : {len(semantic_models)}')
 print(f'Dataflows (Gen2): {len(dataflows)}')
 print(f'Pipelines       : {len(pipelines)}')
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # MARKDOWN ********************
 
 # ## Write to Delta Tables in Lakehouse
@@ -133,6 +188,13 @@ print(f'Pipelines       : {len(pipelines)}')
 # CELL ********************
 
 print(f'Writing tables to attached lakehouse...')
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
 
 # CELL ********************
 
@@ -161,6 +223,13 @@ df_workspaces.write.format("delta").mode("overwrite").saveAsTable("workspaces")
 
 print(f'✓ Wrote {len(workspaces)} workspaces')
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # CELL ********************
 
 # Write semantic_models table
@@ -182,6 +251,13 @@ df_semantic_models.write.format("delta").mode("overwrite").saveAsTable("semantic
 
 print(f'✓ Wrote {len(semantic_models)} semantic models')
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # CELL ********************
 
 # Write dataflows table
@@ -201,6 +277,13 @@ df_dataflows = spark.createDataFrame(dataflows_data, schema=dataflows_schema)
 df_dataflows.write.format("delta").mode("overwrite").saveAsTable("dataflows")
 
 print(f'✓ Wrote {len(dataflows)} dataflows')
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
 
 # CELL ********************
 
@@ -222,6 +305,13 @@ df_pipelines.write.format("delta").mode("overwrite").saveAsTable("pipelines")
 
 print(f'✓ Wrote {len(pipelines)} pipelines')
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # CELL ********************
 
 print('=' * 60)
@@ -233,3 +323,10 @@ print(f'  - semantic_models')
 print(f'  - dataflows')
 print(f'  - pipelines')
 print(f'\nExample: spark.sql("SELECT * FROM workspaces LIMIT 10").show()')
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
