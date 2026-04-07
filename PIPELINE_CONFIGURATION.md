@@ -4,7 +4,34 @@ Step-by-step instructions for building the Load Sales pipeline with proper authe
 
 ## Common Issue: "Unauthorized" Error
 
-If you're getting authentication errors when LogPipelineExecution runs from the pipeline, it's because the **notebook activity needs to run with workspace identity**.
+If you're getting authentication errors when LogPipelineExecution runs from the pipeline:
+
+```
+The caller is not authenticated to access this resource
+```
+
+**Root Cause:** The workspace (or your user account) doesn't have permissions to access the **Metadata SQL Database**.
+
+**Solution:**
+
+1. **Grant Workspace Permissions on SQL Database:**
+   - Open **Metadata** SQL Database in Fabric
+   - Click **Settings** → **Permissions** (or **Manage access**)
+   - Add your workspace or user with at least `Contributor` role
+   - Or grant SQL permissions: `db_datareader` + `db_datawriter`
+
+2. **Verify Same Workspace:**
+   - Ensure the SQL Database is in the **same Fabric workspace** as your pipeline
+   - Cross-workspace access requires explicit sharing
+
+3. **Check Workspace Identity:**
+   - The notebook uses `notebookutils.credentials.getToken()` which requires workspace-level permissions
+   - No pipeline setting needed - this is automatic in Fabric
+
+**Test Before Pipeline:**
+- Run the LogPipelineExecution notebook **directly** (not from pipeline) first
+- If it fails directly → permissions issue
+- If it works directly but fails in pipeline → contact Fabric support (unusual scenario)
 
 ## Load Sales Pipeline - Complete Configuration
 
@@ -14,13 +41,10 @@ If you're getting authentication errors when LogPipelineExecution runs from the 
 
 **Settings Tab:**
 - **Notebook**: LogPipelineExecution
+- **Workspace**: (should auto-select your workspace)
+- **Connection**: (leave as default - notebook will use workspace credentials)
 
-**Settings Tab (IMPORTANT for authentication):**
-- Look for **"Authentication"** or **"Run as"** setting
-- Select: **"Workspace identity"** or **"Default"**
-- DO NOT select "User identity" or "Service principal" unless specifically configured
-
-**Parameters:**
+**Base Parameters:**
 - `execution_id`: `@pipeline().RunId`
 - `job_name`: `Load Sales` (literal string)
 - `action`: `start` (literal string)
@@ -36,11 +60,9 @@ If you're getting authentication errors when LogPipelineExecution runs from the 
 
 **Settings Tab:**
 - **Notebook**: LoadSalesData
+- **Workspace**: (should auto-select your workspace)
 
-**Settings Tab:**
-- Same authentication setting as Activity 1
-
-**Parameters:**
+**Base Parameters:**
 - `rows_to_generate`: `100` (or your preferred value)
 
 **On Success:** → Connect to "Log Success" activity
@@ -54,11 +76,9 @@ If you're getting authentication errors when LogPipelineExecution runs from the 
 
 **Settings Tab:**
 - **Notebook**: LogPipelineExecution
+- **Workspace**: (should auto-select your workspace)
 
-**Settings Tab:**
-- Same authentication setting as Activity 1
-
-**Parameters:**
+**Base Parameters:**
 - `execution_id`: `@pipeline().RunId`
 - `job_name`: `Load Sales` (literal string)
 - `action`: `success` (literal string)
@@ -75,11 +95,9 @@ If you're getting authentication errors when LogPipelineExecution runs from the 
 
 **Settings Tab:**
 - **Notebook**: LogPipelineExecution
+- **Workspace**: (should auto-select your workspace)
 
-**Settings Tab:**
-- Same authentication setting as Activity 1
-
-**Parameters:**
+**Base Parameters:**
 - `execution_id`: `@pipeline().RunId`
 - `job_name`: `Load Sales` (literal string)
 - `action`: `failure` (literal string)
@@ -163,43 +181,27 @@ Ensure your workspace has:
 
 **If you see:** `Unauthorized` or `The caller is not authenticated`
 
-**Try this:**
+**Fix:**
 
-1. Open your pipeline in Fabric
-2. Click on the failing notebook activity
-3. Go to **Settings** tab
-4. Look for authentication/identity options
-5. Change to **"Workspace identity"** or **"Default"**
-6. Save and re-run
+1. **Grant SQL Database Permissions:**
+   - Open **Metadata** SQL Database in Fabric portal
+   - Go to **Settings** → **Permissions** (or **Manage** → **Permissions**)
+   - Click **+ Add people or groups**
+   - Add your **workspace** or your **user account**
+   - Grant **Contributor** role (or minimum: db_datareader + db_datawriter)
 
-**Alternative approach (if above doesn't work):**
+2. **Verify Everything is in Same Workspace:**
+   - Pipeline, notebooks, and SQL Database should all be in the same workspace
+   - Check workspace name in each artifact's settings
 
-Edit the notebook activity in pipeline JSON (Advanced editor):
-```json
-{
-  "name": "Log Start",
-  "type": "SynapseNotebook",
-  "typeProperties": {
-    "notebook": {
-      "referenceName": "LogPipelineExecution",
-      "type": "NotebookReference"
-    },
-    "parameters": {
-      "execution_id": {
-        "value": "@pipeline().RunId",
-        "type": "Expression"
-      },
-      "job_name": {
-        "value": "Load Sales",
-        "type": "Expression"
-      },
-      "action": {
-        "value": "start",
-        "type": "Expression"
-      }
-    }
-  }
-}
-```
-
-Note: Ensure there's no explicit `sparkPool` or identity configuration that overrides workspace defaults.
+3. **Test the Notebook Directly:**
+   - Open LogPipelineExecution notebook
+   - Set test parameters manually:
+     ```python
+     execution_id = 'test-123'
+     job_name = 'Test'
+     action = 'start'
+     ```
+   - Run it cell by cell
+   - If it fails → permissions issue confirmed
+   - If it works → check pipeline configuration

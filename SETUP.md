@@ -120,23 +120,27 @@ Since pipelines are synced as empty placeholders, configure activities in Fabric
 ### "Unauthorized" Error When Running Pipeline
 If you get authentication errors when running LogPipelineExecution from a pipeline:
 
-**Root Cause:** The pipeline notebook activity isn't configured with proper workspace permissions.
+**Root Cause:** The workspace doesn't have permissions to access the Metadata SQL Database.
 
 **Solution:**
-1. **Check Pipeline Activity Settings:**
-   - Open the pipeline in Fabric
-   - Click on the LogPipelineExecution notebook activity
-   - Go to **Settings** tab
-   - Ensure **"Run with workspace identity"** is enabled/selected
+1. **Grant Permissions on SQL Database:**
+   - Open **Metadata** SQL Database in Fabric portal
+   - Click the **"..." menu** → **Manage permissions** (or **Settings** → **Permissions**)
+   - Click **+ Add user or group**
+   - Add your **workspace name** or **your user account**
+   - Select **Contributor** role (grants read/write access)
    
-2. **Verify Workspace Permissions:**
-   - The workspace must have access to the SQL Database
-   - Check workspace roles and permissions
+2. **Verify Same Workspace:**
+   - Ensure SQL Database, notebooks, and pipeline are all in the **same workspace**
+   - Cross-workspace access requires explicit sharing
    
-3. **Alternative: Test Notebook Directly First**
-   - Run the LogPipelineExecution notebook directly (not from pipeline) with test parameters
-   - If it works directly but fails in pipeline → it's a pipeline activity configuration issue
-   - If it fails directly → it's a workspace permission issue
+3. **Test Notebook Directly:**
+   - Open LogPipelineExecution notebook in Fabric
+   - Manually set test parameters and run it
+   - If it works directly but fails in pipeline → unusual (contact support)
+   - If it fails directly → permissions issue confirmed
+
+**Note:** Fabric SQL Database uses Azure AD (Entra ID) authentication only - no SQL logins.
 
 ### Spark Property Not Found
 - Ensure Environment is attached to the notebook
