@@ -23,7 +23,7 @@
 # - `error_message` - Error details (only for failure)
 # 
 # **Configuration (one-time setup):**
-# - Set environment variable `SQL_DATABASE_SERVER` in your Environment artifact
+# - Set Spark property in your Environment artifact (Spark properties section)
 # - This persists across notebook updates from Git
 
 # CELL ********************
@@ -31,7 +31,7 @@
 import pyodbc
 import struct
 import notebookutils
-import os
+from pyspark.sql import SparkSession
 from datetime import datetime
 
 # PARAMETERS CELL ********************
@@ -47,17 +47,20 @@ error_message = ''
 # 
 # **Recommended Setup (survives notebook updates):**
 # 
-# Set environment variable in your attached Environment artifact:
-# - Name: `SQL_DATABASE_SERVER`
+# In your Environment artifact > Spark properties tab, add:
+# - Key: `spark.fabric.metadata.sql.server`
 # - Value: `your-workspace.datawarehouse.fabric.microsoft.com`
 # 
 # Get the server from: Metadata SQL Database > Settings > SQL connection string
 
 # CELL ********************
 
-# Read from environment variable (survives Git sync) or use fallback
-sql_database_server = os.environ.get(
-    'SQL_DATABASE_SERVER', 
+# Get Spark session and read configuration
+spark = SparkSession.builder.getOrCreate()
+
+# Read from Spark property (survives Git sync) or use fallback
+sql_database_server = spark.conf.get(
+    'spark.fabric.metadata.sql.server', 
     'your-workspace.datawarehouse.fabric.microsoft.com'  # fallback only
 )
 

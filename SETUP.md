@@ -12,28 +12,29 @@ Create these artifacts in your Fabric workspace:
 - **DW** (Warehouse) - Analytics warehouse (optional)
 - **Environment** - For library dependencies and configuration
 
-## 2. Configure Environment Variables
+## 2. Configure Spark Properties
 
-To avoid reconfiguring notebooks after every Git sync, set environment variables in your **Environment** artifact:
+To avoid reconfiguring notebooks after every Git sync, set Spark properties in your **Environment** artifact:
 
 ### Steps:
 
 1. Open your **Environment** artifact in Fabric
-2. Go to **Settings** > **Environment variables**
-3. Add this variable:
-   - **Name**: `SQL_DATABASE_SERVER`
+2. Go to **Spark properties** tab (under Spark compute section)
+3. Add this custom property:
+   - **Key**: `spark.fabric.metadata.sql.server`
    - **Value**: `your-workspace.datawarehouse.fabric.microsoft.com`
      - Get from: Metadata SQL Database > Settings > SQL connection string
      - Example: `abc123xyz.datawarehouse.fabric.microsoft.com`
 
-4. Save the Environment
+4. Click **Publish** to save the Environment
 5. Attach this Environment to **LogPipelineExecution** notebook
 
-### Why Environment Variables?
+### Why Spark Properties?
 
 ✅ **Survives Git sync** - your configuration won't be overwritten
-✅ **Centralized** - manage all notebooks from one place
-✅ **Secure** - no hardcoded values in notebooks
+✅ **Centralized** - manage all notebooks from one Environment
+✅ **Native to Fabric** - uses built-in Spark configuration system
+✅ **No hardcoding** - keeps server name out of notebook code
 
 ## 3. Sync from Git
 
@@ -116,13 +117,15 @@ Since pipelines are synced as empty placeholders, configure activities in Fabric
 
 ## Troubleshooting
 
-### Environment Variable Not Found
+### Spark Property Not Found
 - Ensure Environment is attached to the notebook
-- Check variable name is exactly: `SQL_DATABASE_SERVER`
+- Check property key is exactly: `spark.fabric.metadata.sql.server`
 - Verify Environment is published (not draft)
+- Restart the Spark session if needed
 
 ### SQL Database Connection Failed
-- Verify SQL_DATABASE_SERVER format (no `https://`, no `/database`)
+- Verify server format (no `https://`, no `/database`, no `:1433`)
+- Example: `abc123xyz.datawarehouse.fabric.microsoft.com`
 - Check Metadata SQL Database is in the same workspace
 - Ensure notebook has workspace permissions
 
