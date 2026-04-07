@@ -66,24 +66,35 @@ error_message = ''
 # 
 # **Recommended Setup (survives notebook updates):**
 # 
-# In your Environment artifact > Spark properties tab, add:
-# - Key: `spark.fabric.metadata.sql.server`
-# - Value: `your-workspace.datawarehouse.fabric.microsoft.com`
+# In your Environment artifact > Spark properties tab, add TWO properties:
+# 1. **spark.fabric.metadata.sql.server**
+#    - Value: Get from SQL Database > Settings > Connection strings > Data Source
+#    - Example: `abc123.database.fabric.microsoft.com`
 # 
-# Get the server from: Metadata SQL Database > Settings > SQL connection string
+# 2. **spark.fabric.metadata.sql.database**
+#    - Value: Get from SQL Database > Settings > Connection strings > Initial Catalog  
+#    - Example: `Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07`
+#    - ⚠️ Include the full name with GUID suffix!
 
 # CELL ********************
 
 # Get Spark session and read configuration
 spark = SparkSession.builder.getOrCreate()
 
-# Read from Spark property (survives Git sync) or use fallback
+# Read server from Spark property (survives Git sync) or use fallback
 sql_database_server = spark.conf.get(
     'spark.fabric.metadata.sql.server', 
-    'your-workspace.datawarehouse.fabric.microsoft.com'  # fallback only
+    'your-workspace.database.fabric.microsoft.com'  # fallback only
+)
+
+# Read database name from Spark property (survives Git sync) or use fallback
+sql_database_name = spark.conf.get(
+    'spark.fabric.metadata.sql.database',
+    'Metadata'  # fallback - update if your database has GUID suffix
 )
 
 print(f'Using SQL Database server: {sql_database_server}')
+print(f'Using SQL Database name: {sql_database_name}')
 
 # METADATA ********************
 
@@ -180,9 +191,11 @@ token_struct = struct.pack('=I', len(token_bytes)) + token_bytes
 conn_str = (
     f'DRIVER={{ODBC Driver 18 for SQL Server}};'
     f'SERVER={sql_database_server};'
-    f'DATABASE=Metadata;'
+    f'DATABASE={sql_database_name};'
     'Encrypt=yes;TrustServerCertificate=no;'
 )
+
+print(f'\n🔌 Connecting to: {sql_database_server}/{sql_database_name}')
 
 # CELL ********************
 
