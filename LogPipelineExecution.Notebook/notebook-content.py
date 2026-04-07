@@ -130,6 +130,49 @@ except Exception as e:
     print('3. Verify the pipeline activity is using workspace identity')
     raise
 
+# CELL ********************
+
+# Debug: Decode token to see identity information
+import base64
+import json
+
+# JWT tokens have 3 parts separated by dots: header.payload.signature
+token_parts = token.split('.')
+if len(token_parts) >= 2:
+    # Decode the payload (2nd part)
+    # Add padding if needed for base64 decoding
+    payload = token_parts[1]
+    payload += '=' * (4 - len(payload) % 4)
+    
+    try:
+        decoded_bytes = base64.urlsafe_b64decode(payload)
+        decoded_json = json.loads(decoded_bytes)
+        
+        print('🔍 Token Identity Information:')
+        print(f"  Audience (aud): {decoded_json.get('aud', 'N/A')}")
+        print(f"  Issuer (iss): {decoded_json.get('iss', 'N/A')}")
+        
+        # Check what type of identity
+        if 'upn' in decoded_json:
+            print(f"  ✓ User Principal Name (upn): {decoded_json['upn']}")
+            print(f"  → This is a USER identity token")
+        elif 'oid' in decoded_json:
+            print(f"  ✓ Object ID (oid): {decoded_json['oid']}")
+            if 'appid' in decoded_json:
+                print(f"  ✓ Application ID (appid): {decoded_json['appid']}")
+                print(f"  → This is a SERVICE PRINCIPAL/MANAGED IDENTITY token")
+            else:
+                print(f"  → This is a workspace/managed identity token")
+        
+        print(f"\n💡 This identity needs permissions on the SQL Database artifact in Fabric")
+        
+    except Exception as decode_error:
+        print(f'⚠️  Could not decode token: {decode_error}')
+else:
+    print('⚠️  Token format unexpected')
+
+# CELL ********************
+
 token_bytes = token.encode('utf-16-le')
 token_struct = struct.pack('=I', len(token_bytes)) + token_bytes
 
@@ -141,12 +184,32 @@ conn_str = (
     'Encrypt=yes;TrustServerCertificate=no;'
 )
 
-# Connect with token authentication
-connection = pyodbc.connect(conn_str, attrs_before={1256: token_struct})
-connection.autocommit = True
-cursor = connection.cursor()
+# CELL ********************
 
-print(f'✓ Connected to Metadata SQL Database')
+# Connect with token authentication
+try:
+    connection = pyodbc.connect(conn_str, attrs_before={1256: token_struct})
+    connection.autocommit = True
+    cursor = connection.cursor()
+    print(f'✓ Connected to Metadata SQL Database')
+    
+except pyodbc.Error as db_error:
+    print(f'❌ Failed to connect to SQL Database')
+    print(f'Error: {str(db_error)}')
+    print('\n🔧 Troubleshooting Steps:')
+    print('\n1. Grant Permissions on SQL Database:')
+    print('   - Open "Metadata" SQL Database in Fabric portal')
+    print('   - Go to Settings → Manage permissions')
+    print('   - Add the identity shown above (user or workspace)')
+    print('   - Grant "Contributor" role')
+    print('\n2. Verify SQL Database Server Name:')
+    print(f'   - Current: {sql_database_server}')
+    print('   - Expected format: [workspace-id].datawarehouse.fabric.microsoft.com')
+    print('   - Get correct value from: SQL Database → Settings → Connection strings')
+    print('\n3. Ensure Same Workspace:')
+    print('   - SQL Database and this notebook must be in the same workspace')
+    print('   - Cross-workspace requires explicit sharing')
+    raise
 
 # METADATA ********************
 
