@@ -22,15 +22,16 @@
 # - `action` - 'start' | 'success' | 'failure'
 # - `error_message` - Error details (only for failure)
 # 
-# **One-Time Setup:**
-# - Update `sql_database_server` default value below (only once)
-# - Or set as notebook parameter in Fabric UI settings
+# **Configuration (one-time setup):**
+# - Set environment variable `SQL_DATABASE_SERVER` in your Environment artifact
+# - This persists across notebook updates from Git
 
 # CELL ********************
 
 import pyodbc
 import struct
 import notebookutils
+import os
 from datetime import datetime
 
 # PARAMETERS CELL ********************
@@ -40,12 +41,27 @@ job_name = ''
 action = 'start'  # 'start' | 'success' | 'failure'
 error_message = ''
 
-# ═══════════════════════════════════════════════════════════════
-# ONE-TIME CONFIGURATION: Update this default value once
-# Get from: Fabric portal > Metadata SQL Database > Settings > SQL connection string
-# Format example: abc123xyz.datawarehouse.fabric.microsoft.com
-# ═══════════════════════════════════════════════════════════════
-sql_database_server = 'your-workspace.datawarehouse.fabric.microsoft.com'
+# MARKDOWN ********************
+
+# ## Configuration
+# 
+# **Recommended Setup (survives notebook updates):**
+# 
+# Set environment variable in your attached Environment artifact:
+# - Name: `SQL_DATABASE_SERVER`
+# - Value: `your-workspace.datawarehouse.fabric.microsoft.com`
+# 
+# Get the server from: Metadata SQL Database > Settings > SQL connection string
+
+# CELL ********************
+
+# Read from environment variable (survives Git sync) or use fallback
+sql_database_server = os.environ.get(
+    'SQL_DATABASE_SERVER', 
+    'your-workspace.datawarehouse.fabric.microsoft.com'  # fallback only
+)
+
+print(f'Using SQL Database server: {sql_database_server}')
 
 # CELL ********************
 
