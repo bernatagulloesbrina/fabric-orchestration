@@ -6,7 +6,18 @@
 # META   "kernel_info": {
 # META     "name": "synapse_pyspark"
 # META   },
-# META   "dependencies": {}
+# META   "dependencies": {
+# META     "lakehouse": {
+# META       "default_lakehouse": "e1e957ff-e8fe-485e-83ba-28c7d616a39d",
+# META       "default_lakehouse_name": "StagingLakehouse",
+# META       "default_lakehouse_workspace_id": "d1cce96c-953e-4c7e-8bc3-6f6e375f304c",
+# META       "known_lakehouses": [
+# META         {
+# META           "id": "e1e957ff-e8fe-485e-83ba-28c7d616a39d"
+# META         }
+# META       ]
+# META     }
+# META   }
 # META }
 
 # MARKDOWN ********************
@@ -33,10 +44,24 @@ from pyspark.sql.types import StructType, StructField, StringType, DoubleType, T
 from datetime import datetime, timedelta
 import random
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # PARAMETERS CELL ********************
 
 # Number of sales rows to generate
 rows_to_generate = 100
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
 
 # MARKDOWN ********************
 
@@ -77,6 +102,13 @@ df_sales = spark.createDataFrame(sales_data, schema=schema)
 print(f'Generated {df_sales.count()} sales records')
 df_sales.show(10)
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # MARKDOWN ********************
 
 # ## Stage Data in Lakehouse
@@ -99,6 +131,13 @@ print(f'   INSERT INTO DW.dbo.Sales (sale_id, sale_date, amount, created_at)')
 print(f'   SELECT NEWID(), sale_date, amount, created_at')
 print(f'   FROM {staging_table}')
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # CELL ********************
 
 print('=' * 60)
@@ -107,3 +146,10 @@ print('=' * 60)
 print(f'\nStaging table: {staging_table}')
 print(f'Rows: {rows_to_generate}')
 print(f'\n⚠️  Remember to execute the SQL Copy script to load to DW warehouse')
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
