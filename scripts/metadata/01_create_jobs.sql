@@ -2,10 +2,11 @@
 -- Target : Metadata (Fabric SQL Database)
 -- Purpose: One row per job; reflects the LATEST execution only.
 --          Upserted by every pipeline run (MERGE on job_name).
+-- Note   : Primary key required for DML operations in Fabric SQL DB
 -- ============================================================
 
 CREATE TABLE dbo.jobs (
-    job_name        NVARCHAR(200)  NOT NULL,   -- logical pipeline name
+    job_name        NVARCHAR(200)  NOT NULL PRIMARY KEY,   -- logical pipeline name
     last_start_time DATETIME2(7)   NULL,
     last_end_time   DATETIME2(7)   NULL,
     last_result     NVARCHAR(50)   NULL,        -- 'Success' | 'Failed'
