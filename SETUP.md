@@ -117,6 +117,27 @@ Since pipelines are synced as empty placeholders, configure activities in Fabric
 
 ## Troubleshooting
 
+### "Unauthorized" Error When Running Pipeline
+If you get authentication errors when running LogPipelineExecution from a pipeline:
+
+**Root Cause:** The pipeline notebook activity isn't configured with proper workspace permissions.
+
+**Solution:**
+1. **Check Pipeline Activity Settings:**
+   - Open the pipeline in Fabric
+   - Click on the LogPipelineExecution notebook activity
+   - Go to **Settings** tab
+   - Ensure **"Run with workspace identity"** is enabled/selected
+   
+2. **Verify Workspace Permissions:**
+   - The workspace must have access to the SQL Database
+   - Check workspace roles and permissions
+   
+3. **Alternative: Test Notebook Directly First**
+   - Run the LogPipelineExecution notebook directly (not from pipeline) with test parameters
+   - If it works directly but fails in pipeline → it's a pipeline activity configuration issue
+   - If it fails directly → it's a workspace permission issue
+
 ### Spark Property Not Found
 - Ensure Environment is attached to the notebook
 - Check property key is exactly: `spark.fabric.metadata.sql.server`

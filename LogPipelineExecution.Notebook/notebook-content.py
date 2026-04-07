@@ -85,7 +85,18 @@ print(f'Execution ID: {execution_id}')
 # CELL ********************
 
 # Get session token for authentication
-token = notebookutils.credentials.getToken('https://database.windows.net/')
+# Note: This requires the pipeline/notebook to run with workspace identity permissions
+try:
+    token = notebookutils.credentials.getToken('https://database.windows.net/')
+    print('✓ Successfully obtained authentication token')
+except Exception as e:
+    print(f'❌ Failed to get authentication token: {str(e)}')
+    print('\nTroubleshooting:')
+    print('1. Ensure the notebook is attached to the workspace (not running in isolation)')
+    print('2. Check that the workspace has SQL Database permissions')
+    print('3. Verify the pipeline activity is using workspace identity')
+    raise
+
 token_bytes = token.encode('utf-16-le')
 token_struct = struct.pack('=I', len(token_bytes)) + token_bytes
 
