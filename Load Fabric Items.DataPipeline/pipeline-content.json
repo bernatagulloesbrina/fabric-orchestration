@@ -2,28 +2,33 @@
   "properties": {
     "activities": [
       {
-        "type": "Script",
+        "type": "TridentNotebook",
         "typeProperties": {
-          "scripts": [
-            {
-              "type": "NonQuery",
-              "text": {
-                "value": "@concat('\nDECLARE @execution_id NVARCHAR(100) = ''', pipeline().RunId, ''';\nDECLARE @job_name NVARCHAR(255) = ''', pipeline().PipelineName, ''';\nDECLARE @current_time DATETIME2 = GETUTCDATE();\n\n-- Insert execution start\nINSERT INTO dbo.executions (execution_id, job_name, start_time, created_at)\nVALUES (@execution_id, @job_name, @current_time, @current_time);\n\n-- MERGE to jobs table\nMERGE dbo.jobs AS target\nUSING (SELECT @job_name AS job_name, @current_time AS last_start_time, @current_time AS updated_at) AS source\nON target.job_name = source.job_name\nWHEN MATCHED THEN\n    UPDATE SET last_start_time = source.last_start_time, updated_at = source.updated_at\nWHEN NOT MATCHED THEN\n    INSERT (job_name, last_start_time, updated_at)\n    VALUES (source.job_name, source.last_start_time, source.updated_at);\n')",
+          "notebookId": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
                 "type": "Expression"
-              }
-            }
-          ],
-          "scriptBlockExecutionTimeout": "00:05:00"
-        },
-        "linkedService": {
-          "name": "Metadata",
-          "properties": {
-            "type": "Sql",
-            "typeProperties": {
-              "server": "swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.database.fabric.microsoft.com",
-              "database": "Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07"
+              },
+              "type": "string"
+            },
+            "job_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "action": {
+              "value": "start",
+              "type": "string"
             }
           }
+        },
+        "externalReferences": {
+          "connection": "f19342de-8de1-4c25-81a3-17f103f3d453"
         },
         "policy": {
           "timeout": "0.12:00:00",
@@ -62,28 +67,33 @@
         ]
       },
       {
-        "type": "Script",
+        "type": "TridentNotebook",
         "typeProperties": {
-          "scripts": [
-            {
-              "type": "NonQuery",
-              "text": {
-                "value": "@concat('\nDECLARE @execution_id NVARCHAR(100) = ''', pipeline().RunId, ''';\nDECLARE @job_name NVARCHAR(255) = ''', pipeline().PipelineName, ''';\nDECLARE @current_time DATETIME2 = GETUTCDATE();\n\n-- Update execution end\nUPDATE dbo.executions\nSET end_time = @current_time, result = ''Success''\nWHERE execution_id = @execution_id;\n\n-- MERGE to jobs table\nMERGE dbo.jobs AS target\nUSING (SELECT @job_name AS job_name, @current_time AS last_end_time, ''Success'' AS last_result, NULL AS error_message, @current_time AS updated_at) AS source\nON target.job_name = source.job_name\nWHEN MATCHED THEN\n    UPDATE SET last_end_time = source.last_end_time, last_result = source.last_result, error_message = source.error_message, updated_at = source.updated_at\nWHEN NOT MATCHED THEN\n    INSERT (job_name, last_end_time, last_result, error_message, updated_at)\n    VALUES (source.job_name, source.last_end_time, source.last_result, source.error_message, source.updated_at);\n')",
+          "notebookId": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
                 "type": "Expression"
-              }
-            }
-          ],
-          "scriptBlockExecutionTimeout": "00:05:00"
-        },
-        "linkedService": {
-          "name": "Metadata",
-          "properties": {
-            "type": "Sql",
-            "typeProperties": {
-              "server": "swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.database.fabric.microsoft.com",
-              "database": "Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07"
+              },
+              "type": "string"
+            },
+            "job_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "action": {
+              "value": "success",
+              "type": "string"
             }
           }
+        },
+        "externalReferences": {
+          "connection": "f19342de-8de1-4c25-81a3-17f103f3d453"
         },
         "policy": {
           "timeout": "0.12:00:00",
@@ -108,28 +118,40 @@
           "notebookId": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
           "workspaceId": "00000000-0000-0000-0000-000000000000",
           "parameters": {
-            "execScript",
-        "typeProperties": {
-          "scripts": [
-            {
-              "type": "NonQuery",
-              "text": {
-                "value": "@concat('\nDECLARE @execution_id NVARCHAR(100) = ''', pipeline().RunId, ''';\nDECLARE @job_name NVARCHAR(255) = ''', pipeline().PipelineName, ''';\nDECLARE @error_message NVARCHAR(MAX) = ''', replace(activity('Load Fabric Items').error.message, '''', ''''''), ''';\nDECLARE @current_time DATETIME2 = GETUTCDATE();\n\n-- Update execution end with error\nUPDATE dbo.executions\nSET end_time = @current_time, result = ''Failed'', error_message = @error_message\nWHERE execution_id = @execution_id;\n\n-- MERGE to jobs table\nMERGE dbo.jobs AS target\nUSING (SELECT @job_name AS job_name, @current_time AS last_end_time, ''Failed'' AS last_result, @error_message AS error_message, @current_time AS updated_at) AS source\nON target.job_name = source.job_name\nWHEN MATCHED THEN\n    UPDATE SET last_end_time = source.last_end_time, last_result = source.last_result, error_message = source.error_message, updated_at = source.updated_at\nWHEN NOT MATCHED THEN\n    INSERT (job_name, last_end_time, last_result, error_message, updated_at)\n    VALUES (source.job_name, source.last_end_time, source.last_result, source.error_message, source.updated_at);\n')",
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
                 "type": "Expression"
-              }
-            }
-          ],
-          "scriptBlockExecutionTimeout": "00:05:00"
-        },
-        "linkedService": {
-          "name": "Metadata",
-          "properties": {
-            "type": "Sql",
-            "typeProperties": {
-              "server": "swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.database.fabric.microsoft.com",
-              "database": "Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07"
+              },
+              "type": "string"
+            },
+            "job_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "action": {
+              "value": "failure",
+              "type": "string"
+            },
+            "error_message": {
+              "value": {
+                "value": "@activity('Load Fabric Items').error.message",
+                "type": "Expression"
+              },
+              "type": "string"
             }
           }
+        },
+        "externalReferences": {
+          "connection": "f19342de-8de1-4c25-81a3-17f103f3d453"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
           "secureInput": false,
           "secureOutput": false
         },
