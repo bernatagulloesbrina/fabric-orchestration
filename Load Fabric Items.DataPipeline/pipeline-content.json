@@ -28,7 +28,7 @@
           }
         },
         "externalReferences": {
-          "connection": "330249da-b4c4-4e50-96bb-9cb27c292568"
+          "connection": "f19342de-8de1-4c25-81a3-17f103f3d453"
         },
         "policy": {
           "timeout": "0.12:00:00",
@@ -47,7 +47,7 @@
           "workspaceId": "00000000-0000-0000-0000-000000000000"
         },
         "externalReferences": {
-          "connection": "330249da-b4c4-4e50-96bb-9cb27c292568"
+          "connection": "f19342de-8de1-4c25-81a3-17f103f3d453"
         },
         "policy": {
           "timeout": "0.12:00:00",
@@ -93,7 +93,7 @@
           }
         },
         "externalReferences": {
-          "connection": "330249da-b4c4-4e50-96bb-9cb27c292568"
+          "connection": "f19342de-8de1-4c25-81a3-17f103f3d453"
         },
         "policy": {
           "timeout": "0.12:00:00",
@@ -146,7 +146,7 @@
           }
         },
         "externalReferences": {
-          "connection": "330249da-b4c4-4e50-96bb-9cb27c292568"
+          "connection": "f19342de-8de1-4c25-81a3-17f103f3d453"
         },
         "policy": {
           "timeout": "0.12:00:00",

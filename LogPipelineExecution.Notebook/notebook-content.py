@@ -48,8 +48,8 @@ from datetime import datetime
 
 # PARAMETERS CELL ********************
 
-execution_id = ''
-job_name = ''
+execution_id = 'a'
+job_name = 'b'
 action = 'start'  # 'start' | 'success' | 'failure'
 error_message = ''
 
@@ -141,6 +141,13 @@ except Exception as e:
     print('3. Verify the pipeline activity is using workspace identity')
     raise
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # CELL ********************
 
 # Debug: Decode token to see identity information
@@ -182,6 +189,13 @@ if len(token_parts) >= 2:
 else:
     print('⚠️  Token format unexpected')
 
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # CELL ********************
 
 token_bytes = token.encode('utf-16-le')
@@ -196,6 +210,13 @@ conn_str = (
 )
 
 print(f'\n🔌 Connecting to: {sql_database_server}/{sql_database_name}')
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
 
 # CELL ********************
 
