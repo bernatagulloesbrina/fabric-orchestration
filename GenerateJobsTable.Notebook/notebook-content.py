@@ -153,6 +153,10 @@ for _, workspace in workspaces_df.iterrows():
         items_df = fabric.list_items(workspace=ws_id)
         
         if len(items_df) > 0:
+            # Rename 'Id' to 'Object Id' for clarity
+            if 'Id' in items_df.columns:
+                items_df = items_df.rename(columns={'Id': 'Object Id'})
+            
             # Add workspace info to each item
             items_df['Workspace Id'] = ws_id
             items_df['Workspace Name'] = ws_name
@@ -182,6 +186,14 @@ else:
 # ## Create Jobs Table with Generated Job Names
 # 
 # Converts the pandas DataFrame to Spark and adds a formatted jobName column.
+# 
+# **Key columns after normalization:**
+# - `workspace_id` - Workspace GUID
+# - `workspace_name` - Workspace display name
+# - `object_id` - Item/object GUID
+# - `type` - Item type (Lakehouse, Notebook, DataPipeline, etc.)
+# - `display_name` - Item display name
+# - `job_name` - Generated format: "WorkspaceName - Type - DisplayName"
 
 # CELL ********************
 
@@ -202,7 +214,7 @@ if len(all_items_df) > 0:
     
     # Display preview
     print('\nFabric Items Table Preview:')
-    df_jobs.select('workspace_name', 'type', 'display_name', 'job_name').show(10, truncate=False)
+    df_jobs.select('workspace_id', 'workspace_name', 'object_id', 'type', 'display_name', 'job_name').show(10, truncate=False)
     
     print(f'\n✓ Generated {df_jobs.count()} job records')
 else:
