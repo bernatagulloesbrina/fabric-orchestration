@@ -5,45 +5,6 @@
         "type": "TridentNotebook",
         "typeProperties": {
           "notebookId": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "parameters": {
-            "execution_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "job_name": {
-              "value": {
-                "value": "@pipeline().PipelineName",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "action": {
-              "value": "start",
-              "type": "string"
-            }
-          }
-        },
-        "externalReferences": {
-          "connection": "f19342de-8de1-4c25-81a3-17f103f3d453"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Log Execution Start",
-        "dependsOn": []
-      },
-      {
-        "type": "TridentNotebook",
-        "typeProperties": {
-          "notebookId": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
           "workspaceId": "00000000-0000-0000-0000-000000000000"
         },
         "externalReferences": {
@@ -59,53 +20,7 @@
         "name": "Load Fabric Items",
         "dependsOn": [
           {
-            "activity": "Log Execution Start",
-            "dependencyConditions": [
-              "Completed"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "TridentNotebook",
-        "typeProperties": {
-          "notebookId": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "parameters": {
-            "execution_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "job_name": {
-              "value": {
-                "value": "@pipeline().PipelineName",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "action": {
-              "value": "success",
-              "type": "string"
-            }
-          }
-        },
-        "externalReferences": {
-          "connection": "f19342de-8de1-4c25-81a3-17f103f3d453"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Log Execution Success",
-        "dependsOn": [
-          {
-            "activity": "Load Fabric Items",
+            "activity": "Notebook1",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -115,32 +30,15 @@
       {
         "type": "TridentNotebook",
         "typeProperties": {
-          "notebookId": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+          "notebookId": "d5e6f7a8-b9c0-4d5e-0f1a-2b3c4d5e6f7a",
           "workspaceId": "00000000-0000-0000-0000-000000000000",
           "parameters": {
             "execution_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
+              "value": "a",
               "type": "string"
             },
             "job_name": {
-              "value": {
-                "value": "@pipeline().PipelineName",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "action": {
-              "value": "failure",
-              "type": "string"
-            },
-            "error_message": {
-              "value": {
-                "value": "@activity('Load Fabric Items').error.message",
-                "type": "Expression"
-              },
+              "value": "b",
               "type": "string"
             }
           }
@@ -155,15 +53,8 @@
           "secureInput": false,
           "secureOutput": false
         },
-        "name": "Log Execution Failure",
-        "dependsOn": [
-          {
-            "activity": "Load Fabric Items",
-            "dependencyConditions": [
-              "Failed"
-            ]
-          }
-        ]
+        "name": "Notebook1",
+        "dependsOn": []
       }
     ]
   }
