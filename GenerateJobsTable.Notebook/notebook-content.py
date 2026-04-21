@@ -24,8 +24,12 @@
 
 # # Generate Jobs Table
 # 
-# Creates a single unified table with all Fabric artifacts (semantic models, dataflows, and pipelines)
+# Creates a single unified table with all Fabric artifacts (semantic models, dataflows, pipelines, lakehouses, warehouses, etc.)
 # including a generated jobName column in the format: workspaceName - objectType - objectName
+# 
+# **Uses sempy.fabric methods:**
+# - `list_workspaces()` - Returns all workspaces as a pandas DataFrame
+# - `list_items(workspace)` - Returns all items in a workspace as a pandas DataFrame
 
 # CELL ********************
 
@@ -43,98 +47,16 @@ from datetime import datetime, timezone
 
 # MARKDOWN ********************
 
-# ## Fetch Fabric Artifacts from REST API
+# ## Fetch All Workspaces
 
 # CELL ********************
 
-def fetch_all(client, url):
-    """Calls a Fabric REST API endpoint and follows continuationUri pagination."""
-    rows = []
-    while url:
-        resp = client.get(url)
-        resp.raise_for_status()
-        body = resp.json()
-        rows.extend(body.get('value', []))
-        url  = body.get('continuationUri')
-    return rows
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-client = fabric.FabricRestClient()
 spark = SparkSession.builder.getOrCreate()
 
-workspaces = fetch_all(client, '/v1/workspaces')
-print(f'Workspaces found: {len(workspaces)}')
-
-# Create workspace lookup dictionary
-workspace_lookup = {ws['id']: ws.get('displayName', '') for ws in workspaces}
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# MARKDOWN ********************
-
-# ## Collect All Artifacts
-# 
-# Fetches semantic models, dataflows, and pipelines from all workspaces and combines them into a single list.
-
-# CELL ********************
-
-# Collect all artifacts with their type
-jobs = []
-
-for ws in workspaces:
-    ws_id = ws['id']
-    ws_name = ws.get('displayName', '')
-
-    # Fetch Semantic Models
-    for item in fetch_all(client, f'/v1/workspaces/{ws_id}/items?type=SemanticModel'):
-        object_name = item.get('displayName', '')
-        jobs.append((
-            ws_id,
-            ws_name,
-            'SemanticModel',
-            item['id'],
-            object_name,
-            f'{ws_name} - SemanticModel - {object_name}'
-        ))
-
-    # Fetch Dataflows (Gen2)
-    for item in fetch_all(client, f'/v1/workspaces/{ws_id}/items?type=Dataflow'):
-        object_name = item.get('displayName', '')
-        jobs.append((
-            ws_id,
-            ws_name,
-            'Dataflow',
-            item['id'],
-            object_name,
-            f'{ws_name} - Dataflow - {object_name}'
-        ))
-
-    # Fetch Data Pipelines
-    for item in fetch_all(client, f'/v1/workspaces/{ws_id}/items?type=DataPipeline'):
-        object_name = item.get('displayName', '')
-        jobs.append((
-            ws_id,
-            ws_name,
-            'DataPipeline',
-            item['id'],
-            object_name,
-            f'{ws_name} - DataPipeline - {object_name}'
-        ))
-
-print(f'Total artifacts collected: {len(jobs)}')
+# Get all workspaces using sempy's built-in method (returns a pandas DataFrame)
+workspaces_df = fabric.list_workspaces()
+print(f'Workspaces found: {len(workspaces_df)}')
+print(workspaces_df.head())
 
 # METADATA ********************
 
@@ -145,30 +67,76 @@ print(f'Total artifacts collected: {len(jobs)}')
 
 # MARKDOWN ********************
 
-# ## Create Jobs Table
+# ## Collect All Items from All Workspaces
 # 
-# Generates a single DataFrame with all artifacts and the formatted jobName column.
+# Uses sempy's list_items() method to fetch all items from each workspace.
 
 # CELL ********************
 
-# Define schema
-jobs_schema = StructType([
-    StructField("workspaceId", StringType(), False),
-    StructField("workspaceName", StringType(), True),
-    StructField("objectType", StringType(), False),
-    StructField("objectId", StringType(), False),
-    StructField("objectName", StringType(), True),
-    StructField("jobName", StringType(), True)
-])
+# Collect all items from all workspaces
+all_items = []
 
-# Create DataFrame
-df_jobs = spark.createDataFrame(jobs, schema=jobs_schema)
+for _, workspace in workspaces_df.iterrows():
+    ws_id = workspace['Id']
+    ws_name = workspace['Name']
+    
+    try:
+        # Get all items in this workspace (returns pandas DataFrame)
+        items_df = fabric.list_items(workspace=ws_id)
+        
+        if len(items_df) > 0:
+            # Add workspace info to each item
+            items_df['Workspace Id'] = ws_id
+            items_df['Workspace Name'] = ws_name
+            all_items.append(items_df)
+            print(f'{ws_name}: {len(items_df)} items')
+    except Exception as e:
+        print(f'Warning: Could not fetch items from {ws_name}: {e}')
 
-# Display preview
-print('\nJobs Table Preview:')
-df_jobs.show(10, truncate=False)
+# Combine all items into a single DataFrame
+if all_items:
+    import pandas as pd
+    all_items_df = pd.concat(all_items, ignore_index=True)
+    print(f'\nTotal items collected: {len(all_items_df)}')
+else:
+    print('\nNo items found in any workspace')
+    all_items_df = pd.DataFrame()
 
-print(f'\n✓ Generated {df_jobs.count()} job records')
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# MARKDOWN ********************
+
+# ## Create Jobs Table with Generated Job Names
+# 
+# Converts the pandas DataFrame to Spark and adds a formatted jobName column.
+
+# CELL ********************
+
+if len(all_items_df) > 0:
+    # Convert pandas DataFrame to Spark DataFrame
+    df_spark = spark.createDataFrame(all_items_df)
+    
+    # Create jobName column in format: "workspaceName - objectType - objectName"
+    from pyspark.sql.functions import concat_ws, col
+    
+    df_jobs = df_spark.withColumn(
+        'jobName',
+        concat_ws(' - ', col('Workspace Name'), col('Type'), col('Display Name'))
+    )
+    
+    # Display preview
+    print('\nFabric Items Table Preview:')
+    df_jobs.select('Workspace Name', 'Type', 'Display Name', 'jobName').show(10, truncate=False)
+    
+    print(f'\n✓ Generated {df_jobs.count()} job records')
+else:
+    df_jobs = None
+    print('No data to process')
 
 # METADATA ********************
 
@@ -180,8 +148,9 @@ print(f'\n✓ Generated {df_jobs.count()} job records')
 # CELL ********************
 
 # Display summary by object type
-print('\nSummary by Object Type:')
-df_jobs.groupBy('objectType').count().show()
+if df_jobs:
+    print('\nSummary by Object Type:')
+    df_jobs.groupBy('Type').count().orderBy('Type').show()
 
 # METADATA ********************
 
@@ -192,15 +161,20 @@ df_jobs.groupBy('objectType').count().show()
 
 # MARKDOWN ********************
 
-# ## Save to Delta Table (Optional)
+# ## Save to Delta Table
 # 
-# Uncomment the code below to save the table to a lakehouse.
+# Saves the items table to the lakehouse as a Delta table.
 
 # CELL ********************
 
-# Uncomment to save as Delta table:
-# df_jobs.write.format("delta").mode("overwrite").saveAsTable("fabric_jobs")
-# print('✓ Saved to Delta table: fabric_jobs')
+if df_jobs:
+    # Save as Delta table
+    df_jobs.write.format("delta").mode("overwrite").saveAsTable("fabric_items")
+    print('✓ Saved to Delta table: fabric_items')
+    print(f'\nYou can now query this table with:')
+    print(f'  SELECT * FROM fabric_items')
+else:
+    print('No data to save')
 
 # METADATA ********************
 
