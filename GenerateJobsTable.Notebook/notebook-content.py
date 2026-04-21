@@ -37,6 +37,74 @@ import sempy.fabric as fabric
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType
 from datetime import datetime, timezone
+import re
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# MARKDOWN ********************
+
+# ## Utility Functions
+# 
+# Column name normalization to snake_case (from UtilityFunctions notebook)
+
+# CELL ********************
+
+def normalize_column_name(name: str) -> str:
+    """Convert a column name to valid snake_case format."""
+    if not name or not isinstance(name, str):
+        return 'col'
+    
+    # Preserve common meaningful symbols
+    expanded = name.replace('%', ' pct ').replace('&', ' and ').replace('#', ' num ')
+    
+    # Convert to lowercase and replace non-alphanumeric with underscore
+    lowered = expanded.lower()
+    replaced = re.sub(r'[^a-z0-9]+', '_', lowered)
+    
+    # Collapse multiple underscores
+    collapsed = replaced
+    while '__' in collapsed:
+        collapsed = collapsed.replace('__', '_')
+    
+    # Trim underscores and handle empty
+    trimmed = collapsed.strip('_')
+    if not trimmed:
+        return 'col'
+    
+    # Column names shouldn't start with a digit
+    if trimmed[0].isdigit():
+        return 'c_' + trimmed
+    
+    return trimmed
+
+def normalize_dataframe_columns(df):
+    """Normalize all column names in a DataFrame with collision handling."""
+    original_names = df.columns
+    normalized_raw = [normalize_column_name(name) for name in original_names]
+    
+    # Handle duplicates by appending _2, _3, etc.
+    seen_counts = {}
+    final_names = []
+    
+    for norm_name in normalized_raw:
+        if norm_name not in seen_counts:
+            seen_counts[norm_name] = 1
+            final_names.append(norm_name)
+        else:
+            seen_counts[norm_name] += 1
+            final_names.append(f"{norm_name}_{seen_counts[norm_name]}")
+    
+    # Apply renames
+    for old_name, new_name in zip(original_names, final_names):
+        if old_name != new_name:
+            df = df.withColumnRenamed(old_name, new_name)
+    
+    return df
 
 # METADATA ********************
 
@@ -121,17 +189,20 @@ if len(all_items_df) > 0:
     # Convert pandas DataFrame to Spark DataFrame
     df_spark = spark.createDataFrame(all_items_df)
     
+    # Normalize column names to snake_case (fixes Delta table compatibility)
+    df_spark = normalize_dataframe_columns(df_spark)
+    
     # Create jobName column in format: "workspaceName - objectType - objectName"
     from pyspark.sql.functions import concat_ws, col
     
     df_jobs = df_spark.withColumn(
-        'jobName',
-        concat_ws(' - ', col('Workspace Name'), col('Type'), col('Display Name'))
+        'job_name',
+        concat_ws(' - ', col('workspace_name'), col('type'), col('display_name'))
     )
     
     # Display preview
     print('\nFabric Items Table Preview:')
-    df_jobs.select('Workspace Name', 'Type', 'Display Name', 'jobName').show(10, truncate=False)
+    df_jobs.select('workspace_name', 'type', 'display_name', 'job_name').show(10, truncate=False)
     
     print(f'\n✓ Generated {df_jobs.count()} job records')
 else:
@@ -150,7 +221,7 @@ else:
 # Display summary by object type
 if df_jobs:
     print('\nSummary by Object Type:')
-    df_jobs.groupBy('Type').count().orderBy('Type').show()
+    df_jobs.groupBy('type').count().orderBy('type').show()
 
 # METADATA ********************
 
