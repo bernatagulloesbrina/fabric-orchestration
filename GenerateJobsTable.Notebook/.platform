@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "GenerateJobsTable",
+    "description": "Generates a unified table of all Fabric artifacts with generated job names."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "7f8e9d0c-1b2a-4c3d-9e8f-5a6b7c8d9e0f"
+  }
+}
