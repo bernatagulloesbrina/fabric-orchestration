@@ -4,105 +4,6 @@
       {
         "type": "TridentNotebook",
         "typeProperties": {
-          "notebookId": "d5e6f7a8-b9c0-4d5e-0f1a-2b3c4d5e6f7a",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "parameters": {
-            "execution_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "job_name": {
-              "value": {
-                "value": "@pipeline().PipelineName",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "action": {
-              "value": "success",
-              "type": "string"
-            }
-          }
-        },
-        "externalReferences": {
-          "connection": "330249da-b4c4-4e50-96bb-9cb27c292568"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Log Execution Success",
-        "dependsOn": [
-          {
-            "activity": "move data to DW",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "TridentNotebook",
-        "typeProperties": {
-          "notebookId": "d5e6f7a8-b9c0-4d5e-0f1a-2b3c4d5e6f7a",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "parameters": {
-            "execution_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "job_name": {
-              "value": {
-                "value": "@pipeline().PipelineName",
-                "type": "Expression"
-              },
-              "type": "string"
-            },
-            "action": {
-              "value": "failure",
-              "type": "string"
-            },
-            "error_message": {
-              "value": {
-                "value": "@activity('Load Sales Data').error.message",
-                "type": "Expression"
-              },
-              "type": "string"
-            }
-          }
-        },
-        "externalReferences": {
-          "connection": "330249da-b4c4-4e50-96bb-9cb27c292568"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Log Execution Failure",
-        "dependsOn": [
-          {
-            "activity": "Load Sales Data",
-            "dependencyConditions": [
-              "Failed"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "TridentNotebook",
-        "typeProperties": {
           "notebookId": "c4d5e6f7-a8b9-4c5d-9e0f-1a2b3c4d5e6f",
           "workspaceId": "00000000-0000-0000-0000-000000000000"
         },
@@ -170,86 +71,39 @@
         ]
       },
       {
-        "type": "TridentNotebook",
+        "type": "SqlServerStoredProcedure",
         "typeProperties": {
-          "notebookId": "d5e6f7a8-b9c0-4d5e-0f1a-2b3c4d5e6f7a",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "parameters": {
+          "storedProcedureName": "[dbo].[usp_LogPipelineStart]",
+          "storedProcedureParameters": {
             "execution_id": {
               "value": {
                 "value": "@pipeline().RunId",
                 "type": "Expression"
               },
-              "type": "string"
+              "type": "String"
             },
             "job_name": {
               "value": {
                 "value": "@pipeline().PipelineName",
                 "type": "Expression"
               },
-              "type": "string"
-            },
-            "action": {
-              "value": "failure",
-              "type": "string"
-            },
-            "error_message": {
-              "value": {
-                "value": "@activity('move data to DW').error.message",
-                "type": "Expression"
-              },
-              "type": "string"
+              "type": "String"
             }
           }
         },
-        "externalReferences": {
-          "connection": "330249da-b4c4-4e50-96bb-9cb27c292568"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Log Execution Failure 2",
-        "dependsOn": [
-          {
-            "activity": "move data to DW",
-            "dependencyConditions": [
-              "Failed"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "TridentNotebook",
-        "typeProperties": {
-          "notebookId": "d5e6f7a8-b9c0-4d5e-0f1a-2b3c4d5e6f7a",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "parameters": {
-            "execution_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "string"
+        "connectionSettings": {
+          "name": "Metadata",
+          "properties": {
+            "type": "FabricSqlDatabase",
+            "typeProperties": {
+              "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
             },
-            "job_name": {
-              "value": {
-                "value": "@pipeline().PipelineName",
-                "type": "Expression"
-              },
-              "type": "string"
+            "externalReferences": {
+              "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
             },
-            "action": {
-              "value": "start",
-              "type": "string"
-            }
+            "annotations": []
           }
-        },
-        "externalReferences": {
-          "connection": "330249da-b4c4-4e50-96bb-9cb27c292568"
         },
         "policy": {
           "timeout": "0.12:00:00",
@@ -260,6 +114,176 @@
         },
         "name": "Log Execution Start",
         "dependsOn": []
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[dbo].[usp_LogPipelineFailure]",
+          "storedProcedureParameters": {
+            "error_message": {
+              "value": {
+                "value": "@{activity('Load Sales Data').error.message}",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "job_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "connectionSettings": {
+          "name": "Metadata",
+          "properties": {
+            "type": "FabricSqlDatabase",
+            "typeProperties": {
+              "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "externalReferences": {
+              "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Log Execution Failure Load Sales Data",
+        "dependsOn": [
+          {
+            "activity": "Load Sales Data",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[dbo].[usp_LogPipelineFailure]",
+          "storedProcedureParameters": {
+            "error_message": {
+              "value": {
+                "value": "@{activity('move data to DW').error.message}",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "job_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "connectionSettings": {
+          "name": "Metadata",
+          "properties": {
+            "type": "FabricSqlDatabase",
+            "typeProperties": {
+              "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "externalReferences": {
+              "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Log Execution Failure move data to DW",
+        "dependsOn": [
+          {
+            "activity": "move data to DW",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[dbo].[usp_LogPipelineSuccess]",
+          "storedProcedureParameters": {
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "job_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "connectionSettings": {
+          "name": "Metadata",
+          "properties": {
+            "type": "FabricSqlDatabase",
+            "typeProperties": {
+              "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "externalReferences": {
+              "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Log Execution Success",
+        "dependsOn": [
+          {
+            "activity": "move data to DW",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
       }
     ]
   }
