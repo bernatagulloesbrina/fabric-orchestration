@@ -1,0 +1,179 @@
+import fabric.functions as fn
+import logging
+from typing import Iterable
+
+udf = fn.UserDataFunctions()
+
+
+def _require_non_empty_string(value: str, name: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise fn.UserThrownError(f"{name} is required and must be a non-empty string.", {name: value})
+    return value.strip()
+
+
+def _normalize_dependencies(job_name: str, precedent_job_names: list[str] | None) -> list[str]:
+    if precedent_job_names is None:
+        return []
+
+    if not isinstance(precedent_job_names, list):
+        raise fn.UserThrownError(
+            "precedent_job_names must be a list of job names.",
+            {"precedent_job_names": precedent_job_names},
+        )
+
+    normalized: list[str] = []
+    seen: set[str] = set()
+
+    for raw_name in precedent_job_names:
+        dependency_name = _require_non_empty_string(raw_name, "precedent_job_names[]")
+        if dependency_name == job_name:
+            raise fn.UserThrownError(
+                "A refresh job cannot depend on itself.",
+                {"job_name": job_name, "precedent_job_name": dependency_name},
+            )
+        if dependency_name in seen:
+            continue
+        seen.add(dependency_name)
+        normalized.append(dependency_name)
+
+    return normalized
+
+
+def _execute_many(cursor, sql: str, rows: Iterable[tuple]) -> None:
+    for row in rows:
+        cursor.execute(sql, row)
+
+
+@udf.connection(argName="metadata_sql", alias="metadataSqlDb")
+@udf.function()
+def create_or_replace_refresh(
+    metadata_sql: fn.FabricSqlConnection,
+    job_name: str,
+    workspace_id: str,
+    workspace_name: str,
+    object_type: str,
+    object_id: str,
+    object_name: str,
+    priority: int,
+    precedent_job_names: list[str] | None = None,
+) -> str:
+    """
+    Summary: Create or replace a Fabric refresh job definition.
+    Description: Upserts dbo.refresh_jobs, upserts dbo.jobs with Fabric job metadata,
+    and replaces dbo.refresh_job_precedence entries for the provided job.
+    The connection alias metadataSqlDb must be configured in the Fabric item.
+    """
+    normalized_job_name = _require_non_empty_string(job_name, "job_name")
+    normalized_workspace_id = _require_non_empty_string(workspace_id, "workspace_id")
+    normalized_workspace_name = _require_non_empty_string(workspace_name, "workspace_name")
+    normalized_object_type = _require_non_empty_string(object_type, "object_type")
+    normalized_object_id = _require_non_empty_string(object_id, "object_id")
+    normalized_object_name = _require_non_empty_string(object_name, "object_name")
+
+    if not isinstance(priority, int):
+        raise fn.UserThrownError("priority must be an integer.", {"priority": priority})
+
+    dependencies = _normalize_dependencies(normalized_job_name, precedent_job_names)
+
+    refresh_upsert_sql = """
+    MERGE dbo.refresh_jobs AS target
+    USING (
+        SELECT
+            ? AS job_name,
+            ? AS workspace_id,
+            ? AS workspace_name,
+            ? AS object_type,
+            ? AS object_id,
+            ? AS object_name,
+            ? AS priority
+    ) AS source
+    ON target.job_name = source.job_name
+    WHEN MATCHED THEN
+        UPDATE SET
+            workspace_id = source.workspace_id,
+            workspace_name = source.workspace_name,
+            object_type = source.object_type,
+            object_id = source.object_id,
+            object_name = source.object_name,
+            priority = source.priority
+    WHEN NOT MATCHED THEN
+        INSERT (job_name, workspace_id, workspace_name, object_type, object_id, object_name, priority)
+        VALUES (
+            source.job_name,
+            source.workspace_id,
+            source.workspace_name,
+            source.object_type,
+            source.object_id,
+            source.object_name,
+            source.priority
+        );
+    """
+
+    jobs_upsert_sql = """
+    MERGE dbo.jobs AS target
+    USING (
+        SELECT
+            ? AS job_name,
+            'Fabric' AS job_type,
+            ? AS object_type
+    ) AS source
+    ON target.job_name = source.job_name
+    WHEN MATCHED THEN
+        UPDATE SET
+            job_type = source.job_type,
+            object_type = source.object_type
+    WHEN NOT MATCHED THEN
+        INSERT (job_name, job_type, object_type)
+        VALUES (source.job_name, source.job_type, source.object_type);
+    """
+
+    delete_dependencies_sql = "DELETE FROM dbo.refresh_job_precedence WHERE job_name = ?;"
+    insert_dependency_sql = """
+    INSERT INTO dbo.refresh_job_precedence (job_name, precedent_job_name)
+    VALUES (?, ?);
+    """
+
+    connection = metadata_sql.connect()
+    cursor = connection.cursor()
+
+    try:
+        logging.info("Upserting refresh job %s", normalized_job_name)
+
+        cursor.execute(
+            refresh_upsert_sql,
+            (
+                normalized_job_name,
+                normalized_workspace_id,
+                normalized_workspace_name,
+                normalized_object_type,
+                normalized_object_id,
+                normalized_object_name,
+                priority,
+            ),
+        )
+        cursor.execute(jobs_upsert_sql, (normalized_job_name, normalized_object_type))
+        cursor.execute(delete_dependencies_sql, normalized_job_name)
+
+        if dependencies:
+            _execute_many(
+                cursor,
+                insert_dependency_sql,
+                [(normalized_job_name, dependency_name) for dependency_name in dependencies],
+            )
+
+        connection.commit()
+    except Exception as exc:
+        connection.rollback()
+        logging.exception("Failed to create or replace refresh job %s", normalized_job_name)
+        raise fn.UserThrownError(
+            "Failed to create or replace refresh metadata.",
+            {"job_name": normalized_job_name, "error": str(exc)},
+        ) from exc
+    finally:
+        cursor.close()
+        connection.close()
+
+    return (
+        f"Refresh '{normalized_job_name}' synchronized with {len(dependencies)} precedent "
+        f"job(s). Connection alias: metadataSqlDb."
+    )

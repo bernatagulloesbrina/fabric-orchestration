@@ -1,0 +1,75 @@
+{
+  "runtime": "PYTHON",
+  "functionsMetadata": [
+    {
+      "name": "create_or_replace_refresh",
+      "scriptFile": "function_app.py",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "HttpTrigger",
+          "direction": "In",
+          "authLevel": "Anonymous",
+          "methods": [
+            "post"
+          ],
+          "route": "create_or_replace_refresh"
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": null,
+        "fabricFunctionReturnType": "str",
+        "fabricFunctionParameters": [
+          {
+            "name": "job_name",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "workspace_id",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "workspace_name",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "object_type",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "object_id",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "object_name",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "priority",
+            "dataType": "int",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "precedent_job_names",
+            "dataType": "list[str]",
+            "hasDefaultValue": true,
+            "defaultValue": null
+          }
+        ]
+      }
+    }
+  ]
+}
