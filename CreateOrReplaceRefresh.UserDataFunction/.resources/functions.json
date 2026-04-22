@@ -64,7 +64,7 @@
           },
           {
             "name": "precedent_job_names",
-            "dataType": "list[str]",
+            "dataType": "str",
             "hasDefaultValue": true,
             "defaultValue": null
           }

@@ -11,21 +11,22 @@ def _require_non_empty_string(value: str, name: str) -> str:
     return value.strip()
 
 
-def _normalize_dependencies(job_name: str, precedent_job_names: list[str] | None) -> list[str]:
-    if precedent_job_names is None:
-        return []
+def _normalize_dependencies(job_name: str, precedent_job_names: str | None) -> list[str]:
+    """Parse a pipe-separated string of job names into a deduplicated list.
 
-    if not isinstance(precedent_job_names, list):
-        raise fn.UserThrownError(
-            "precedent_job_names must be a list of job names.",
-            {"precedent_job_names": precedent_job_names},
-        )
+    Example input: "JobA|JobB|JobC"
+    Returns: ["JobA", "JobB", "JobC"]
+    """
+    if not precedent_job_names or not precedent_job_names.strip():
+        return []
 
     normalized: list[str] = []
     seen: set[str] = set()
 
-    for raw_name in precedent_job_names:
-        dependency_name = _require_non_empty_string(raw_name, "precedent_job_names[]")
+    for raw_name in precedent_job_names.split("|"):
+        dependency_name = raw_name.strip()
+        if not dependency_name:
+            continue
         if dependency_name == job_name:
             raise fn.UserThrownError(
                 "A refresh job cannot depend on itself.",
@@ -55,12 +56,13 @@ def create_or_replace_refresh(
     object_id: str,
     object_name: str,
     priority: int,
-    precedent_job_names: list[str] | None = None,
+    precedent_job_names: str | None = None,
 ) -> str:
     """
     Summary: Create or replace a Fabric refresh job definition.
     Description: Upserts dbo.refresh_jobs, upserts dbo.jobs with Fabric job metadata,
     and replaces dbo.refresh_job_precedence entries for the provided job.
+    Provide precedent_job_names as a pipe-separated string, e.g. "JobA|JobB|JobC".
     The connection alias metadataSqlDb must be configured in the Fabric item.
     """
     normalized_job_name = _require_non_empty_string(job_name, "job_name")
