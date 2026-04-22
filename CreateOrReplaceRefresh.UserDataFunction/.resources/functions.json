@@ -21,37 +21,37 @@
         "fabricFunctionReturnType": "str",
         "fabricFunctionParameters": [
           {
-            "name": "job_name",
+            "name": "jobName",
             "dataType": "str",
             "hasDefaultValue": false,
             "defaultValue": null
           },
           {
-            "name": "workspace_id",
+            "name": "workspaceId",
             "dataType": "str",
             "hasDefaultValue": false,
             "defaultValue": null
           },
           {
-            "name": "workspace_name",
+            "name": "workspaceName",
             "dataType": "str",
             "hasDefaultValue": false,
             "defaultValue": null
           },
           {
-            "name": "object_type",
+            "name": "objectType",
             "dataType": "str",
             "hasDefaultValue": false,
             "defaultValue": null
           },
           {
-            "name": "object_id",
+            "name": "objectId",
             "dataType": "str",
             "hasDefaultValue": false,
             "defaultValue": null
           },
           {
-            "name": "object_name",
+            "name": "objectName",
             "dataType": "str",
             "hasDefaultValue": false,
             "defaultValue": null
@@ -63,7 +63,7 @@
             "defaultValue": null
           },
           {
-            "name": "precedent_job_names",
+            "name": "precedentJobNames",
             "dataType": "str",
             "hasDefaultValue": true,
             "defaultValue": null
