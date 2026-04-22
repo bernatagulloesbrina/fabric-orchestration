@@ -45,7 +45,7 @@ def _execute_many(cursor, sql: str, rows: Iterable[tuple]) -> None:
         cursor.execute(sql, row)
 
 
-@udf.connection(argName="metadataSql", alias="metadataSqlDb")
+@udf.connection(argName="metadataSql", alias="Metadata")
 @udf.function()
 def create_or_replace_refresh(
     metadataSql: fn.FabricSqlConnection,
