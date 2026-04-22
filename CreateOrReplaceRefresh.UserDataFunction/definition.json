@@ -1,8 +1,21 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/userDataFunction/definition/1.1.0/schema.json",
   "runtime": "PYTHON",
-  "connectedDataSources": [],
-  "functions": [],
+  "connectedDataSources": [
+    {
+      "alias": "Metadata",
+      "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+      "artifactType": "SqlDbNative",
+      "workspaceId": "00000000-0000-0000-0000-000000000000"
+    }
+  ],
+  "functions": [
+    {
+      "name": "hello_fabric",
+      "description": "",
+      "isPublicEndpointEnabled": true
+    }
+  ],
   "libraries": {
     "public": [
       {
