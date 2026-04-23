@@ -1,0 +1,84 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "eb00d7500088080dcd72",
+  "position": {
+    "x": 775.48872180451121,
+    "y": 489.92481203007515,
+    "z": 8000,
+    "height": 167.81954887218043,
+    "width": 376.24060150375936,
+    "tabOrder": 8
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "jobs"
+                    }
+                  },
+                  "Property": "Selected Jobs (Display)"
+                }
+              },
+              "queryRef": "jobs.Selected Jobs (Display)",
+              "nativeQueryRef": "Selected Jobs (Display)"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "10D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryLabels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "f1dc95b1a4764018776d",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "jobs"
+              }
+            },
+            "Property": "Selected Jobs (Display)"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

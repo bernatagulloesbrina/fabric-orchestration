@@ -1,0 +1,190 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "839dcc70daa07a070098",
+  "position": {
+    "x": 20.300751879699249,
+    "y": 87.969924812030072,
+    "z": 4000,
+    "height": 319.3984962406015,
+    "width": 753.83458646616532,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_jobs"
+                    }
+                  },
+                  "Property": "job_name"
+                }
+              },
+              "queryRef": "refresh_jobs.job_name",
+              "nativeQueryRef": "job_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_jobs"
+                    }
+                  },
+                  "Property": "priority"
+                }
+              },
+              "queryRef": "Sum(refresh_jobs.priority)",
+              "nativeQueryRef": "priority"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_jobs"
+                    }
+                  },
+                  "Property": "object_type"
+                }
+              },
+              "queryRef": "refresh_jobs.object_type",
+              "nativeQueryRef": "object_type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_jobs"
+                    }
+                  },
+                  "Property": "object_name"
+                }
+              },
+              "queryRef": "refresh_jobs.object_name",
+              "nativeQueryRef": "object_name"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_job_precedence"
+                    }
+                  },
+                  "Property": "Precedent count all"
+                }
+              },
+              "queryRef": "refresh_job_precedence.Precedents",
+              "nativeQueryRef": "Precedent count all"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "visualTooltip": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "section": {
+              "expr": {
+                "Literal": {
+                  "Value": "'069615dac35190e0b49a'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "9b8365006046a950c358",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "job_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "124743b80d0e00014da1",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "priority"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "17f6300eb480dc00c787",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "object_type"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "f7e070a2a86b4015c062",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "object_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "20eb3e8c01e67291d766",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_job_precedence"
+              }
+            },
+            "Property": "Precedent count all"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

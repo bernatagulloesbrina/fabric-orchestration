@@ -1,0 +1,227 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "28fd58267ec3a8c70d60",
+  "position": {
+    "x": 1165.2631578947369,
+    "y": 491.27819548872179,
+    "z": 2000,
+    "height": 40.6015037593985,
+    "width": 100.15037593984962
+  },
+  "visual": {
+    "visualType": "actionButton",
+    "objects": {
+      "icon": [
+        {
+          "properties": {
+            "shapeType": {
+              "expr": {
+                "Literal": {
+                  "Value": "'blank'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "visualLink": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'DataFunction'"
+                }
+              }
+            },
+            "dataFunction": {
+              "kind": "ItemLocation",
+              "byReference": {
+                "itemId": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'c02bc5f0-9827-4fb2-88ab-8d1dd610801f'"
+                    }
+                  }
+                },
+                "workspaceId": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'d1cce96c-953e-4c7e-8bc3-6f6e375f304c'"
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "dataFunction": {
+                  "name": "create_or_replace_refresh",
+                  "autoRefresh": true,
+                  "parameters": [
+                    {
+                      "name": "jobName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected job_name"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "workspaceId",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected workspace_id"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "workspaceName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected workspace_name"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "objectType",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected type"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "objectId",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected object_id"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "objectName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected display_name"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "priority",
+                      "dataType": "number",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Priority"
+                              }
+                            },
+                            "Property": "Priority Value"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "precedentJobNames",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "jobs"
+                              }
+                            },
+                            "Property": "Selected Jobs"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "howCreated": "InsertVisualButton"
+}

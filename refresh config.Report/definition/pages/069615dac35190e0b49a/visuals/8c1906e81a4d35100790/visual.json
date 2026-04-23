@@ -1,0 +1,85 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "8c1906e81a4d35100790",
+  "position": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "height": 240,
+    "width": 400,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_job_precedence"
+                    }
+                  },
+                  "Property": "precedent_job_name"
+                }
+              },
+              "queryRef": "refresh_job_precedence.precedent_job_name",
+              "nativeQueryRef": "precedent_job_name"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_job_precedence"
+                    }
+                  },
+                  "Property": "Precedent count"
+                }
+              },
+              "queryRef": "refresh_job_precedence.Precedent count",
+              "nativeQueryRef": "#",
+              "displayName": "#"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "c8b3a13660ab4e181e10",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_job_precedence"
+              }
+            },
+            "Property": "precedent_job_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "aa467c72e8b82bce9b52",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_job_precedence"
+              }
+            },
+            "Property": "Precedent count"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

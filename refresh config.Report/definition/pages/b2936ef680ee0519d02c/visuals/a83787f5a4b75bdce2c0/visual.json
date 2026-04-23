@@ -1,0 +1,84 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "a83787f5a4b75bdce2c0",
+  "position": {
+    "x": 790.375939849624,
+    "y": 295.03759398496237,
+    "z": 8004,
+    "height": 112.33082706766916,
+    "width": 465.56390977443607,
+    "tabOrder": 14
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_job_precedence"
+                    }
+                  },
+                  "Property": "New Precedents List"
+                }
+              },
+              "queryRef": "refresh_job_precedence.New Precedents List",
+              "nativeQueryRef": "New Precedents List"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "10D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryLabels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "f057c4e05e064b3cb170",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_job_precedence"
+              }
+            },
+            "Property": "New Precedents List"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

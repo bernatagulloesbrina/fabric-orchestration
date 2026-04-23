@@ -1,0 +1,26 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: ca-ES
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["jobs","refresh_jobs","refresh_job_precedence","fabric_items"]
+
+annotation __TEdtr = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table jobs
+ref table refresh_jobs
+ref table refresh_job_precedence
+ref table fabric_items
+ref table Priority
+ref table Mode
+ref table 'Update Priority'
+
+ref cultureInfo en-US
+

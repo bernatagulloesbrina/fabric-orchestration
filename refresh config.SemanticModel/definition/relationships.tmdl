@@ -1,0 +1,4 @@
+relationship ba8221b1-191c-5d1f-588c-1a80a91adeb4
+	fromColumn: refresh_job_precedence.job_name
+	toColumn: refresh_jobs.job_name
+

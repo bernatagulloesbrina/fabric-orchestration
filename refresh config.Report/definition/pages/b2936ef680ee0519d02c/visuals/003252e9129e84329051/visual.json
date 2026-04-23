@@ -1,0 +1,259 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "003252e9129e84329051",
+  "position": {
+    "x": 1165.2631578947369,
+    "y": 64.962406015037587,
+    "z": 8005,
+    "height": 40.6015037593985,
+    "width": 100.15037593984962
+  },
+  "visual": {
+    "visualType": "actionButton",
+    "objects": {
+      "icon": [
+        {
+          "properties": {
+            "shapeType": {
+              "expr": {
+                "Literal": {
+                  "Value": "'blank'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ],
+      "text": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Priority"
+                    }
+                  },
+                  "Property": "Update Priority Text"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "visualLink": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "type": {
+              "expr": {
+                "Literal": {
+                  "Value": "'DataFunction'"
+                }
+              }
+            },
+            "dataFunction": {
+              "kind": "ItemLocation",
+              "byReference": {
+                "itemId": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'c02bc5f0-9827-4fb2-88ab-8d1dd610801f'"
+                    }
+                  }
+                },
+                "workspaceId": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'d1cce96c-953e-4c7e-8bc3-6f6e375f304c'"
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "dataFunction": {
+                  "name": "create_or_replace_refresh",
+                  "autoRefresh": true,
+                  "parameters": [
+                    {
+                      "name": "jobName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing job_name"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "workspaceId",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing workspace_id"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "workspaceName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing workspace_name"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "objectType",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing object_type"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "objectId",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing object_id"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "objectName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing object_name"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "priority",
+                      "dataType": "number",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Priority"
+                              }
+                            },
+                            "Property": "Update Priority"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "precedentJobNames",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_job_precedence"
+                              }
+                            },
+                            "Property": "New Precedents List (Value)"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "howCreated": "InsertVisualButton"
+}
