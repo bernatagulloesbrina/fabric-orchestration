@@ -1,0 +1,83 @@
+table fabric_items
+	lineageTag: 5fde09ad-1121-47df-b3f9-6363e3a9be89
+	sourceLineageTag: [dbo].[fabric_items]
+
+	column object_id
+		dataType: string
+		lineageTag: 2a39115b-aa4d-468c-b2fb-a057aa75b87e
+		sourceLineageTag: object_id
+		summarizeBy: none
+		sourceColumn: object_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column display_name
+		dataType: string
+		lineageTag: 60294e4c-bd30-4a11-b03e-588060db568c
+		sourceLineageTag: display_name
+		summarizeBy: none
+		sourceColumn: display_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column description
+		dataType: string
+		lineageTag: 8d1407ac-358a-4388-88fb-5db20d697104
+		sourceLineageTag: description
+		summarizeBy: none
+		sourceColumn: description
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 92ed4484-d857-44bc-97db-852040cff5d1
+		sourceLineageTag: type
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column workspace_id
+		dataType: string
+		lineageTag: bba8dc46-e980-48df-ae3f-c1268a5eb76b
+		sourceLineageTag: workspace_id
+		summarizeBy: none
+		sourceColumn: workspace_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column folder_id
+		dataType: string
+		lineageTag: 49705213-728b-40f8-be89-595abd87003a
+		sourceLineageTag: folder_id
+		summarizeBy: none
+		sourceColumn: folder_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column workspace_name
+		dataType: string
+		lineageTag: c3d1d364-74ec-4ecb-b2ea-594f716842ec
+		sourceLineageTag: workspace_name
+		summarizeBy: none
+		sourceColumn: workspace_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_name
+		dataType: string
+		lineageTag: e140245f-5c1b-4fe4-baac-6e52cedee538
+		sourceLineageTag: job_name
+		summarizeBy: none
+		sourceColumn: job_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fabric_items = entity
+		mode: directLake
+		source
+			entityName: fabric_items
+			schemaName: dbo
+			expressionSource: 'DirectLake - MetadataLakehouse'
+

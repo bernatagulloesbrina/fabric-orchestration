@@ -5,7 +5,9 @@ CREATE TABLE [dbo].[executions] (
     [end_time]      DATETIME2 (7)  NULL,
     [result]        NVARCHAR (50)  NULL,
     [error_message] NVARCHAR (MAX) NULL,
-    [created_at]    DATETIME2 (7)  NULL
+    [created_at]    DATETIME2 (7)  NULL,
+    [object_type]   NVARCHAR (50)  NULL,
+    [job_type]      NVARCHAR (50)  NULL
 );
 
 

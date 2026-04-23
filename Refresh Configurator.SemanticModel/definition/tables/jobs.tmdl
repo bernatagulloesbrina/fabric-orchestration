@@ -1,0 +1,87 @@
+table jobs
+	lineageTag: cfdaedbe-6c86-40db-9c15-ff0d545c2a73
+	sourceLineageTag: [dbo].[jobs]
+
+	column job_name
+		dataType: string
+		lineageTag: 4f9b4242-bd3e-4b0a-b987-77b8a2941a11
+		sourceLineageTag: job_name
+		summarizeBy: none
+		sourceColumn: job_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column error_message
+		dataType: string
+		lineageTag: 6e1748d6-d25b-4cd0-a5fc-ee6fc3dc1a5d
+		sourceLineageTag: error_message
+		summarizeBy: none
+		sourceColumn: error_message
+
+		annotation SummarizationSetBy = Automatic
+
+	column execution_id
+		dataType: string
+		lineageTag: 8d473ba7-88a8-46bc-919b-fcc8c9ddef7b
+		sourceLineageTag: execution_id
+		summarizeBy: none
+		sourceColumn: execution_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_time
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: de4e0727-6841-4f0b-893c-1aa47e7dcc6d
+		sourceLineageTag: start_time
+		summarizeBy: none
+		sourceColumn: start_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column end_time
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3dc11c46-5c9a-4362-867b-a2b0d81db060
+		sourceLineageTag: end_time
+		summarizeBy: none
+		sourceColumn: end_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column result
+		dataType: string
+		lineageTag: f0086885-6c60-4846-acd4-8b82493f01b1
+		sourceLineageTag: result
+		summarizeBy: none
+		sourceColumn: result
+
+		annotation SummarizationSetBy = Automatic
+
+	column created_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: eefc0b1a-a258-411f-9aa9-7497194ee861
+		sourceLineageTag: created_at
+		summarizeBy: none
+		sourceColumn: created_at
+
+		annotation SummarizationSetBy = Automatic
+
+	column MSSQL_System_Uniquifier_978102525
+		dataType: int64
+		formatString: 0
+		lineageTag: a46e08a3-5bd5-4db8-a75d-d427982d545f
+		sourceLineageTag: MSSQL_System_Uniquifier_978102525
+		summarizeBy: sum
+		sourceColumn: MSSQL_System_Uniquifier_978102525
+
+		annotation SummarizationSetBy = Automatic
+
+	partition jobs = entity
+		mode: directLake
+		source
+			entityName: jobs
+			schemaName: dbo
+			expressionSource: 'DirectLake - Metadata'
+
