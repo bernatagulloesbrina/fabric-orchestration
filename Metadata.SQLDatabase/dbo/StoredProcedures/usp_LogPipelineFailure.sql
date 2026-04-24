@@ -29,22 +29,26 @@ BEGIN
     MERGE dbo.jobs AS target
     USING (
         SELECT 
+            @execution_id AS execution_id,
             @job_name AS job_name,
-            @current_time AS last_end_time,
-            'Failed' AS last_result,
+            @current_time AS end_time,
+            'Failed' AS result,
             @error_message AS error_message,
-            @current_time AS updated_at
+            @current_time AS created_at,
+            'Pipeline' AS job_type,
+            'Pipeline' AS object_type
     ) AS source
     ON target.job_name = source.job_name
     WHEN MATCHED THEN
         UPDATE SET
-            last_end_time = source.last_end_time,
-            last_result = source.last_result,
+            execution_id = source.execution_id,
+            end_time = source.end_time,
+            result = source.result,
             error_message = source.error_message,
-            updated_at = source.updated_at
+            created_at = source.created_at
     WHEN NOT MATCHED THEN
-        INSERT (job_name, last_end_time, last_result, error_message, updated_at)
-        VALUES (source.job_name, source.last_end_time, source.last_result, source.error_message, source.updated_at);
+        INSERT (execution_id, job_name, start_time, end_time, result, error_message, created_at, job_type, object_type)
+        VALUES (source.execution_id, source.job_name, NULL, source.end_time, source.result, source.error_message, source.created_at, source.job_type, source.object_type);
     
     -- Return failure info
     SELECT 
