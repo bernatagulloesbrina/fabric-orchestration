@@ -52,7 +52,8 @@ def create_or_replace_refresh(
     objectId: str,
     objectName: str,
     priority: int,
-    precedentJobNames: str  
+    precedentJobNames: str,
+    modifiedBy: str,
 ) -> str:
     """
     Summary: Create or replace a Fabric refresh job definition.
@@ -66,6 +67,7 @@ def create_or_replace_refresh(
     normalized_object_type = _require_non_empty_string(objectType, "objectType")
     normalized_object_id = _require_non_empty_string(objectId, "objectId")
     normalized_object_name = _require_non_empty_string(objectName, "objectName")
+    normalized_modified_by = _require_non_empty_string(modifiedBy, "modifiedBy")
 
     if not isinstance(priority, int):
         raise fn.UserThrownError("priority must be an integer.", {"priority": priority})
@@ -76,17 +78,20 @@ def create_or_replace_refresh(
     MERGE dbo.refresh_jobs AS target
     USING (
         SELECT ? AS job_name, ? AS workspace_id, ? AS workspace_name,
-               ? AS object_type, ? AS object_id, ? AS object_name, ? AS priority
+               ? AS object_type, ? AS object_id, ? AS object_name, ? AS priority,
+               ? AS last_modified_by
     ) AS source
     ON target.job_name = source.job_name
     WHEN MATCHED THEN
         UPDATE SET workspace_id = source.workspace_id, workspace_name = source.workspace_name,
                    object_type = source.object_type, object_id = source.object_id,
-                   object_name = source.object_name, priority = source.priority
+                   object_name = source.object_name, priority = source.priority,
+                   last_modified_by = source.last_modified_by, last_modified_on = GETUTCDATE()
     WHEN NOT MATCHED THEN
-        INSERT (job_name, workspace_id, workspace_name, object_type, object_id, object_name, priority)
+        INSERT (job_name, workspace_id, workspace_name, object_type, object_id, object_name, priority, last_modified_by, last_modified_on)
         VALUES (source.job_name, source.workspace_id, source.workspace_name,
-                source.object_type, source.object_id, source.object_name, source.priority);
+                source.object_type, source.object_id, source.object_name, source.priority,
+                source.last_modified_by, GETUTCDATE());
     """
 
     jobs_upsert_sql = """
@@ -114,6 +119,7 @@ def create_or_replace_refresh(
             (
                 normalized_job_name, normalized_workspace_id, normalized_workspace_name,
                 normalized_object_type, normalized_object_id, normalized_object_name, priority,
+                normalized_modified_by,
             ),
         )
         cursor.execute(jobs_upsert_sql, (normalized_job_name, normalized_object_type))
