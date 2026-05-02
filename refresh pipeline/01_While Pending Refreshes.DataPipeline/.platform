@@ -1,11 +1,11 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "SemanticModel",
-    "displayName": "Refresh Configurator"
+    "type": "DataPipeline",
+    "displayName": "01_While Pending Refreshes"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "be8f165b-0993-8401-4e38-1a341081f492"
+    "logicalId": "bf8bb542-f253-a7b6-4541-2073aac0cc27"
   }
 }

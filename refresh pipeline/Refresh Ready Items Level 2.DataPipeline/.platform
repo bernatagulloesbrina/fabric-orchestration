@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "Refresh Ready Items Level 2"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "3a6cf6b2-a539-a34f-4a26-adb3dc8dee54"
+  }
+}

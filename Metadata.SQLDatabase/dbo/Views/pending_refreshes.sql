@@ -14,3 +14,4 @@ LEFT JOIN dbo.completed_jobs AS cj
 WHERE cj.job_name IS NULL;
 
 GO
+

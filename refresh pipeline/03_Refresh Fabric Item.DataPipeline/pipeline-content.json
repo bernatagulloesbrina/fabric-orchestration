@@ -1,0 +1,337 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Switch",
+        "typeProperties": {
+          "on": {
+            "value": "@pipeline().parameters.object_type",
+            "type": "Expression"
+          },
+          "cases": [
+            {
+              "value": "Dataflow",
+              "activities": [
+                {
+                  "type": "WebActivity",
+                  "typeProperties": {
+                    "method": "GET",
+                    "relativeUrl": {
+                      "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?$top=1')",
+                      "type": "Expression"
+                    },
+                    "headers": {}
+                  },
+                  "externalReferences": {
+                    "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
+                  },
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureInput": false,
+                    "secureOutput": false
+                  },
+                  "name": "retrieve latest refresh dataflows",
+                  "dependsOn": []
+                },
+                {
+                  "type": "SetVariable",
+                  "typeProperties": {
+                    "variableName": "dataflowStatus",
+                    "value": {
+                      "value": "@activity('retrieve latest refresh dataflows').output.value[0].status\n",
+                      "type": "Expression"
+                    }
+                  },
+                  "policy": {
+                    "secureInput": false,
+                    "secureOutput": false
+                  },
+                  "name": "Set dataflowStatus",
+                  "dependsOn": [
+                    {
+                      "activity": "retrieve latest refresh dataflows",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "SetVariable",
+                  "typeProperties": {
+                    "variableName": "objectStartTimeUtc",
+                    "value": {
+                      "value": "@activity('retrieve latest refresh dataflows').output.value[0].startTimeUtc\n",
+                      "type": "Expression"
+                    }
+                  },
+                  "policy": {
+                    "secureInput": false,
+                    "secureOutput": false
+                  },
+                  "name": "Set objectStartTimeUtc",
+                  "dependsOn": [
+                    {
+                      "activity": "retrieve latest refresh dataflows",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "SetVariable",
+                  "typeProperties": {
+                    "variableName": "objectEndTimeUtc",
+                    "value": {
+                      "value": "@activity('retrieve latest refresh dataflows').output.value[0].endTimeUtc\n",
+                      "type": "Expression"
+                    }
+                  },
+                  "policy": {
+                    "secureInput": false,
+                    "secureOutput": false
+                  },
+                  "name": "Set objectEndTimeUtc",
+                  "dependsOn": [
+                    {
+                      "activity": "retrieve latest refresh dataflows",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "SetVariable",
+                  "typeProperties": {
+                    "variableName": "objectStatus",
+                    "value": {
+                      "value": "@if(equals(variables('dataflowStatus'), 'Completed'), 'OK',\n    if(or(equals(variables('dataflowStatus'), 'Failed'), equals(variables('dataflowStatus'), 'Cancelled')), 'Error',\n        if(or(equals(variables('dataflowStatus'), 'Accepted'), equals(variables('dataflowStatus'), 'InProgress')), 'Ongoing',\n            variables('dataflowStatus'))))\n",
+                      "type": "Expression"
+                    }
+                  },
+                  "policy": {
+                    "secureInput": false,
+                    "secureOutput": false
+                  },
+                  "name": "Set objectStatus",
+                  "dependsOn": [
+                    {
+                      "activity": "Set dataflowStatus",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "SetVariable",
+                  "typeProperties": {
+                    "variableName": "objectErrorMessage",
+                    "value": {
+                      "value": "@if(empty(activity('retrieve latest refresh dataflows').output.value[0].failureReason), null, activity('retrieve latest refresh dataflows').output.value[0].failureReason.message)",
+                      "type": "Expression"
+                    }
+                  },
+                  "policy": {
+                    "secureInput": false,
+                    "secureOutput": false
+                  },
+                  "name": "Set objectErrorMessage",
+                  "dependsOn": [
+                    {
+                      "activity": "retrieve latest refresh dataflows",
+                      "dependencyConditions": [
+                        "Succeeded"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "defaultActivities": []
+        },
+        "name": "depending on object type",
+        "dependsOn": []
+      },
+      {
+        "type": "Switch",
+        "typeProperties": {
+          "on": {
+            "value": "@if(\n    or(\n        and(equals(variables('objectStatus'), 'OK'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 8)),\n        and(equals(variables('objectStatus'), 'Error'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 4))\n    ),\n    pipeline().parameters.object_type,\n    'NoAction'\n)",
+            "type": "Expression"
+          },
+          "cases": [
+            {
+              "value": "Dataflow",
+              "activities": [
+                {
+                  "type": "RefreshDataflow",
+                  "typeProperties": {
+                    "dataflowId": {
+                      "value": "@pipeline().parameters.object_id",
+                      "type": "Expression"
+                    },
+                    "workspaceId": {
+                      "value": "@pipeline().parameters.workspace_id",
+                      "type": "Expression"
+                    },
+                    "notifyOption": "NoNotification"
+                  },
+                  "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureInput": false,
+                    "secureOutput": false
+                  },
+                  "name": "Refresh Dataflow",
+                  "dependsOn": []
+                }
+              ]
+            }
+          ],
+          "defaultActivities": []
+        },
+        "name": "depending on object type_copy1",
+        "dependsOn": [
+          {
+            "activity": "RegisterRefresh",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[dbo].[usp_RegisterRefresh]",
+          "storedProcedureParameters": {
+            "end_time": {
+              "value": {
+                "value": "@variables('objectEndTimeUtc')",
+                "type": "Expression"
+              },
+              "type": "DateTime"
+            },
+            "error_message": {
+              "value": {
+                "value": "@variables('objectErrorMessage')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "job_name": {
+              "value": {
+                "value": "@pipeline().parameters.job_name",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "job_type": {
+              "value": {
+                "value": "'Fabric'",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "object_type": {
+              "value": {
+                "value": "@pipeline().parameters.object_type",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "result": {
+              "value": {
+                "value": "@variables('objectStatus')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "start_time": {
+              "value": {
+                "value": "@variables('objectStartTimeUtc')",
+                "type": "Expression"
+              },
+              "type": "DateTime"
+            }
+          }
+        },
+        "connectionSettings": {
+          "name": "Metadata",
+          "properties": {
+            "type": "FabricSqlDatabase",
+            "typeProperties": {
+              "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "externalReferences": {
+              "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "RegisterRefresh",
+        "dependsOn": [
+          {
+            "activity": "depending on object type",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "workspace_id": {
+        "type": "string"
+      },
+      "object_type": {
+        "type": "string"
+      },
+      "object_id": {
+        "type": "string"
+      },
+      "job_name": {
+        "type": "string"
+      }
+    },
+    "variables": {
+      "objectStatus": {
+        "type": "String"
+      },
+      "dataflowStatus": {
+        "type": "String"
+      },
+      "objectStartTimeUtc": {
+        "type": "String"
+      },
+      "objectEndTimeUtc": {
+        "type": "String"
+      },
+      "objectErrorMessage": {
+        "type": "String"
+      }
+    }
+  }
+}

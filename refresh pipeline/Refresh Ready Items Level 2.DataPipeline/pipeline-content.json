@@ -1,0 +1,135 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "FabricSqlDatabaseTable",
+            "typeProperties": {
+              "schema": "dbo",
+              "table": "refresh_jobs_ready"
+            },
+            "schema": [],
+            "connectionSettings": {
+              "name": "Metadata",
+              "properties": {
+                "type": "FabricSqlDatabase",
+                "typeProperties": {
+                  "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "externalReferences": {
+                  "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "firstRowOnly": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "check jobs ready",
+        "dependsOn": []
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "isSequential": true,
+          "items": {
+            "value": "@activity('check jobs ready').output.value",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "InvokePipeline",
+              "typeProperties": {
+                "parameters": {
+                  "workspace_id": {
+                    "value": "@item().workspace_id",
+                    "type": "Expression"
+                  },
+                  "object_type": {
+                    "value": "@item().object_type",
+                    "type": "Expression"
+                  },
+                  "object_id": {
+                    "value": "@item().object_id",
+                    "type": "Expression"
+                  },
+                  "job_name": {
+                    "value": "@item().job_name",
+                    "type": "Expression"
+                  }
+                },
+                "waitOnCompletion": true,
+                "workspaceId": "00000000-0000-0000-0000-000000000000",
+                "pipelineId": "34615249-d371-8a88-48b7-881a6f989580",
+                "operationType": "InvokeFabricPipeline"
+              },
+              "externalReferences": {
+                "connection": "523431e7-e643-4f76-b68c-ac115b50b32c"
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "03_Refresh Fabric Item",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "for each job ready",
+        "dependsOn": [
+          {
+            "activity": "check jobs ready",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "objectStatus": {
+        "type": "String"
+      },
+      "dataflowStatus": {
+        "type": "String"
+      },
+      "dataflowStartTime": {
+        "type": "String"
+      },
+      "dataflowEndTimeUtc": {
+        "type": "String"
+      },
+      "objectEndTimeUtc": {
+        "type": "String"
+      },
+      "objectStartTimeUtc": {
+        "type": "String"
+      },
+      "dataflowStartTimeUtc": {
+        "type": "String"
+      },
+      "objectErrorMessage": {
+        "type": "String"
+      }
+    }
+  }
+}
