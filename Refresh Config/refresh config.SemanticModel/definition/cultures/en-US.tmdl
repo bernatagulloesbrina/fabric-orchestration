@@ -12,7 +12,19 @@ cultureInfo en-US
 			          "ConceptualProperty": "Precedent count all"
 			        }
 			      },
-			      "State": "Generated"
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Precedents": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    },
 			    "refresh_job_precedence.precedent_count": {
 			      "Definition": {
@@ -25,6 +37,90 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "#": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "refresh_jobs.job_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "refresh_jobs",
+			          "ConceptualProperty": "job_name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Job": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "refresh_jobs.priority": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "refresh_jobs",
+			          "ConceptualProperty": "priority"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Priority": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "refresh_jobs.object_type": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "refresh_jobs",
+			          "ConceptualProperty": "object_type"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "refresh_jobs.object_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "refresh_jobs",
+			          "ConceptualProperty": "object_name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Name": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",

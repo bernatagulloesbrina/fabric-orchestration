@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "28fd58267ec3a8c70d60",
   "position": {
-    "x": 1165.2631578947369,
-    "y": 491.27819548872179,
-    "z": 2000,
-    "height": 40.6015037593985,
-    "width": 100.15037593984962
+    "x": 1151.641791044776,
+    "y": 486.26865671641792,
+    "z": 3000,
+    "height": 40.298507462686565,
+    "width": 100.29850746268656
   },
   "visual": {
     "visualType": "actionButton",
@@ -18,6 +18,33 @@
               "expr": {
                 "Literal": {
                   "Value": "'blank'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ],
+      "text": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Add'"
                 }
               }
             }
