@@ -1,8 +1,17 @@
 import fabric.functions as fn
 import logging
+from datetime import date
 
 udf = fn.UserDataFunctions()
 
+def _is_date(value: str) -> bool:
+    if not value or not isinstance(value, str) or not value.strip():
+        return False
+    try:
+        date.fromisoformat(value.strip())
+        return True
+    except ValueError:
+        return False
 
 @udf.connection(argName="metadataSql", alias="Metadata")
 @udf.function()
@@ -12,7 +21,7 @@ def delete_refresh_job(
     modifiedBy: str,
     deleted: str,        
 ) -> str:
-    if deleted is not None:
+    if _is_date(deleted):
         raise fn.UserThrownError(
             "This job is already deleted.",
             {"jobName": jobName, "deleted": deleted},
