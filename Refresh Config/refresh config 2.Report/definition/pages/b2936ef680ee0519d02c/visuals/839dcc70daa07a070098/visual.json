@@ -92,18 +92,33 @@
             },
             {
               "field": {
-                "Column": {
+                "Measure": {
                   "Expression": {
                     "SourceRef": {
                       "Entity": "refresh_jobs"
                     }
                   },
-                  "Property": "last_modified_on"
+                  "Property": "Selected Existing deleted"
                 }
               },
-              "queryRef": "refresh_jobs.last_modified_on",
-              "nativeQueryRef": "Modified on",
-              "displayName": "Modified on"
+              "queryRef": "refresh_jobs.Selected Existing deleted",
+              "nativeQueryRef": "Deleted On",
+              "displayName": "Deleted On"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_jobs"
+                    }
+                  },
+                  "Property": "Select Last Modified On"
+                }
+              },
+              "queryRef": "refresh_jobs.Select Last Modified On",
+              "nativeQueryRef": "Modified On",
+              "displayName": "Modified On"
             },
             {
               "field": {
@@ -320,20 +335,6 @@
         "type": "Advanced"
       },
       {
-        "name": "8ea0823013ad00926040",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "refresh_jobs"
-              }
-            },
-            "Property": "last_modified_on"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
         "name": "c9f50efb911469307c08",
         "field": {
           "Column": {
@@ -346,6 +347,34 @@
           }
         },
         "type": "Categorical"
+      },
+      {
+        "name": "232b1740cab10717bed0",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "Select Last Modified On"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "cdb3dfaf55b5453987d3",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "Selected Existing deleted"
+          }
+        },
+        "type": "Advanced"
       }
     ]
   }

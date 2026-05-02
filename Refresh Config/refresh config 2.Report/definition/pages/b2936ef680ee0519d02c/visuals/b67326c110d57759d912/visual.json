@@ -101,7 +101,7 @@
                           [
                             {
                               "Literal": {
-                                "Value": "'Replace'"
+                                "Value": "'Append'"
                               }
                             }
                           ]

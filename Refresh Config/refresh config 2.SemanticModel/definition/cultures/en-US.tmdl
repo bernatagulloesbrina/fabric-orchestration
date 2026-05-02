@@ -33,19 +33,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "Precedent count"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "#": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "refresh_jobs.job_name": {
 			      "Definition": {
@@ -138,19 +126,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "last_modified_on"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Modified on": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "refresh_jobs.last_modified_by": {
 			      "Definition": {
@@ -163,6 +139,48 @@ cultureInfo en-US
 			      "Terms": [
 			        {
 			          "By": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "refresh_jobs.select_last_modified_on": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "refresh_jobs",
+			          "ConceptualProperty": "Select Last Modified On"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Modified On": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "refresh_jobs.selected_existing_deleted": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "refresh_jobs",
+			          "ConceptualProperty": "Selected Existing deleted"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Deleted On": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",

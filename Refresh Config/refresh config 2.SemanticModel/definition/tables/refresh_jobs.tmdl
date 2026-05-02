@@ -25,12 +25,28 @@ table refresh_jobs
 	measure 'Selected Existing workspace_name' = SELECTEDVALUE('refresh_jobs'[workspace_name])
 		lineageTag: 04ba3561-59e3-408d-b52a-1839b51f42af
 
-	measure 'Selected Existing deleted' = FORMAT(SELECTEDVALUE('refresh_jobs'[deleted]),"dd-mmmm-yyyy")
+	measure 'Selected Existing deleted' = ```
+			
+			VAR _v = SELECTEDVALUE('refresh_jobs'[deleted])
+			RETURN 
+			    /*CONVERT(
+			        IF(
+			            ISBLANK( _v ),
+			            BLANK(),*/
+			            FORMAT(_v,"yyyy-mm-dd")
+			      /*  ),
+			        STRING
+			    )*/
+			```
 		lineageTag: c52547a5-0578-463c-bdd9-5c48d4abeedf
 
 	measure 'Refresh Job Count' = COUNTROWS(refresh_jobs)
 		formatString: 0
 		lineageTag: eb2a131f-354d-4468-9b1a-ed9dba6ce8e9
+
+	measure 'Select Last Modified On' = SELECTEDVALUE(refresh_jobs[last_modified_on])
+		formatString: General Date
+		lineageTag: 1120d31a-b049-44a8-9082-f9bf5237d71e
 
 	column job_name
 		dataType: string
@@ -111,9 +127,9 @@ table refresh_jobs
 		summarizeBy: none
 		sourceColumn: deleted
 
-		annotation SummarizationSetBy = Automatic
+		changedProperty = DataType
 
-		annotation UnderlyingDateTimeDataType = Date
+		annotation SummarizationSetBy = Automatic
 
 	column last_modified_by
 		dataType: string
