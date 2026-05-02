@@ -9,8 +9,9 @@ SELECT
     COUNT_BIG(*) AS successful_executions_since_cutoff
 FROM dbo.executions AS e
 CROSS JOIN cutoff AS c
-WHERE e.result = 'Success'
+WHERE e.result = 'OK'
   AND e.end_time >= c.cutoff_utc
 GROUP BY e.job_name;
 
 GO
+

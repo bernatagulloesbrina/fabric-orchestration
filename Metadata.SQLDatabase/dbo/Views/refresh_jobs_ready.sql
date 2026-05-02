@@ -14,3 +14,4 @@ LEFT JOIN dbo.refresh_jobs_not_ready AS nr
 WHERE nr.job_name IS NULL;
 
 GO
+
