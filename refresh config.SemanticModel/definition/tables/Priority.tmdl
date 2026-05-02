@@ -1,0 +1,46 @@
+table Priority
+	lineageTag: ae98d392-15c3-4fc9-bf5d-f26987bf5e1c
+
+	measure 'Priority Value' = SELECTEDVALUE('Priority'[Priority], 1)
+		formatString: 0
+		lineageTag: acee80d3-1ea3-4328-8104-00eb9d67c9de
+
+	measure 'Priority Value Text' = CONVERT([Priority Value],STRING)
+		lineageTag: bca1aca0-0636-4c31-b161-6709d46fe7b0
+
+	measure 'Update Priority' =
+			
+			IF(
+			    ISFILTERED(refresh_jobs) && HASONEVALUE(refresh_jobs[job_name]),
+			    IF(
+			        ISFILTERED('Update Priority'),
+			        [Priority Value],
+			        SELECTEDVALUE(refresh_jobs[priority])
+			    ),
+			    BLANK()
+			)
+		formatString: 0
+		lineageTag: 19282269-fe52-43c6-9d32-50ac43a8ce96
+
+	measure 'Update Priority Text' = CONVERT([Update Priority],STRING)
+		lineageTag: 5174c4eb-6faa-45c2-8acb-e18508fde601
+
+	column Priority
+		formatString: 0
+		lineageTag: bb7a2fb1-7e54-47fd-a3b3-8d11bd860d53
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+		annotation SummarizationSetBy = User
+
+	partition Priority = calculated
+		mode: import
+		source = GENERATESERIES(1, 10, 1)
+
+	annotation PBI_Id = aa6d628c31bb4eb4b59da3eeb144323e
+

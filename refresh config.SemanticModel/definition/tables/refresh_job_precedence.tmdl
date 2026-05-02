@@ -1,0 +1,68 @@
+table refresh_job_precedence
+	lineageTag: 95997749-fb8b-4309-853d-a24a86192190
+
+	measure 'Precedent count all' = COUNTROWS(refresh_job_precedence) + IF(ISEMPTY(refresh_jobs),BLANK(),0)
+		formatString: 0
+		lineageTag: 1425a0ce-efa5-4b82-8257-261f04b9f2d3
+
+	measure 'Precedent count' = COUNTROWS(refresh_job_precedence)
+		formatString: 0
+		lineageTag: 77912933-7388-4763-9db0-ca724914a836
+
+	measure 'New Precedents List' = ```
+			
+			IF(
+			    ISFILTERED(refresh_jobs) && HASONEVALUE(refresh_jobs[job_name]),
+			    VAR isJobsFiltered = ISFILTERED(jobs)
+			    VAR currentPrecedents = SELECTCOLUMNS(refresh_job_precedence,"jobs",refresh_job_precedence[precedent_job_name])
+			    VAR selectedPrecedents = SELECTCOLUMNS(FILTER(jobs,isJobsFiltered),"jobs",jobs[job_name])
+			
+			    VAR updatedPrecedents = 
+			        SWITCH(
+			            SELECTEDVALUE(Mode[Mode]),
+			            "No Change", IF(ISEMPTY(currentPrecedents),[No Precedents],CONCATENATEX(currentPrecedents,[jobs],UNICHAR(10))),
+			            "Append", CONCATENATEX(DISTINCT(UNION(currentPrecedents,selectedPrecedents)),[jobs],UNICHAR(10)),
+			            "Remove", CONCATENATEX(EXCEPT(currentPrecedents,selectedPrecedents),[jobs],UNICHAR(10)),
+			            "Replace", CONCATENATEX(selectedPrecedents,[jobs],UNICHAR(10)),
+			            "Clear", [No Precedents]
+			        )
+			    RETURN updatedPrecedents,
+			    BLANK()
+			)
+			```
+		lineageTag: e1f5962d-a0c3-4f97-ada9-21ad8ee89bf7
+
+	measure 'New Precedents List (Value)' = SUBSTITUTE(SUBSTITUTE([New Precedents List],UNICHAR(10),"|"),[No Precedents],"")
+		lineageTag: 2ca14f60-290c-48b1-8c0e-5af6b1372053
+
+	column job_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(200)
+		lineageTag: 0a60f7e3-c190-42e7-82b1-22ec64e57ad7
+		summarizeBy: none
+		sourceColumn: job_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column precedent_job_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(200)
+		lineageTag: 3a92bbcd-73a6-4492-9231-4903d66890ac
+		summarizeBy: none
+		sourceColumn: precedent_job_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition refresh_job_precedence = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Database("swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.database.fabric.microsoft.com", "Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07"),
+				    dbo_refresh_job_precedence = Source{[Schema="dbo",Item="refresh_job_precedence"]}[Data]
+				in
+				    dbo_refresh_job_precedence
+
+	annotation PBI_ResultType = Table
+

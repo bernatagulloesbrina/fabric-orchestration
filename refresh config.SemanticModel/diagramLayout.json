@@ -1,0 +1,111 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 56,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 0,
+            "y": 12
+          },
+          "nodeIndex": "jobs",
+          "nodeLineageTag": "e60b9750-f22a-4797-ba96-d74f6145a19e",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 654,
+            "y": 438
+          },
+          "nodeIndex": "refresh_job_precedence",
+          "nodeLineageTag": "95997749-fb8b-4309-853d-a24a86192190",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 568,
+            "y": 12
+          },
+          "nodeIndex": "refresh_jobs",
+          "nodeLineageTag": "010e42b1-9119-48a9-a04d-0de99be9d58f",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 852,
+            "y": 0
+          },
+          "nodeIndex": "fabric_items",
+          "nodeLineageTag": "9889131f-e4e1-4c7d-9e89-deaac7511c1c",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1136,
+            "y": 24
+          },
+          "nodeIndex": "Priority",
+          "nodeLineageTag": "ae98d392-15c3-4fc9-bf5d-f26987bf5e1c",
+          "size": {
+            "height": 224,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1420,
+            "y": 96
+          },
+          "nodeIndex": "Mode",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1704,
+            "y": 96
+          },
+          "nodeIndex": "Update Priority",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

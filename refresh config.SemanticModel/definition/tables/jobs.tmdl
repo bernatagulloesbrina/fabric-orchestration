@@ -1,0 +1,109 @@
+table jobs
+	lineageTag: e60b9750-f22a-4797-ba96-d74f6145a19e
+
+	measure 'No Job' = ""
+		lineageTag: 491493ae-e2c6-4ba8-8394-d364f3b550ed
+
+	measure 'Selected Jobs' = IF(ISFILTERED(jobs),CONCATENATEX(jobs,jobs[job_name],"|"),"")
+		lineageTag: ceb0742e-b7df-4796-93ca-79761e6f8404
+
+	measure 'Selected Jobs (Display)' = IF(ISFILTERED(jobs),CONCATENATEX(jobs,jobs[job_name],UNICHAR(10)),"No precedents")
+		lineageTag: bd604ba8-37f5-491c-924d-6928eb75fafb
+
+	column execution_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(50)
+		lineageTag: 08a169af-5e1f-46a1-b44e-80072c0553a4
+		summarizeBy: none
+		sourceColumn: execution_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(200)
+		lineageTag: e244256a-23f2-4df2-8e49-360f9126fa75
+		summarizeBy: none
+		sourceColumn: job_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_time
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: c5b46321-6c56-4f3b-9068-bb5fe54bc71c
+		summarizeBy: none
+		sourceColumn: start_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column end_time
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 49fcdb5d-ab0c-4802-8d2f-d5ba894e078a
+		summarizeBy: none
+		sourceColumn: end_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column result
+		dataType: string
+		sourceProviderType: nvarchar(50)
+		lineageTag: 33828a0f-f6fe-41de-901c-3dafe1593ff0
+		summarizeBy: none
+		sourceColumn: result
+
+		annotation SummarizationSetBy = Automatic
+
+	column error_message
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: dc1aca87-3f58-4bb8-8c34-460a186a5272
+		summarizeBy: none
+		sourceColumn: error_message
+
+		annotation SummarizationSetBy = Automatic
+
+	column created_at
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 79e924f4-bb88-4d0f-becf-bdbe641c74ca
+		summarizeBy: none
+		sourceColumn: created_at
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_type
+		dataType: string
+		sourceProviderType: nvarchar(50)
+		lineageTag: 18765f72-090f-46c1-819c-7c962dffade2
+		summarizeBy: none
+		sourceColumn: job_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column object_type
+		dataType: string
+		sourceProviderType: nvarchar(50)
+		lineageTag: 25835da9-fcf6-41eb-8df1-f036c0fb7cff
+		summarizeBy: none
+		sourceColumn: object_type
+
+		annotation SummarizationSetBy = Automatic
+
+	partition jobs = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Database("swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.database.fabric.microsoft.com", "Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07"),
+				    dbo_jobs = Source{[Schema="dbo",Item="jobs"]}[Data]
+				in
+				    dbo_jobs
+
+	annotation PBI_ResultType = Table
+

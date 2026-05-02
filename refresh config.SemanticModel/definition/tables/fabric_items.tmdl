@@ -1,0 +1,113 @@
+table fabric_items
+	lineageTag: 9889131f-e4e1-4c7d-9e89-deaac7511c1c
+
+	/// This measure is the selected value of 'fabric_items'[description]
+	measure 'Selected description' = SELECTEDVALUE('fabric_items'[description])
+		lineageTag: 63e8a844-8480-47b6-be7e-cf06ed343bea
+
+	/// This measure is the selected value of 'fabric_items'[display_name]
+	measure 'Selected display_name' = SELECTEDVALUE('fabric_items'[display_name])
+		lineageTag: b13ea648-ec1a-4f67-a380-cb7d0c5be739
+
+	/// This measure is the selected value of 'fabric_items'[folder_id]
+	measure 'Selected folder_id' = SELECTEDVALUE('fabric_items'[folder_id])
+		lineageTag: 5e9753d2-21c5-467b-a44e-e317777753cf
+
+	/// This measure is the selected value of 'fabric_items'[job_name]
+	measure 'Selected job_name' = SELECTEDVALUE('fabric_items'[job_name])
+		lineageTag: f8c97490-6a2c-4a39-a263-6d8646efd941
+
+	/// This measure is the selected value of 'fabric_items'[object_id]
+	measure 'Selected object_id' = SELECTEDVALUE('fabric_items'[object_id])
+		lineageTag: 2877e24f-d77e-46df-905f-8e3dc4f3f80f
+
+	/// This measure is the selected value of 'fabric_items'[type]
+	measure 'Selected type' = SELECTEDVALUE('fabric_items'[type])
+		lineageTag: 27b5f484-7327-4781-af07-fbd8185bc964
+
+	/// This measure is the selected value of 'fabric_items'[workspace_id]
+	measure 'Selected workspace_id' = SELECTEDVALUE('fabric_items'[workspace_id])
+		lineageTag: d80ed18a-2dd3-4988-94da-ffe724664836
+
+	/// This measure is the selected value of 'fabric_items'[workspace_name]
+	measure 'Selected workspace_name' = SELECTEDVALUE('fabric_items'[workspace_name])
+		lineageTag: 5d28243a-bb7d-40a9-832b-e4b2042e1b4e
+
+	measure 'Current User' = USERPRINCIPALNAME()
+		lineageTag: 27a1519b-927f-4ea4-b506-70e0d18fa5e5
+
+	column object_id
+		dataType: string
+		lineageTag: fc687c59-aabb-4b6d-9ec9-9dc0334a71b9
+		summarizeBy: none
+		sourceColumn: object_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column display_name
+		dataType: string
+		lineageTag: a445021c-c7ad-42cb-9563-a4da55cb382c
+		summarizeBy: none
+		sourceColumn: display_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column description
+		dataType: string
+		lineageTag: b6390be9-1ee8-4e98-90dd-7a0ffabca559
+		summarizeBy: none
+		sourceColumn: description
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 9f4e068a-db78-4115-bb4d-26b04bf735e4
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column workspace_id
+		dataType: string
+		lineageTag: 441ae1fa-77ed-49c9-901c-d0c491ba82df
+		summarizeBy: none
+		sourceColumn: workspace_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column folder_id
+		dataType: string
+		lineageTag: 26956d30-6b17-4a92-b219-9c7546670232
+		summarizeBy: none
+		sourceColumn: folder_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column workspace_name
+		dataType: string
+		lineageTag: a0273ccb-2104-4981-8ba9-fbb1e0da8849
+		summarizeBy: none
+		sourceColumn: workspace_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_name
+		dataType: string
+		lineageTag: 8f5b280a-9d88-4742-886c-3d69f13548e0
+		summarizeBy: none
+		sourceColumn: job_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fabric_items = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.datawarehouse.fabric.microsoft.com", "MetadataLakehouse"),
+				    dbo_fabric_items = Source{[Schema="dbo",Item="fabric_items"]}[Data]
+				in
+				    dbo_fabric_items
+
+	annotation PBI_ResultType = Table
+

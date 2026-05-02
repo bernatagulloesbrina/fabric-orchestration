@@ -1,0 +1,143 @@
+table refresh_jobs
+	lineageTag: 010e42b1-9119-48a9-a04d-0de99be9d58f
+
+	/// This measure is the selected value of 'refresh_jobs'[job_name]
+	measure 'Selected Existing job_name' = SELECTEDVALUE('refresh_jobs'[job_name])
+		lineageTag: 3d0b6df8-a2f2-4045-9580-2f5ded556e36
+
+	/// This measure is the selected value of 'refresh_jobs'[object_id]
+	measure 'Selected Existing object_id' = SELECTEDVALUE('refresh_jobs'[object_id])
+		lineageTag: 8e35912d-11ec-4775-b831-7982c3208a7b
+
+	/// This measure is the selected value of 'refresh_jobs'[object_type]
+	measure 'Selected Existing object_type' = SELECTEDVALUE('refresh_jobs'[object_type])
+		lineageTag: 16ae193a-4675-4eba-8e3a-97eeb915d4de
+
+	/// This measure is the selected value of 'refresh_jobs'[object_name]
+	measure 'Selected Existing object_name' = SELECTEDVALUE('refresh_jobs'[object_name])
+		lineageTag: 41305bdb-3d28-4ba4-96a3-2833606e5057
+
+	/// This measure is the selected value of 'refresh_jobs'[workspace_id]
+	measure 'Selected Existing workspace_id' = SELECTEDVALUE('refresh_jobs'[workspace_id])
+		lineageTag: a8ed3c29-6606-4070-9761-bb3fbc249ccd
+
+	/// This measure is the selected value of 'refresh_jobs'[workspace_name]
+	measure 'Selected Existing workspace_name' = SELECTEDVALUE('refresh_jobs'[workspace_name])
+		lineageTag: 04ba3561-59e3-408d-b52a-1839b51f42af
+
+	measure 'Selected Existing deleted' = FORMAT(SELECTEDVALUE('refresh_jobs'[deleted]),"dd-mmmm-yyyy")
+		lineageTag: c52547a5-0578-463c-bdd9-5c48d4abeedf
+
+	column job_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(200)
+		lineageTag: e591ce2d-33c7-48aa-9203-ea83a750c9fb
+		summarizeBy: none
+		sourceColumn: job_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column workspace_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(100)
+		lineageTag: adf134d2-b6a3-4deb-9020-fdd64594e322
+		summarizeBy: none
+		sourceColumn: workspace_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column workspace_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(500)
+		lineageTag: c70b6f77-61f8-4912-a117-810c5285f697
+		summarizeBy: none
+		sourceColumn: workspace_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column object_type
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(100)
+		lineageTag: 3f57014d-21bb-4554-bbac-901574d2e123
+		summarizeBy: none
+		sourceColumn: object_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column object_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(100)
+		lineageTag: ea783829-8ec9-47be-8142-64dc8d2838f2
+		summarizeBy: none
+		sourceColumn: object_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column object_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(500)
+		lineageTag: 0971ba1b-f8ce-4b20-a0b2-283fb17db27b
+		summarizeBy: none
+		sourceColumn: object_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column priority
+		dataType: int64
+		isNullable: false
+		formatString: 0
+		sourceProviderType: int
+		lineageTag: 8c6e031e-7e1b-428e-8849-43497d5fcc3d
+		summarizeBy: none
+		sourceColumn: priority
+
+		annotation SummarizationSetBy = Automatic
+
+	column deleted
+		dataType: dateTime
+		formatString: Long Date
+		sourceProviderType: date
+		lineageTag: 0754cbfa-eace-4ca8-93db-7b71a641c93f
+		summarizeBy: none
+		sourceColumn: deleted
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column last_modified_by
+		dataType: string
+		sourceProviderType: nvarchar(200)
+		lineageTag: 8d5a7684-1d7c-451e-bc10-ab0104e351ff
+		summarizeBy: none
+		sourceColumn: last_modified_by
+
+		annotation SummarizationSetBy = Automatic
+
+	column last_modified_on
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 23e11f54-a9d6-4c1a-9d99-6cb63b337573
+		summarizeBy: none
+		sourceColumn: last_modified_on
+
+		annotation SummarizationSetBy = Automatic
+
+	partition refresh_jobs = m
+		mode: directQuery
+		source =
+				let
+				    Source = Sql.Database("swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.database.fabric.microsoft.com", "Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07"),
+				    dbo_refresh_jobs = Source{[Schema="dbo",Item="refresh_jobs"]}[Data]
+				in
+				    dbo_refresh_jobs
+
+	annotation PBI_ResultType = Table
+
