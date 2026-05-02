@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "839dcc70daa07a070098",
   "position": {
-    "x": 20.300751879699249,
-    "y": 87.969924812030072,
-    "z": 4000,
-    "height": 319.3984962406015,
-    "width": 753.83458646616532,
+    "x": 34.029850746268657,
+    "y": 75.223880597014926,
+    "z": 5000,
+    "height": 319.70149253731341,
+    "width": 739.70149253731336,
     "tabOrder": 4
   },
   "visual": {
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "refresh_jobs.job_name",
-              "nativeQueryRef": "job_name"
+              "nativeQueryRef": "Job",
+              "displayName": "Job"
             },
             {
               "field": {
@@ -41,7 +42,8 @@
                 }
               },
               "queryRef": "Sum(refresh_jobs.priority)",
-              "nativeQueryRef": "priority"
+              "nativeQueryRef": "Priority",
+              "displayName": "Priority"
             },
             {
               "field": {
@@ -55,7 +57,8 @@
                 }
               },
               "queryRef": "refresh_jobs.object_type",
-              "nativeQueryRef": "object_type"
+              "nativeQueryRef": "Type",
+              "displayName": "Type"
             },
             {
               "field": {
@@ -69,7 +72,8 @@
                 }
               },
               "queryRef": "refresh_jobs.object_name",
-              "nativeQueryRef": "object_name"
+              "nativeQueryRef": "Name",
+              "displayName": "Name"
             },
             {
               "field": {
@@ -83,11 +87,35 @@
                 }
               },
               "queryRef": "refresh_job_precedence.Precedents",
-              "nativeQueryRef": "Precedent count all"
+              "nativeQueryRef": "Precedents",
+              "displayName": "Precedents"
             }
           ]
         }
       }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "292.8059710480951D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "refresh_jobs.job_name"
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {}
+        }
+      ]
     },
     "visualContainerObjects": {
       "visualTooltip": [
@@ -104,6 +132,65 @@
               "expr": {
                 "Literal": {
                   "Value": "'069615dac35190e0b49a'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Fabric Refresh Jobs'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }

@@ -1,10 +1,10 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.8.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "e471c4912a7ebdb275b3",
   "position": {
-    "x": 312.63157894736844,
-    "y": 489.92481203007515,
-    "z": 1000,
+    "x": 282.18381775333853,
+    "y": 491.71585680619455,
+    "z": 2000,
     "height": 70.375939849624061,
     "width": 414.13533834586462,
     "tabOrder": 0
@@ -85,6 +85,19 @@
               "expr": {
                 "Literal": {
                   "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "header": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Fabic Item'"
                 }
               }
             }

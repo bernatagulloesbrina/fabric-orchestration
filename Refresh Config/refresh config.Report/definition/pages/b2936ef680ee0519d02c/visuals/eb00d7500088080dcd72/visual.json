@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "eb00d7500088080dcd72",
   "position": {
-    "x": 775.48872180451121,
-    "y": 489.92481203007515,
-    "z": 8000,
-    "height": 167.81954887218043,
-    "width": 376.24060150375936,
+    "x": 729.85074626865674,
+    "y": 491.64179104477608,
+    "z": 9000,
+    "height": 179.1044776119403,
+    "width": 359.1044776119403,
     "tabOrder": 8
   },
   "visual": {
@@ -48,6 +48,47 @@
         }
       ],
       "categoryLabels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
         {
           "properties": {
             "show": {

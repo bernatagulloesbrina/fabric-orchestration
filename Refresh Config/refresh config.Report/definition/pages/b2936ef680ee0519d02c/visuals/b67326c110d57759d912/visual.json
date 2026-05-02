@@ -1,12 +1,12 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "b67326c110d57759d912",
   "position": {
-    "x": 809.32330827067665,
-    "y": 64.962406015037587,
-    "z": 8001,
-    "height": 138.04511278195488,
-    "width": 185.41353383458645,
+    "x": 790.74626865671644,
+    "y": 75.223880597014926,
+    "z": 10000,
+    "height": 152.23880597014926,
+    "width": 185.37313432835819,
     "tabOrder": 11
   },
   "visual": {
@@ -101,7 +101,7 @@
                           [
                             {
                               "Literal": {
-                                "Value": "'No Change'"
+                                "Value": "'Replace'"
                               }
                             }
                           ]
@@ -110,6 +110,19 @@
                     }
                   }
                 ]
+              }
+            }
+          }
+        }
+      ],
+      "header": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Precedent Jobs Mode'"
+                }
               }
             }
           }

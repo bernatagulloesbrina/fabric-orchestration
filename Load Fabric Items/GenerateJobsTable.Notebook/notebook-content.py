@@ -183,7 +183,7 @@ else:
 
 # MARKDOWN ********************
 
-# ## Create Jobs Table with Generated Job Names
+# ## Create Fabic Items table with Generated Job Names
 # 
 # Converts the pandas DataFrame to Spark and adds a formatted jobName column.
 # 
@@ -209,7 +209,7 @@ if len(all_items_df) > 0:
     
     df_jobs = df_spark.withColumn(
         'job_name',
-        concat_ws(' - ', col('workspace_name'), col('type'), col('display_name'))
+        concat_ws(' - ', col('display_name'), col('type'), col('workspace_name'))
     )
     
     # Display preview
