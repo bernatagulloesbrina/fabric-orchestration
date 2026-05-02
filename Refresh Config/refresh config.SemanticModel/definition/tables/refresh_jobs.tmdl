@@ -28,6 +28,10 @@ table refresh_jobs
 	measure 'Selected Existing deleted' = FORMAT(SELECTEDVALUE('refresh_jobs'[deleted]),"dd-mmmm-yyyy")
 		lineageTag: c52547a5-0578-463c-bdd9-5c48d4abeedf
 
+	measure 'Refresh Job Count' = COUNTROWS(refresh_jobs)
+		formatString: 0
+		lineageTag: eb2a131f-354d-4468-9b1a-ed9dba6ce8e9
+
 	column job_name
 		dataType: string
 		isNullable: false
