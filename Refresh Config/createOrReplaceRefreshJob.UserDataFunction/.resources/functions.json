@@ -1,0 +1,90 @@
+{
+  "runtime": "PYTHON",
+  "functionsMetadata": [
+    {
+      "name": "create_or_replace_refresh",
+      "scriptFile": "function_app.py",
+      "bindings": [
+        {
+          "name": "req",
+          "type": "HttpTrigger",
+          "direction": "In",
+          "authLevel": "Anonymous",
+          "methods": [
+            "POST"
+          ],
+          "route": ""
+        },
+        {
+          "name": "metadataSql",
+          "type": "FabricItem",
+          "direction": "In",
+          "alias": "Metadata",
+          "subType": "FabricSqlConnection",
+          "itemType": null,
+          "audienceType": null
+        }
+      ],
+      "fabricProperties": {
+        "fabricMetadataSchemaVersion": "1.1.0",
+        "fabricFunctionReturnType": "str",
+        "fabricFunctionParameters": [
+          {
+            "name": "jobName",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "workspaceId",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "workspaceName",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "objectType",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "objectId",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "objectName",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "priority",
+            "dataType": "int",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "precedentJobNames",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          },
+          {
+            "name": "modifiedBy",
+            "dataType": "str",
+            "hasDefaultValue": false,
+            "defaultValue": null
+          }
+        ]
+      }
+    }
+  ]
+}
