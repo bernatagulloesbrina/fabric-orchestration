@@ -4,6 +4,7 @@ from datetime import date
 
 udf = fn.UserDataFunctions()
 
+
 def _is_date(value: str) -> bool:
     if not value or not isinstance(value, str) or not value.strip():
         return False
@@ -13,22 +14,15 @@ def _is_date(value: str) -> bool:
     except ValueError:
         return False
 
-        
+
 @udf.connection(argName="metadataSql", alias="Metadata")
 @udf.function()
 def restore_refresh_job(
     metadataSql: fn.FabricSqlConnection,
     jobName: str,
     modifiedBy: str,
-    deleted: str,        
+    deleted: str,
 ) -> str:
-    if not _is_date(deleted):
-        raise fn.UserThrownError(
-            "This job is not deleted, nothing to restore.",
-            {"jobName": jobName},
-        )
-    # ... rest of the function
-
     """
     Summary: Restore a soft-deleted refresh job.
     Description: Clears the deleted date and records who made the change.
@@ -37,12 +31,14 @@ def restore_refresh_job(
         raise fn.UserThrownError("jobName is required and must be a non-empty string.", {"jobName": jobName})
     if not isinstance(modifiedBy, str) or not modifiedBy.strip():
         raise fn.UserThrownError("modifiedBy is required and must be a non-empty string.", {"modifiedBy": modifiedBy})
+    if not _is_date(deleted):
+        raise fn.UserThrownError("This job is not deleted, nothing to restore.", {"jobName": jobName})
 
     sql = """
     UPDATE dbo.refresh_jobs
     SET    deleted          = NULL,
            last_modified_by = ?,
-           last_modified_on = GETUTCDATE()
+           last_modified_on = CAST(GETUTCDATE() AS DATETIME2(0))
     WHERE  job_name = ?;
     """
 

@@ -7,7 +7,7 @@
     "z": 13000,
     "height": 85.970149253731336,
     "width": 461.19402985074623,
-    "tabOrder": 14
+    "tabOrder": 11000
   },
   "visual": {
     "visualType": "cardVisual",
@@ -177,23 +177,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "bbf5956636972c0020e0",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "refresh_job_precedence"
-              }
-            },
-            "Property": "New Precedents List"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

@@ -48,6 +48,16 @@ table refresh_jobs
 		formatString: General Date
 		lineageTag: 1120d31a-b049-44a8-9082-f9bf5237d71e
 
+	measure 'Change detection Maximum for last_modified_on' = MAX('refresh_jobs'[last_modified_on])
+		formatString: General Date
+		lineageTag: 910aa5d9-4f1b-4f62-b524-b5b2394348e6
+
+		extendedProperty ChangeDetectionMetadata =
+				{
+				  "version": 0,
+				  "refreshInterval": "PT5S"
+				}
+
 	column job_name
 		dataType: string
 		isNullable: false
