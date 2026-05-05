@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "6aec98b3c9d45b5bd0e5",
+  "name": "6a9913632c61782b9b4a",
   "position": {
     "x": 1151.641791044776,
-    "y": 130.74626865671641,
-    "z": 18000,
+    "y": 180,
+    "z": 19000,
     "height": 40.298507462686565,
     "width": 100.29850746268656,
-    "tabOrder": 21000
+    "tabOrder": 20000
   },
   "visual": {
     "visualType": "actionButton",
@@ -45,7 +45,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Delete Refresh'"
+                  "Value": "'Restore Refresh'"
                 }
               }
             }
@@ -80,7 +80,7 @@
                 "itemId": {
                   "expr": {
                     "Literal": {
-                      "Value": "'f2504bb0-de23-47a0-8b17-5a857d40c106'"
+                      "Value": "'958f8ace-08ac-4f4d-9483-8261bac2267e'"
                     }
                   }
                 },
@@ -94,8 +94,8 @@
               },
               "metadata": {
                 "dataFunction": {
-                  "name": "delete_refresh_job",
-                  "autoRefresh": false,
+                  "name": "restore_refresh_job",
+                  "autoRefresh": true,
                   "parameters": [
                     {
                       "name": "jobName",
@@ -136,7 +136,7 @@
                       }
                     },
                     {
-                      "name": "activeMarker",
+                      "name": "deleted",
                       "dataType": "string",
                       "isOptional": false,
                       "defaultValue": null,
@@ -149,7 +149,7 @@
                                 "Entity": "refresh_jobs"
                               }
                             },
-                            "Property": "Selected Existing NOT deleted"
+                            "Property": "Selected Existing deleted"
                           }
                         }
                       }

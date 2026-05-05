@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "6aec98b3c9d45b5bd0e5",
+  "name": "aecf1666e0bb0c1b4a0b",
   "position": {
     "x": 1151.641791044776,
-    "y": 130.74626865671641,
-    "z": 18000,
+    "y": 78.805970149253724,
+    "z": 14000,
     "height": 40.298507462686565,
     "width": 100.29850746268656,
-    "tabOrder": 21000
+    "tabOrder": 18000
   },
   "visual": {
     "visualType": "actionButton",
@@ -45,7 +45,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Delete Refresh'"
+                  "Value": "'Modify Refresh'"
                 }
               }
             }
@@ -80,7 +80,7 @@
                 "itemId": {
                   "expr": {
                     "Literal": {
-                      "Value": "'f2504bb0-de23-47a0-8b17-5a857d40c106'"
+                      "Value": "'c02bc5f0-9827-4fb2-88ab-8d1dd610801f'"
                     }
                   }
                 },
@@ -94,67 +94,88 @@
               },
               "metadata": {
                 "dataFunction": {
-                  "name": "delete_refresh_job",
+                  "name": "create_or_replace_refresh",
                   "autoRefresh": false,
                   "parameters": [
                     {
                       "name": "jobName",
                       "dataType": "string",
                       "isOptional": false,
-                      "defaultValue": null,
-                      "type": "ValueParameter",
-                      "value": {
-                        "expr": {
-                          "Measure": {
-                            "Expression": {
-                              "SourceRef": {
-                                "Entity": "refresh_jobs"
-                              }
-                            },
-                            "Property": "Selected Existing job_name"
-                          }
-                        }
-                      }
+                      "type": "SlicerParameter",
+                      "slicer": null
                     },
                     {
+                      "name": "workspaceId",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "SlicerParameter",
+                      "slicer": null
+                    },
+                    {
+                      "name": "workspaceName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "SlicerParameter",
+                      "slicer": null
+                    },
+                    {
+                      "name": "objectType",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "SlicerParameter",
+                      "slicer": null
+                    },
+                    {
+                      "name": "objectId",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "SlicerParameter",
+                      "slicer": null
+                    },
+                    {
+                      "name": "objectName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "SlicerParameter",
+                      "slicer": null
+                    },
+                    {
+                      "name": "priority",
+                      "dataType": "number",
+                      "isOptional": false,
+                      "type": "SlicerParameter",
+                      "slicer": null
+                    },
+                    {
+                      "name": "precedentJobNames",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "type": "SlicerParameter",
+                      "slicer": null
+                    },
+                    {
+                      "type": "SlicerParameter",
+                      "autoClear": false,
                       "name": "modifiedBy",
                       "dataType": "string",
                       "isOptional": false,
-                      "defaultValue": null,
-                      "type": "ValueParameter",
-                      "value": {
-                        "expr": {
-                          "Measure": {
-                            "Expression": {
-                              "SourceRef": {
-                                "Entity": "fabric_items"
-                              }
-                            },
-                            "Property": "Current User"
-                          }
-                        }
-                      }
-                    },
-                    {
-                      "name": "activeMarker",
-                      "dataType": "string",
-                      "isOptional": false,
-                      "defaultValue": null,
-                      "type": "ValueParameter",
-                      "value": {
-                        "expr": {
-                          "Measure": {
-                            "Expression": {
-                              "SourceRef": {
-                                "Entity": "refresh_jobs"
-                              }
-                            },
-                            "Property": "Selected Existing NOT deleted"
-                          }
-                        }
-                      }
+                      "defaultValue": null
                     }
                   ]
+                }
+              }
+            },
+            "showDefaultTooltip": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "tooltip": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Modify properties of the selected Refresh'"
                 }
               }
             }

@@ -95,7 +95,7 @@
               "metadata": {
                 "dataFunction": {
                   "name": "restore_refresh_job",
-                  "autoRefresh": true,
+                  "autoRefresh": false,
                   "parameters": [
                     {
                       "name": "jobName",

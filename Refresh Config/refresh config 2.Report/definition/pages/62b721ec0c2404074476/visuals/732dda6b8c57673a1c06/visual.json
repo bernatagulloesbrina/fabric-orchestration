@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "6aec98b3c9d45b5bd0e5",
+  "name": "732dda6b8c57673a1c06",
   "position": {
     "x": 1151.641791044776,
     "y": 130.74626865671641,
@@ -95,7 +95,7 @@
               "metadata": {
                 "dataFunction": {
                   "name": "delete_refresh_job",
-                  "autoRefresh": false,
+                  "autoRefresh": true,
                   "parameters": [
                     {
                       "name": "jobName",
@@ -136,7 +136,7 @@
                       }
                     },
                     {
-                      "name": "activeMarker",
+                      "name": "deleted",
                       "dataType": "string",
                       "isOptional": false,
                       "defaultValue": null,
@@ -149,7 +149,7 @@
                                 "Entity": "refresh_jobs"
                               }
                             },
-                            "Property": "Selected Existing NOT deleted"
+                            "Property": "Selected Existing deleted"
                           }
                         }
                       }

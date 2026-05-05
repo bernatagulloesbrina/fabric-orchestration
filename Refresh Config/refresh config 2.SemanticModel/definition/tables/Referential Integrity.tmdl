@@ -1,0 +1,55 @@
+table 'Referential Integrity'
+	lineageTag: aa40f5b5-3948-46c7-b035-7dc67abe574a
+
+	measure 'job_name not mapped in refresh_job_precedence' =
+			CALCULATE(
+			    SUMX( VALUES( refresh_job_precedence[job_name] ), 1 ),
+			    ISBLANK( refresh_jobs[job_name] ),
+			    USERELATIONSHIP( refresh_job_precedence[job_name], refresh_jobs[job_name] ),
+			    ALLEXCEPT( refresh_job_precedence, refresh_job_precedence[job_name] )
+			)
+		formatString: #,##0
+		displayFolder: _Data quality Measures
+		lineageTag: ea054e62-b191-4e91-8618-7820e55c47f6
+
+		annotation ReferencialIntegrityMeasures = DataQualityMeasure_1
+
+	measure 'job_name not mapped in refresh_job_precedence Title' =
+			FORMAT( [job_name not mapped in refresh_job_precedence] + 0, "#,##0" )
+			    & " job_name not mapped in refresh_job_precedence"
+		displayFolder: _Data quality Titles
+		lineageTag: 0f848244-526c-40e3-8fb0-6ccf46ea1889
+
+		annotation ReferencialIntegrityMeasures = DataQualityTitle_1
+
+	measure 'job_name not mapped in refresh_job_precedence Subtitle' = FORMAT( [job_name not mapped in refresh_job_precedence] + 0, "#,##0" ) & " values missing in " & "refresh_jobs"
+		displayFolder: _Data quality Subtitles
+		lineageTag: cca26564-887b-486d-a476-5789775a3096
+
+		annotation ReferencialIntegrityMeasures = DataQualitySubitle_1
+
+	measure 'Total Unmapped Items' = +[job_name not mapped in refresh_job_precedence]
+		formatString: #,##0
+		lineageTag: b6855443-7548-4cda-a693-d2a917221f5e
+
+		annotation ReferencialIntegrityMeasures = TotalUnmappedItems
+
+	measure 'Data Problems' =
+			""
+			    & IF(
+			        [job_name not mapped in refresh_job_precedence] > 0,
+			        [job_name not mapped in refresh_job_precedence Title] & UNICHAR( 10 )
+			    )
+		lineageTag: d754a619-cd8b-424d-a477-f390c084330b
+
+		annotation ReferencialIntegrityMeasures = DataProblems
+
+	column Value
+		lineageTag: 507cd7d5-7c02-4450-ad1e-e0b102f48dad
+		isNameInferred
+		sourceColumn: [Value]
+
+	partition 'Referential Integrity' = calculated
+		mode: import
+		source = {0}
+

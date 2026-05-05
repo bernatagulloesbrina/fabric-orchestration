@@ -25,19 +25,9 @@ table refresh_jobs
 	measure 'Selected Existing workspace_name' = SELECTEDVALUE('refresh_jobs'[workspace_name])
 		lineageTag: 04ba3561-59e3-408d-b52a-1839b51f42af
 
-	measure 'Selected Existing deleted' = ```
+	measure 'Selected Existing deleted' =
 			
-			VAR _v = SELECTEDVALUE('refresh_jobs'[deleted])
-			RETURN 
-			    /*CONVERT(
-			        IF(
-			            ISBLANK( _v ),
-			            BLANK(),*/
-			            FORMAT(_v,"yyyy-mm-dd")
-			      /*  ),
-			        STRING
-			    )*/
-			```
+			IF(isBLANK(SELECTEDVALUE(refresh_jobs[deleted])), blank(), FORMAT(SELECTEDVALUE(refresh_jobs[deleted]),"yyyy-mm-dd"))
 		lineageTag: c52547a5-0578-463c-bdd9-5c48d4abeedf
 
 	measure 'Refresh Job Count' = COUNTROWS(refresh_jobs)
@@ -57,6 +47,9 @@ table refresh_jobs
 				  "version": 0,
 				  "refreshInterval": "PT5S"
 				}
+
+	measure 'Selected Existing NOT deleted' = IF(isBLANK(SELECTEDVALUE(refresh_jobs[deleted])), "Can be deleted", blank())
+		lineageTag: 854c299c-c008-4ef7-81c2-8d2f85a5ca40
 
 	column job_name
 		dataType: string

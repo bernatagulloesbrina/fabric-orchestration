@@ -45,6 +45,8 @@ table refresh_job_precedence
 
 		annotation SummarizationSetBy = Automatic
 
+		annotation ReferencialIntegrityMeasures = FactColumn_1
+
 	column precedent_job_name
 		dataType: string
 		isNullable: false

@@ -21,6 +21,7 @@ ref table fabric_items
 ref table Priority
 ref table Mode
 ref table 'Update Priority'
+ref table 'Referential Integrity'
 
 ref cultureInfo en-US
 

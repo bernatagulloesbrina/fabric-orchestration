@@ -1,0 +1,102 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "dc7452a5d578d9841801",
+  "position": {
+    "x": 309.85074626865674,
+    "y": 336.71641791044777,
+    "z": 0,
+    "height": 280.29850746268659,
+    "width": 857.01492537313436,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Referential Integrity"
+                    }
+                  },
+                  "Property": "Data Problems"
+                }
+              },
+              "queryRef": "Referential Integrity.Data Problems",
+              "nativeQueryRef": "Data Problems"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Referential Integrity"
+                    }
+                  },
+                  "Property": "Total Unmapped Items"
+                }
+              },
+              "queryRef": "Referential Integrity.Total Unmapped Items",
+              "nativeQueryRef": "Total Unmapped Items"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Referential Integrity"
+                  }
+                },
+                "Property": "Data Problems"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "0c2e6c3c1eb5d2e2294d",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Referential Integrity"
+              }
+            },
+            "Property": "Data Problems"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "6b823ad8076ee7245a29",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Referential Integrity"
+              }
+            },
+            "Property": "Total Unmapped Items"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}
