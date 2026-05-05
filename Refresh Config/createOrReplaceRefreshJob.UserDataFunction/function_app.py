@@ -86,12 +86,12 @@ def create_or_replace_refresh(
         UPDATE SET workspace_id = source.workspace_id, workspace_name = source.workspace_name,
                    object_type = source.object_type, object_id = source.object_id,
                    object_name = source.object_name, priority = source.priority,
-                   last_modified_by = source.last_modified_by, last_modified_on = GETUTCDATE()
+                   last_modified_by = source.last_modified_by, last_modified_on = CAST(GETUTCDATE() AS DATETIME2(0))
     WHEN NOT MATCHED THEN
         INSERT (job_name, workspace_id, workspace_name, object_type, object_id, object_name, priority, last_modified_by, last_modified_on)
         VALUES (source.job_name, source.workspace_id, source.workspace_name,
                 source.object_type, source.object_id, source.object_name, source.priority,
-                source.last_modified_by, GETUTCDATE());
+                source.last_modified_by, CAST(GETUTCDATE() AS DATETIME2(0)));
     """
 
     jobs_upsert_sql = """

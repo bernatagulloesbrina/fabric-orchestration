@@ -1,17 +1,8 @@
 import fabric.functions as fn
 import logging
-from datetime import date
 
 udf = fn.UserDataFunctions()
 
-def _is_date(value: str) -> bool:
-    if not value or not isinstance(value, str) or not value.strip():
-        return False
-    try:
-        date.fromisoformat(value.strip())
-        return True
-    except ValueError:
-        return False
 
 @udf.connection(argName="metadataSql", alias="Metadata")
 @udf.function()
@@ -19,13 +10,8 @@ def delete_refresh_job(
     metadataSql: fn.FabricSqlConnection,
     jobName: str,
     modifiedBy: str,
-    deleted: str,        
+    activeMarker: str,
 ) -> str:
-    if _is_date(deleted):
-        raise fn.UserThrownError(
-            "This job is already deleted.",
-            {"jobName": jobName, "deleted": deleted},
-        )
     """
     Summary: Soft-delete a refresh job.
     Description: Sets deleted to today's UTC date and records who made the change.
@@ -34,12 +20,14 @@ def delete_refresh_job(
         raise fn.UserThrownError("jobName is required and must be a non-empty string.", {"jobName": jobName})
     if not isinstance(modifiedBy, str) or not modifiedBy.strip():
         raise fn.UserThrownError("modifiedBy is required and must be a non-empty string.", {"modifiedBy": modifiedBy})
+    if not activeMarker or not activeMarker.strip():
+        raise fn.UserThrownError("This job is already deleted.", {"jobName": jobName})
 
     sql = """
     UPDATE dbo.refresh_jobs
     SET    deleted          = CAST(GETUTCDATE() AS DATE),
            last_modified_by = ?,
-           last_modified_on = GETUTCDATE()
+           last_modified_on = CAST(GETUTCDATE() AS DATETIME2(0))
     WHERE  job_name = ?;
     """
 
