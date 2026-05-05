@@ -42,7 +42,7 @@
             "defaultValue": null
           },
           {
-            "name": "deleted",
+            "name": "activeMarker",
             "dataType": "str",
             "hasDefaultValue": false,
             "defaultValue": null
