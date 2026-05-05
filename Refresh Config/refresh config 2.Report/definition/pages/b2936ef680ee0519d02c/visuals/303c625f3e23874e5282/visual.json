@@ -7,7 +7,7 @@
     "z": 6000,
     "height": 69.022556390977442,
     "width": 238.19548872180451,
-    "tabOrder": 5
+    "tabOrder": 3000
   },
   "visual": {
     "visualType": "slicer",
@@ -200,20 +200,6 @@
           ]
         },
         "howCreated": "User"
-      },
-      {
-        "name": "513741bc66ccde30c799",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fabric_items"
-              }
-            },
-            "Property": "workspace_name"
-          }
-        },
-        "type": "Categorical"
       }
     ]
   }

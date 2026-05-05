@@ -36,6 +36,20 @@ table fabric_items
 	measure 'Current User' = USERPRINCIPALNAME()
 		lineageTag: 27a1519b-927f-4ea4-b506-70e0d18fa5e5
 
+	measure 'Is in Refresh Jobs' =
+			
+			CALCULATE(
+			    INT(
+			        NOT ISEMPTY(refresh_jobs)
+			    ),
+			    TREATAS(
+			        VALUES(fabric_items[job_name]),
+			        refresh_jobs[job_name]
+			    )
+			)
+		formatString: 0
+		lineageTag: 66861acf-1aa5-4b73-825f-845104a195c5
+
 	column object_id
 		dataType: string
 		lineageTag: fc687c59-aabb-4b6d-9ec9-9dc0334a71b9

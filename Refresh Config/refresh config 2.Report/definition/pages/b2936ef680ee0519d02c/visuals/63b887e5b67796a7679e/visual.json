@@ -7,7 +7,7 @@
     "z": 4000,
     "height": 64.4776119402985,
     "width": 114.6268656716418,
-    "tabOrder": 2
+    "tabOrder": 1000
   },
   "visual": {
     "visualType": "slicer",
@@ -80,23 +80,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "b7155db203d602006069",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "Priority"
-              }
-            },
-            "Property": "Priority"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

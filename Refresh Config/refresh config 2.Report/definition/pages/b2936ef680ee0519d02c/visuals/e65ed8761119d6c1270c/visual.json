@@ -7,7 +7,7 @@
     "z": 15000,
     "height": 34.029850746268657,
     "width": 139.70149253731344,
-    "tabOrder": 15
+    "tabOrder": 12000
   },
   "visual": {
     "visualType": "slicer",
@@ -123,23 +123,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "173f1d523b8ca1449e32",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "Update Priority"
-              }
-            },
-            "Property": "Value"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

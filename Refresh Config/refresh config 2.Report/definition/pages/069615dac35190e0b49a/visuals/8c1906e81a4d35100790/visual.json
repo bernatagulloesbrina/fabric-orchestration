@@ -51,23 +51,5 @@
       }
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "c8b3a13660ab4e181e10",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "refresh_job_precedence"
-              }
-            },
-            "Property": "precedent_job_name"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

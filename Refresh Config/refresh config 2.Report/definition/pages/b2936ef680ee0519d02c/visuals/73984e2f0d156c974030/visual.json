@@ -7,7 +7,7 @@
     "z": 8000,
     "height": 94.73684210526315,
     "width": 328.8721804511278,
-    "tabOrder": 7
+    "tabOrder": 5000
   },
   "visual": {
     "visualType": "slicer",
@@ -106,23 +106,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "82898a90a9057377dda4",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "jobs"
-              }
-            },
-            "Property": "job_name"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }
