@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git stash *)",
+      "Bash(git pull *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git rebase *)",
+      "Bash(git restore *)",
+      "Bash(GIT_EDITOR=true git rebase --continue)"
+    ]
+  }
+}
