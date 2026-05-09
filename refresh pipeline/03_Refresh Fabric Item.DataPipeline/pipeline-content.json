@@ -29,7 +29,7 @@
         "typeProperties": {
           "variableName": "jobType",
           "value": {
-            "value": "@if(or(equals(pipeline().parameters.object_type, 'SemanticModel'), equals(pipeline().parameters.object_type, 'Dataflow')), 'DefaultJob',\n    if(equals(pipeline().parameters.object_type, 'DataPipeline'), 'Pipeline',\n        if(equals(pipeline().parameters.object_type, 'CopyJob'), 'Execute',\n            pipeline().parameters.object_type)))\n",
+            "value": "@if(equals(pipeline().parameters.object_type, 'Dataflow'), 'Refresh',\n    if(equals(pipeline().parameters.object_type, 'DataPipeline'), 'Pipeline',\n        if(equals(pipeline().parameters.object_type, 'CopyJob'), 'Execute',\n            if(equals(pipeline().parameters.object_type, 'SemanticModel'), 'DefaultJob',\n                pipeline().parameters.object_type))))",
             "type": "Expression"
           }
         },
