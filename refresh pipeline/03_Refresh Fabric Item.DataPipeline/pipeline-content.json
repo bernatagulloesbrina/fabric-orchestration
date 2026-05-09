@@ -137,7 +137,7 @@
         "typeProperties": {
           "variableName": "objectStatus",
           "value": {
-            "value": "@if(equals(variables('itemStatus'), 'Completed'), 'OK',\n    if(or(equals(variables('itemStatus'), 'Failed'), equals(variables('itemStatus'), 'Cancelled')), 'Error',\n        if(or(equals(variables('itemStatus'), 'InProgress'), equals(variables('itemStatus'), 'NotStarted'), equals(variables('itemStatus'), 'Deduped')), 'Ongoing',\n            variables('itemStatus'))))\n",
+            "value": "@if(equals(variables('itemStatus'), 'Completed'), 'OK',\n    if(or(equals(variables('itemStatus'), 'Failed'), equals(variables('itemStatus'), 'Cancelled')), 'Error',\n        if(or(equals(variables('itemStatus'), 'InProgress'), or(equals(variables('itemStatus'), 'NotStarted'), equals(variables('itemStatus'), 'Deduped'))), 'Ongoing',\n            variables('itemStatus'))))\n",
             "type": "Expression"
           }
         },
@@ -283,7 +283,8 @@
                   "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?jobType=', variables('jobType'))",
                   "type": "Expression"
                 },
-                "headers": {}
+                "headers": {},
+                "body": {}
               },
               "externalReferences": {
                 "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
@@ -298,7 +299,8 @@
               "name": "trigger refresh",
               "dependsOn": []
             }
-          ]
+          ],
+          "ifFalseActivities": []
         },
         "name": "trigger if needed",
         "dependsOn": [
