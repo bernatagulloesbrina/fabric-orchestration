@@ -2,205 +2,153 @@
   "properties": {
     "activities": [
       {
-        "type": "Switch",
+        "type": "WebActivity",
         "typeProperties": {
-          "on": {
-            "value": "@pipeline().parameters.object_type",
+          "method": "GET",
+          "relativeUrl": {
+            "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?$top=1')",
             "type": "Expression"
           },
-          "cases": [
-            {
-              "value": "Dataflow",
-              "activities": [
-                {
-                  "type": "WebActivity",
-                  "typeProperties": {
-                    "method": "GET",
-                    "relativeUrl": {
-                      "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?$top=1')",
-                      "type": "Expression"
-                    },
-                    "headers": {}
-                  },
-                  "externalReferences": {
-                    "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
-                  },
-                  "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 0,
-                    "retryIntervalInSeconds": 30,
-                    "secureInput": false,
-                    "secureOutput": false
-                  },
-                  "name": "retrieve latest refresh dataflows",
-                  "dependsOn": []
-                },
-                {
-                  "type": "SetVariable",
-                  "typeProperties": {
-                    "variableName": "dataflowStatus",
-                    "value": {
-                      "value": "@activity('retrieve latest refresh dataflows').output.value[0].status\n",
-                      "type": "Expression"
-                    }
-                  },
-                  "policy": {
-                    "secureInput": false,
-                    "secureOutput": false
-                  },
-                  "name": "Set dataflowStatus",
-                  "dependsOn": [
-                    {
-                      "activity": "retrieve latest refresh dataflows",
-                      "dependencyConditions": [
-                        "Succeeded"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "SetVariable",
-                  "typeProperties": {
-                    "variableName": "objectStartTimeUtc",
-                    "value": {
-                      "value": "@activity('retrieve latest refresh dataflows').output.value[0].startTimeUtc\n",
-                      "type": "Expression"
-                    }
-                  },
-                  "policy": {
-                    "secureInput": false,
-                    "secureOutput": false
-                  },
-                  "name": "Set objectStartTimeUtc",
-                  "dependsOn": [
-                    {
-                      "activity": "retrieve latest refresh dataflows",
-                      "dependencyConditions": [
-                        "Succeeded"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "SetVariable",
-                  "typeProperties": {
-                    "variableName": "objectEndTimeUtc",
-                    "value": {
-                      "value": "@activity('retrieve latest refresh dataflows').output.value[0].endTimeUtc\n",
-                      "type": "Expression"
-                    }
-                  },
-                  "policy": {
-                    "secureInput": false,
-                    "secureOutput": false
-                  },
-                  "name": "Set objectEndTimeUtc",
-                  "dependsOn": [
-                    {
-                      "activity": "retrieve latest refresh dataflows",
-                      "dependencyConditions": [
-                        "Succeeded"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "SetVariable",
-                  "typeProperties": {
-                    "variableName": "objectStatus",
-                    "value": {
-                      "value": "@if(equals(variables('dataflowStatus'), 'Completed'), 'OK',\n    if(or(equals(variables('dataflowStatus'), 'Failed'), equals(variables('dataflowStatus'), 'Cancelled')), 'Error',\n        if(or(equals(variables('dataflowStatus'), 'Accepted'), equals(variables('dataflowStatus'), 'InProgress')), 'Ongoing',\n            variables('dataflowStatus'))))\n",
-                      "type": "Expression"
-                    }
-                  },
-                  "policy": {
-                    "secureInput": false,
-                    "secureOutput": false
-                  },
-                  "name": "Set objectStatus",
-                  "dependsOn": [
-                    {
-                      "activity": "Set dataflowStatus",
-                      "dependencyConditions": [
-                        "Succeeded"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "SetVariable",
-                  "typeProperties": {
-                    "variableName": "objectErrorMessage",
-                    "value": {
-                      "value": "@if(empty(activity('retrieve latest refresh dataflows').output.value[0].failureReason), null, activity('retrieve latest refresh dataflows').output.value[0].failureReason.message)",
-                      "type": "Expression"
-                    }
-                  },
-                  "policy": {
-                    "secureInput": false,
-                    "secureOutput": false
-                  },
-                  "name": "Set objectErrorMessage",
-                  "dependsOn": [
-                    {
-                      "activity": "retrieve latest refresh dataflows",
-                      "dependencyConditions": [
-                        "Succeeded"
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ],
-          "defaultActivities": []
+          "headers": {}
         },
-        "name": "depending on object type",
+        "externalReferences": {
+          "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "retrieve latest refresh",
         "dependsOn": []
       },
       {
-        "type": "Switch",
+        "type": "SetVariable",
         "typeProperties": {
-          "on": {
-            "value": "@if(\n    or(\n        and(equals(variables('objectStatus'), 'OK'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 8)),\n        and(equals(variables('objectStatus'), 'Error'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 4))\n    ),\n    pipeline().parameters.object_type,\n    'NoAction'\n)",
+          "variableName": "jobType",
+          "value": {
+            "value": "@if(or(equals(pipeline().parameters.object_type, 'SemanticModel'), equals(pipeline().parameters.object_type, 'Dataflow')), 'DefaultJob',\n    if(equals(pipeline().parameters.object_type, 'DataPipeline'), 'Pipeline',\n        if(equals(pipeline().parameters.object_type, 'CopyJob'), 'Execute',\n            pipeline().parameters.object_type)))\n",
             "type": "Expression"
-          },
-          "cases": [
-            {
-              "value": "Dataflow",
-              "activities": [
-                {
-                  "type": "RefreshDataflow",
-                  "typeProperties": {
-                    "dataflowId": {
-                      "value": "@pipeline().parameters.object_id",
-                      "type": "Expression"
-                    },
-                    "workspaceId": {
-                      "value": "@pipeline().parameters.workspace_id",
-                      "type": "Expression"
-                    },
-                    "notifyOption": "NoNotification"
-                  },
-                  "policy": {
-                    "timeout": "0.12:00:00",
-                    "retry": 0,
-                    "retryIntervalInSeconds": 30,
-                    "secureInput": false,
-                    "secureOutput": false
-                  },
-                  "name": "Refresh Dataflow",
-                  "dependsOn": []
-                }
-              ]
-            }
-          ],
-          "defaultActivities": []
+          }
         },
-        "name": "depending on object type_copy1",
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set jobType",
+        "dependsOn": []
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "itemStatus",
+          "value": {
+            "value": "@activity('retrieve latest refresh').output.value[0].status",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set itemStatus",
         "dependsOn": [
           {
-            "activity": "RegisterRefresh",
+            "activity": "retrieve latest refresh",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "objectStartTimeUtc",
+          "value": {
+            "value": "@activity('retrieve latest refresh').output.value[0].startTimeUtc",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set objectStartTimeUtc",
+        "dependsOn": [
+          {
+            "activity": "retrieve latest refresh",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "objectEndTimeUtc",
+          "value": {
+            "value": "@activity('retrieve latest refresh').output.value[0].endTimeUtc",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set objectEndTimeUtc",
+        "dependsOn": [
+          {
+            "activity": "retrieve latest refresh",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "objectErrorMessage",
+          "value": {
+            "value": "@if(empty(activity('retrieve latest refresh').output.value[0].failureReason), null, activity('retrieve latest refresh').output.value[0].failureReason.message)",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set objectErrorMessage",
+        "dependsOn": [
+          {
+            "activity": "retrieve latest refresh",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "objectStatus",
+          "value": {
+            "value": "@if(equals(variables('itemStatus'), 'Completed'), 'OK',\n    if(or(equals(variables('itemStatus'), 'Failed'), equals(variables('itemStatus'), 'Cancelled')), 'Error',\n        if(or(equals(variables('itemStatus'), 'InProgress'), equals(variables('itemStatus'), 'NotStarted'), equals(variables('itemStatus'), 'Deduped')), 'Ongoing',\n            variables('itemStatus'))))\n",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set objectStatus",
+        "dependsOn": [
+          {
+            "activity": "Set itemStatus",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -294,7 +242,74 @@
         "name": "RegisterRefresh",
         "dependsOn": [
           {
-            "activity": "depending on object type",
+            "activity": "Set objectStatus",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Set objectStartTimeUtc",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Set objectEndTimeUtc",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Set objectErrorMessage",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "IfCondition",
+        "typeProperties": {
+          "expression": {
+            "value": "@or(\n    and(equals(variables('objectStatus'), 'OK'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 8)),\n    and(equals(variables('objectStatus'), 'Error'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 4))\n)",
+            "type": "Expression"
+          },
+          "ifTrueActivities": [
+            {
+              "type": "WebActivity",
+              "typeProperties": {
+                "method": "POST",
+                "relativeUrl": {
+                  "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?jobType=', variables('jobType'))",
+                  "type": "Expression"
+                },
+                "headers": {}
+              },
+              "externalReferences": {
+                "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "trigger refresh",
+              "dependsOn": []
+            }
+          ]
+        },
+        "name": "trigger if needed",
+        "dependsOn": [
+          {
+            "activity": "RegisterRefresh",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Set jobType",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -317,10 +332,13 @@
       }
     },
     "variables": {
-      "objectStatus": {
+      "jobType": {
         "type": "String"
       },
-      "dataflowStatus": {
+      "itemStatus": {
+        "type": "String"
+      },
+      "objectStatus": {
         "type": "String"
       },
       "objectStartTimeUtc": {
