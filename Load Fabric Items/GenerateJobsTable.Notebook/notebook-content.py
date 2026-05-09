@@ -23,17 +23,18 @@
 # MARKDOWN ********************
 
 # # Generate Jobs Table
-# 
+#
 # Creates a single unified table with all Fabric artifacts (semantic models, dataflows, pipelines, lakehouses, warehouses, etc.)
 # including a generated jobName column in the format: workspaceName - objectType - objectName
-# 
-# **Uses sempy.fabric methods:**
-# - `list_workspaces()` - Returns all workspaces as a pandas DataFrame
-# - `list_items(workspace)` - Returns all items in a workspace as a pandas DataFrame
+#
+# **Uses Fabric REST API (workspace identity compatible):**
+# - `GET /v1/workspaces` - Returns all workspaces the identity has access to
+# - `GET /v1/workspaces/{id}/items` - Returns all items in a workspace
 
 # CELL ********************
 
-import sempy.fabric as fabric
+import requests
+import pandas as pd
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType
 from datetime import datetime, timezone
@@ -121,8 +122,21 @@ def normalize_dataframe_columns(df):
 
 spark = SparkSession.builder.getOrCreate()
 
-# Get all workspaces using sempy's built-in method (returns a pandas DataFrame)
-workspaces_df = fabric.list_workspaces()
+token = notebookutils.credentials.getToken("https://api.fabric.microsoft.com")
+headers = {"Authorization": f"Bearer {token}"}
+
+def fetch_all(url):
+    items = []
+    while url:
+        resp = requests.get(url, headers=headers)
+        resp.raise_for_status()
+        data = resp.json()
+        items.extend(data.get("value", []))
+        url = data.get("continuationUri")
+    return items
+
+workspaces_raw = fetch_all("https://api.fabric.microsoft.com/v1/workspaces")
+workspaces_df = pd.DataFrame([{"Id": w["id"], "Name": w["displayName"]} for w in workspaces_raw])
 print(f'Workspaces found: {len(workspaces_df)}')
 print(workspaces_df.head())
 
@@ -136,8 +150,8 @@ print(workspaces_df.head())
 # MARKDOWN ********************
 
 # ## Collect All Items from All Workspaces
-# 
-# Uses sempy's list_items() method to fetch all items from each workspace.
+#
+# Uses the Fabric REST API to fetch all items from each workspace.
 
 # CELL ********************
 
@@ -149,15 +163,13 @@ for _, workspace in workspaces_df.iterrows():
     ws_name = workspace['Name']
     
     try:
-        # Get all items in this workspace (returns pandas DataFrame)
-        items_df = fabric.list_items(workspace=ws_id)
-        
-        if len(items_df) > 0:
-            # Rename 'Id' to 'Object Id' for clarity
-            if 'Id' in items_df.columns:
-                items_df = items_df.rename(columns={'Id': 'Object Id'})
-            
-            # Add workspace info to each item
+        items_raw = fetch_all(f"https://api.fabric.microsoft.com/v1/workspaces/{ws_id}/items")
+
+        if items_raw:
+            items_df = pd.DataFrame([
+                {"Object Id": i["id"], "Display Name": i["displayName"], "Type": i["type"]}
+                for i in items_raw
+            ])
             items_df['Workspace Id'] = ws_id
             items_df['Workspace Name'] = ws_name
             all_items.append(items_df)
@@ -167,7 +179,6 @@ for _, workspace in workspaces_df.iterrows():
 
 # Combine all items into a single DataFrame
 if all_items:
-    import pandas as pd
     all_items_df = pd.concat(all_items, ignore_index=True)
     print(f'\nTotal items collected: {len(all_items_df)}')
 else:
