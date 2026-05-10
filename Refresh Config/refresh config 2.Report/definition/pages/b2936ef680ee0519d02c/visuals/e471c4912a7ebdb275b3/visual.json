@@ -240,6 +240,20 @@
           ]
         },
         "howCreated": "User"
+      },
+      {
+        "name": "cf2237b603101a08887a",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fabric_items"
+              }
+            },
+            "Property": "job_name"
+          }
+        },
+        "type": "Categorical"
       }
     ]
   }

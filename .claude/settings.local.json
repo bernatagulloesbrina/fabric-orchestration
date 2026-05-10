@@ -8,7 +8,9 @@
       "Bash(git rebase *)",
       "Bash(git restore *)",
       "Bash(GIT_EDITOR=true git rebase --continue)",
-      "mcp__plugin_fabric-cli_microsoft-learn__microsoft_docs_search"
+      "mcp__plugin_fabric-cli_microsoft-learn__microsoft_docs_search",
+      "PowerShell(git -C \"c:\\\\Users\\\\berna\\\\source\\\\repos\\\\fabric-orchestration\" status)",
+      "PowerShell(git -C \"c:\\\\Users\\\\berna\\\\source\\\\repos\\\\fabric-orchestration\" log --oneline -5)"
     ]
   }
 }

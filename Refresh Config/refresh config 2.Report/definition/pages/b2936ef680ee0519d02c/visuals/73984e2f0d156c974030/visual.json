@@ -106,5 +106,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "616b062ab7caeee54ee4",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "jobs"
+              }
+            },
+            "Property": "job_name"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

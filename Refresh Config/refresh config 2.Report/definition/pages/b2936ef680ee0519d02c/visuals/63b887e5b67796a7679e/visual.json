@@ -80,5 +80,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "104556b6f7babbf85f0d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Priority"
+              }
+            },
+            "Property": "Priority"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

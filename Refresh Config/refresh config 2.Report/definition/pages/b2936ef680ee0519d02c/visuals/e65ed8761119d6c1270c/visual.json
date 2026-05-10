@@ -123,5 +123,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "fe977997e1ec480aac2e",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Update Priority"
+              }
+            },
+            "Property": "Value"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }

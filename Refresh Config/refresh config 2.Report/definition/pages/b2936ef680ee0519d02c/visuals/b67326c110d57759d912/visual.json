@@ -130,5 +130,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "25b6a53166596a68dfc3",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Mode"
+              }
+            },
+            "Property": "Mode"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
   }
 }
