@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "09_Refresh Fabric Item On Demand"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "9357dd23-f8f1-918f-4306-386a85c145df"
+  }
+}
