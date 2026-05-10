@@ -65,13 +65,10 @@
         "dependsOn": [
           {
             "activity": "trigger refresh",
-<<<<<<< HEAD
-            "dependencyConditions": ["Succeeded", "Failed"]
-=======
             "dependencyConditions": [
-              "Succeeded"
+              "Succeeded",
+              "Failed"
             ]
->>>>>>> 964ed201939042b2f149771959b88d7b2cfe3cf1
           }
         ]
       },
@@ -82,222 +79,7 @@
           "value": {
             "value": "@activity('trigger refresh').output.startTimeUtc",
             "type": "Expression"
-<<<<<<< HEAD
           }
-=======
-          },
-          "timeout": "0.02:00:00",
-          "activities": [
-            {
-              "type": "WebActivity",
-              "typeProperties": {
-                "method": "GET",
-                "relativeUrl": {
-                  "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?$top=1')",
-                  "type": "Expression"
-                },
-                "headers": {}
-              },
-              "externalReferences": {
-                "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
-              },
-              "policy": {
-                "timeout": "0.00:01:00",
-                "retry": 0,
-                "retryIntervalInSeconds": 30,
-                "secureInput": false,
-                "secureOutput": false
-              },
-              "name": "poll job",
-              "dependsOn": []
-            },
-            {
-              "type": "SetVariable",
-              "typeProperties": {
-                "variableName": "itemStatus",
-                "value": {
-                  "value": "@activity('poll job').output.value[0].status",
-                  "type": "Expression"
-                }
-              },
-              "policy": {
-                "secureInput": false,
-                "secureOutput": false
-              },
-              "name": "Set itemStatus",
-              "dependsOn": [
-                {
-                  "activity": "poll job",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "SetVariable",
-              "typeProperties": {
-                "variableName": "objectStartTimeUtc",
-                "value": {
-                  "value": "@activity('poll job').output.value[0].startTimeUtc",
-                  "type": "Expression"
-                }
-              },
-              "policy": {
-                "secureInput": false,
-                "secureOutput": false
-              },
-              "name": "Set objectStartTimeUtc",
-              "dependsOn": [
-                {
-                  "activity": "poll job",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "SetVariable",
-              "typeProperties": {
-                "variableName": "objectEndTimeUtc",
-                "value": {
-                  "value": "@activity('poll job').output.value[0].endTimeUtc",
-                  "type": "Expression"
-                }
-              },
-              "policy": {
-                "secureInput": false,
-                "secureOutput": false
-              },
-              "name": "Set objectEndTimeUtc",
-              "dependsOn": [
-                {
-                  "activity": "poll job",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "SetVariable",
-              "typeProperties": {
-                "variableName": "objectErrorMessage",
-                "value": {
-                  "value": "@if(empty(activity('poll job').output.value[0].failureReason), null, activity('poll job').output.value[0].failureReason.message)",
-                  "type": "Expression"
-                }
-              },
-              "policy": {
-                "secureInput": false,
-                "secureOutput": false
-              },
-              "name": "Set objectErrorMessage",
-              "dependsOn": [
-                {
-                  "activity": "poll job",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "SetVariable",
-              "typeProperties": {
-                "variableName": "objectStatus",
-                "value": {
-                  "value": "@if(equals(variables('itemStatus'), 'Completed'), 'OK',\n    if(or(equals(variables('itemStatus'), 'Failed'), equals(variables('itemStatus'), 'Cancelled')), 'Error',\n        if(or(equals(variables('itemStatus'), 'InProgress'), or(equals(variables('itemStatus'), 'NotStarted'), equals(variables('itemStatus'), 'Deduped'))), 'Ongoing',\n            variables('itemStatus'))))\n",
-                  "type": "Expression"
-                }
-              },
-              "policy": {
-                "secureInput": false,
-                "secureOutput": false
-              },
-              "name": "Set objectStatus",
-              "dependsOn": [
-                {
-                  "activity": "Set itemStatus",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "SetVariable",
-              "typeProperties": {
-                "variableName": "isCompleted",
-                "value": {
-                  "value": "@or(equals(variables('itemStatus'), 'Completed'), or(equals(variables('itemStatus'), 'Failed'), equals(variables('itemStatus'), 'Cancelled')))",
-                  "type": "Expression"
-                }
-              },
-              "policy": {
-                "secureInput": false,
-                "secureOutput": false
-              },
-              "name": "Set isCompleted",
-              "dependsOn": [
-                {
-                  "activity": "Set objectStatus",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "IfCondition",
-              "typeProperties": {
-                "expression": {
-                  "value": "@not(variables('isCompleted'))",
-                  "type": "Expression"
-                },
-                "ifTrueActivities": [
-                  {
-                    "type": "Wait",
-                    "typeProperties": {
-                      "waitTimeInSeconds": 30
-                    },
-                    "name": "Wait 30s",
-                    "dependsOn": []
-                  }
-                ],
-                "ifFalseActivities": []
-              },
-              "name": "Wait if not done",
-              "dependsOn": [
-                {
-                  "activity": "Set isCompleted",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                },
-                {
-                  "activity": "Set objectStartTimeUtc",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                },
-                {
-                  "activity": "Set objectEndTimeUtc",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                },
-                {
-                  "activity": "Set objectErrorMessage",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                }
-              ]
-            }
-          ]
->>>>>>> 964ed201939042b2f149771959b88d7b2cfe3cf1
         },
         "policy": {
           "secureInput": false,
@@ -306,9 +88,11 @@
         "name": "Set objectStartTimeUtc",
         "dependsOn": [
           {
-<<<<<<< HEAD
             "activity": "trigger refresh",
-            "dependencyConditions": ["Succeeded", "Failed"]
+            "dependencyConditions": [
+              "Succeeded",
+              "Failed"
+            ]
           }
         ]
       },
@@ -329,7 +113,10 @@
         "dependsOn": [
           {
             "activity": "trigger refresh",
-            "dependencyConditions": ["Succeeded", "Failed"]
+            "dependencyConditions": [
+              "Succeeded",
+              "Failed"
+            ]
           }
         ]
       },
@@ -350,7 +137,10 @@
         "dependsOn": [
           {
             "activity": "trigger refresh",
-            "dependencyConditions": ["Succeeded", "Failed"]
+            "dependencyConditions": [
+              "Succeeded",
+              "Failed"
+            ]
           }
         ]
       },
@@ -371,13 +161,9 @@
         "dependsOn": [
           {
             "activity": "Set itemStatus",
-            "dependencyConditions": ["Succeeded"]
-=======
-            "activity": "Wait for start",
             "dependencyConditions": [
               "Succeeded"
             ]
->>>>>>> 964ed201939042b2f149771959b88d7b2cfe3cf1
           }
         ]
       },
@@ -468,27 +254,28 @@
         "name": "RegisterRefresh",
         "dependsOn": [
           {
-<<<<<<< HEAD
             "activity": "Set objectStatus",
-            "dependencyConditions": ["Succeeded"]
-          },
-          {
-            "activity": "Set objectStartTimeUtc",
-            "dependencyConditions": ["Succeeded"]
-          },
-          {
-            "activity": "Set objectEndTimeUtc",
-            "dependencyConditions": ["Succeeded"]
-          },
-          {
-            "activity": "Set objectErrorMessage",
-            "dependencyConditions": ["Succeeded"]
-=======
-            "activity": "wait for completion",
             "dependencyConditions": [
               "Succeeded"
             ]
->>>>>>> 964ed201939042b2f149771959b88d7b2cfe3cf1
+          },
+          {
+            "activity": "Set objectStartTimeUtc",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Set objectEndTimeUtc",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "Set objectErrorMessage",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
           }
         ]
       }
