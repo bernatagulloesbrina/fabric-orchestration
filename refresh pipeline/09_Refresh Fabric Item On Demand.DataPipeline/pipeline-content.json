@@ -282,16 +282,20 @@
     ],
     "parameters": {
       "workspace_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "d1cce96c-953e-4c7e-8bc3-6f6e375f304c"
       },
       "object_type": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "Notebook"
       },
       "object_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "57cf4b76-ec71-4ce6-b929-da5569ded677"
       },
       "job_name": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "Load Fabric Items - Notebook - Fabric Orchestration"
       }
     },
     "variables": {
