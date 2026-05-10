@@ -71,7 +71,10 @@ Run these scripts in **Metadata** SQL Database query editor:
 -- 3. scripts/metadata/03_create_artifact_tables.sql
 -- 4. scripts/metadata/04_create_logging_procedures.sql
 -- 5. scripts/metadata/05_create_udf_config.sql  (see step 6 before running)
+-- 6. scripts/metadata/06_create_views.sql
 ```
+
+Script 6 creates `dbo.vw_jobs` and `dbo.vw_executions` — identical to their base tables but with all timestamps converted from UTC to CET/CEST. DST is applied automatically per row using `AT TIME ZONE 'Central European Standard Time'` (UTC+1 in winter, UTC+2 in summer).
 
 ## 6. Configure On-Demand Refresh UDF
 

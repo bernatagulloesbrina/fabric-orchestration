@@ -158,9 +158,11 @@ table refresh_jobs
 		source =
 				let
 				    Source = Sql.Database("swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.database.fabric.microsoft.com", "Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07"),
-				    dbo_refresh_jobs = Source{[Schema="dbo",Item="refresh_jobs"]}[Data]
+				    dbo_refresh_jobs = Source{[Schema="dbo",Item="vw_refresh_jobs"]}[Data]
 				in
 				    dbo_refresh_jobs
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 
