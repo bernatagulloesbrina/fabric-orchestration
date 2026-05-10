@@ -1,5 +1,405 @@
 {
   "properties": {
-    "activities": []
+    "activities": [
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "jobType",
+          "value": {
+            "value": "@if(equals(pipeline().parameters.object_type, 'Dataflow'), 'Refresh',\n    if(equals(pipeline().parameters.object_type, 'DataPipeline'), 'Pipeline',\n        if(equals(pipeline().parameters.object_type, 'CopyJob'), 'Execute',\n            if(equals(pipeline().parameters.object_type, 'SemanticModel'), 'DefaultJob',\n                if(equals(pipeline().parameters.object_type, 'Notebook'), 'RunNotebook',\n                    pipeline().parameters.object_type)))))",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set jobType",
+        "dependsOn": []
+      },
+      {
+        "type": "WebActivity",
+        "typeProperties": {
+          "method": "POST",
+          "relativeUrl": {
+            "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?jobType=', variables('jobType'))",
+            "type": "Expression"
+          },
+          "headers": {},
+          "body": {}
+        },
+        "externalReferences": {
+          "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
+        },
+        "policy": {
+          "timeout": "0.00:01:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "trigger refresh",
+        "dependsOn": [
+          {
+            "activity": "Set jobType",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ]
+      },
+      {
+        "type": "Wait",
+        "typeProperties": {
+          "waitTimeInSeconds": 10
+        },
+        "name": "Wait for start",
+        "dependsOn": [
+          {
+            "activity": "trigger refresh",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ]
+      },
+      {
+        "type": "Until",
+        "typeProperties": {
+          "expression": {
+            "value": "@variables('isCompleted')",
+            "type": "Expression"
+          },
+          "timeout": "0.02:00:00",
+          "activities": [
+            {
+              "type": "WebActivity",
+              "typeProperties": {
+                "method": "GET",
+                "relativeUrl": {
+                  "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?$top=1')",
+                  "type": "Expression"
+                },
+                "headers": {}
+              },
+              "externalReferences": {
+                "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
+              },
+              "policy": {
+                "timeout": "0.00:01:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "poll job",
+              "dependsOn": []
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "itemStatus",
+                "value": {
+                  "value": "@activity('poll job').output.value[0].status",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set itemStatus",
+              "dependsOn": [
+                {
+                  "activity": "poll job",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectStartTimeUtc",
+                "value": {
+                  "value": "@activity('poll job').output.value[0].startTimeUtc",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectStartTimeUtc",
+              "dependsOn": [
+                {
+                  "activity": "poll job",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectEndTimeUtc",
+                "value": {
+                  "value": "@activity('poll job').output.value[0].endTimeUtc",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectEndTimeUtc",
+              "dependsOn": [
+                {
+                  "activity": "poll job",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectErrorMessage",
+                "value": {
+                  "value": "@if(empty(activity('poll job').output.value[0].failureReason), null, activity('poll job').output.value[0].failureReason.message)",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectErrorMessage",
+              "dependsOn": [
+                {
+                  "activity": "poll job",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectStatus",
+                "value": {
+                  "value": "@if(equals(variables('itemStatus'), 'Completed'), 'OK',\n    if(or(equals(variables('itemStatus'), 'Failed'), equals(variables('itemStatus'), 'Cancelled')), 'Error',\n        if(or(equals(variables('itemStatus'), 'InProgress'), or(equals(variables('itemStatus'), 'NotStarted'), equals(variables('itemStatus'), 'Deduped'))), 'Ongoing',\n            variables('itemStatus'))))\n",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectStatus",
+              "dependsOn": [
+                {
+                  "activity": "Set itemStatus",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "isCompleted",
+                "value": {
+                  "value": "@or(equals(variables('itemStatus'), 'Completed'), or(equals(variables('itemStatus'), 'Failed'), equals(variables('itemStatus'), 'Cancelled')))",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set isCompleted",
+              "dependsOn": [
+                {
+                  "activity": "Set objectStatus",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ]
+            },
+            {
+              "type": "IfCondition",
+              "typeProperties": {
+                "expression": {
+                  "value": "@not(variables('isCompleted'))",
+                  "type": "Expression"
+                },
+                "ifTrueActivities": [
+                  {
+                    "type": "Wait",
+                    "typeProperties": {
+                      "waitTimeInSeconds": 30
+                    },
+                    "name": "Wait 30s",
+                    "dependsOn": []
+                  }
+                ],
+                "ifFalseActivities": []
+              },
+              "policy": {
+                "timeout": "0.00:01:30",
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Wait if not done",
+              "dependsOn": [
+                {
+                  "activity": "Set isCompleted",
+                  "dependencyConditions": ["Succeeded"]
+                },
+                {
+                  "activity": "Set objectStartTimeUtc",
+                  "dependencyConditions": ["Succeeded"]
+                },
+                {
+                  "activity": "Set objectEndTimeUtc",
+                  "dependencyConditions": ["Succeeded"]
+                },
+                {
+                  "activity": "Set objectErrorMessage",
+                  "dependencyConditions": ["Succeeded"]
+                }
+              ]
+            }
+          ]
+        },
+        "name": "wait for completion",
+        "dependsOn": [
+          {
+            "activity": "Wait for start",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[dbo].[usp_RegisterRefresh]",
+          "storedProcedureParameters": {
+            "end_time": {
+              "value": {
+                "value": "@variables('objectEndTimeUtc')",
+                "type": "Expression"
+              },
+              "type": "DateTime"
+            },
+            "error_message": {
+              "value": {
+                "value": "@variables('objectErrorMessage')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "execution_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "job_name": {
+              "value": {
+                "value": "@pipeline().parameters.job_name",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "job_type": {
+              "value": {
+                "value": "'Fabric'",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "object_type": {
+              "value": {
+                "value": "@pipeline().parameters.object_type",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "result": {
+              "value": {
+                "value": "@variables('objectStatus')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "start_time": {
+              "value": {
+                "value": "@variables('objectStartTimeUtc')",
+                "type": "Expression"
+              },
+              "type": "DateTime"
+            }
+          }
+        },
+        "connectionSettings": {
+          "name": "Metadata",
+          "properties": {
+            "type": "FabricSqlDatabase",
+            "typeProperties": {
+              "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "externalReferences": {
+              "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "RegisterRefresh",
+        "dependsOn": [
+          {
+            "activity": "wait for completion",
+            "dependencyConditions": ["Succeeded"]
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "workspace_id": {
+        "type": "string"
+      },
+      "object_type": {
+        "type": "string"
+      },
+      "object_id": {
+        "type": "string"
+      },
+      "job_name": {
+        "type": "string"
+      }
+    },
+    "variables": {
+      "jobType": {
+        "type": "String"
+      },
+      "itemStatus": {
+        "type": "String"
+      },
+      "objectStatus": {
+        "type": "String"
+      },
+      "objectStartTimeUtc": {
+        "type": "String"
+      },
+      "objectEndTimeUtc": {
+        "type": "String"
+      },
+      "objectErrorMessage": {
+        "type": "String"
+      },
+      "isCompleted": {
+        "type": "Boolean"
+      }
+    }
   }
 }
