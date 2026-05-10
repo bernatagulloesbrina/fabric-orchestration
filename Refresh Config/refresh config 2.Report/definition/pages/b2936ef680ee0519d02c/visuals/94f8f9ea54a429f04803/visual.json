@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "6aec98b3c9d45b5bd0e5",
+  "name": "94f8f9ea54a429f04803",
   "position": {
     "x": 1151.641791044776,
-    "y": 130.74626865671641,
-    "z": 18000,
+    "y": 374.32835820895519,
+    "z": 21001,
     "height": 40.298507462686565,
     "width": 100.29850746268656,
-    "tabOrder": 21000
+    "tabOrder": 21001
   },
   "visual": {
     "visualType": "actionButton",
@@ -45,7 +45,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Delete Refresh'"
+                  "Value": "'Refresh Now'"
                 }
               }
             }
@@ -96,7 +96,7 @@
                 "itemId": {
                   "expr": {
                     "Literal": {
-                      "Value": "'f2504bb0-de23-47a0-8b17-5a857d40c106'"
+                      "Value": "'74603be0-7d55-4dbe-81bf-5328fa9ebc02'"
                     }
                   }
                 },
@@ -110,7 +110,7 @@
               },
               "metadata": {
                 "dataFunction": {
-                  "name": "delete_refresh_job",
+                  "name": "trigger_on_demand_refresh",
                   "autoRefresh": false,
                   "parameters": [
                     {

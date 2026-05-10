@@ -69,9 +69,43 @@ Run these scripts in **Metadata** SQL Database query editor:
 -- 1. scripts/metadata/01_create_jobs.sql
 -- 2. scripts/metadata/02_create_executions.sql
 -- 3. scripts/metadata/03_create_artifact_tables.sql
+-- 4. scripts/metadata/04_create_logging_procedures.sql
+-- 5. scripts/metadata/05_create_udf_config.sql  (see step 6 before running)
 ```
 
-## 6. Create Warehouse Table (Optional)
+## 6. Configure On-Demand Refresh UDF
+
+The `triggerOnDemandRefresh` User Data Function calls the Fabric REST API using a service principal. The credentials are stored in the metadata database (not in code or the repository).
+
+### Steps:
+
+1. **Create an app registration in Entra ID**
+   - Azure Portal → Entra ID → App registrations → New registration
+   - Name: `fabric-orchestration-udf` (or similar)
+   - Single tenant, no redirect URI needed
+   - Note the **Directory (tenant) ID** and **Application (client) ID** from the Overview page
+   - Go to **Certificates & secrets → New client secret**, set an expiry, and copy the **Value** immediately
+
+2. **Grant workspace access to the service principal**
+   - Go to your Fabric workspace → **Manage access → Add people or groups**
+   - Search for the app registration name
+   - Assign **Contributor** role
+
+3. **Store the credentials in the metadata database**
+   - Open `scripts/metadata/05_create_udf_config.sql`
+   - Replace `<your-tenant-id>`, `<your-client-id>`, and `<your-client-secret>` with the real values
+   - Run the script in the **Metadata** SQL Database query editor
+   - ⚠️ Do not commit the file after filling in real values — discard the local change
+
+   > **`PIPELINE_WORKSPACE_NAME`** is the display name of the Fabric workspace where pipeline `09_Refresh Fabric Item On Demand` lives — not the pipeline name itself. The Fabric REST API has no cross-workspace search, so the UDF must first resolve the workspace ID before it can look up the pipeline by name. Use the exact name shown in the top-left of the Fabric portal (e.g. `My Fabric Workspace`).
+
+4. **Create the UDF in Fabric**
+   - In your Fabric workspace, create a new **User Data Function** item named `triggerOnDemandRefresh`
+   - Connect it to the **Metadata** SQL Database (alias: `Metadata`)
+   - Add `azure-identity` and `requests` to the UDF libraries
+   - Paste the contents of `Refresh Config/triggerOnDemandRefresh.UserDataFunction/function_app.py` into the editor
+
+## 7. Create Warehouse Table (Optional)
 
 If using DW warehouse, run in **DW** query editor:
 
