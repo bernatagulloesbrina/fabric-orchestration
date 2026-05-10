@@ -42,7 +42,9 @@
         "dependsOn": [
           {
             "activity": "Set jobType",
-            "dependencyConditions": ["Succeeded"]
+            "dependencyConditions": [
+              "Succeeded"
+            ]
           }
         ]
       },
@@ -55,7 +57,9 @@
         "dependsOn": [
           {
             "activity": "trigger refresh",
-            "dependencyConditions": ["Succeeded"]
+            "dependencyConditions": [
+              "Succeeded"
+            ]
           }
         ]
       },
@@ -108,7 +112,9 @@
               "dependsOn": [
                 {
                   "activity": "poll job",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 }
               ]
             },
@@ -129,7 +135,9 @@
               "dependsOn": [
                 {
                   "activity": "poll job",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 }
               ]
             },
@@ -150,7 +158,9 @@
               "dependsOn": [
                 {
                   "activity": "poll job",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 }
               ]
             },
@@ -171,7 +181,9 @@
               "dependsOn": [
                 {
                   "activity": "poll job",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 }
               ]
             },
@@ -192,7 +204,9 @@
               "dependsOn": [
                 {
                   "activity": "Set itemStatus",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 }
               ]
             },
@@ -213,7 +227,9 @@
               "dependsOn": [
                 {
                   "activity": "Set objectStatus",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 }
               ]
             },
@@ -236,28 +252,31 @@
                 ],
                 "ifFalseActivities": []
               },
-              "policy": {
-                "timeout": "0.00:01:30",
-                "secureInput": false,
-                "secureOutput": false
-              },
               "name": "Wait if not done",
               "dependsOn": [
                 {
                   "activity": "Set isCompleted",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 },
                 {
                   "activity": "Set objectStartTimeUtc",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 },
                 {
                   "activity": "Set objectEndTimeUtc",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 },
                 {
                   "activity": "Set objectErrorMessage",
-                  "dependencyConditions": ["Succeeded"]
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
                 }
               ]
             }
@@ -267,7 +286,9 @@
         "dependsOn": [
           {
             "activity": "Wait for start",
-            "dependencyConditions": ["Succeeded"]
+            "dependencyConditions": [
+              "Succeeded"
+            ]
           }
         ]
       },
@@ -359,7 +380,9 @@
         "dependsOn": [
           {
             "activity": "wait for completion",
-            "dependencyConditions": ["Succeeded"]
+            "dependencyConditions": [
+              "Succeeded"
+            ]
           }
         ]
       }
