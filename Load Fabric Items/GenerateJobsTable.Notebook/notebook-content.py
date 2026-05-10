@@ -23,10 +23,8 @@
 # MARKDOWN ********************
 
 # # Generate Jobs Table
-#
 # Creates a single unified table with all Fabric artifacts (semantic models, dataflows, pipelines, lakehouses, warehouses, etc.)
 # including a generated jobName column in the format: workspaceName - objectType - objectName
-#
 # **Uses Fabric REST API (workspace identity compatible):**
 # - `GET /v1/workspaces` - Returns all workspaces the identity has access to
 # - `GET /v1/workspaces/{id}/items` - Returns all items in a workspace
@@ -150,7 +148,6 @@ print(workspaces_df.head())
 # MARKDOWN ********************
 
 # ## Collect All Items from All Workspaces
-#
 # Uses the Fabric REST API to fetch all items from each workspace.
 
 # CELL ********************
