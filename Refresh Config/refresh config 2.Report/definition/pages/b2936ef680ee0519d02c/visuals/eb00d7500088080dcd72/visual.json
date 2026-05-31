@@ -103,5 +103,23 @@
       ]
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "97ca931ea134fa167cfd",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "jobs"
+              }
+            },
+            "Property": "Selected Jobs (Display)"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }
