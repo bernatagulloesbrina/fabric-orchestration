@@ -14,7 +14,7 @@
               "typeProperties": {
                 "method": "GET",
                 "relativeUrl": {
-                  "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/semanticModels/', pipeline().parameters.object_id, '/refreshes?$top=1')",
+                  "value": "@concat('v1.0/myorg/groups/', pipeline().parameters.workspace_id, '/datasets/', pipeline().parameters.object_id, '/refreshes?$top=1')",
                   "type": "Expression"
                 },
                 "headers": {}
