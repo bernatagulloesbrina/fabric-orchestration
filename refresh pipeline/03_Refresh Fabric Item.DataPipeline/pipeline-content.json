@@ -45,7 +45,7 @@
                 "secureInput": false,
                 "secureOutput": false
               },
-              "name": "Set itemStatus",
+              "name": "Set itemStatus SM",
               "dependsOn": [
                 {
                   "activity": "retrieve latest refresh SM",
@@ -68,7 +68,7 @@
                 "secureInput": false,
                 "secureOutput": false
               },
-              "name": "Set objectStartTimeUtc",
+              "name": "Set objectStartTimeUtc SM",
               "dependsOn": [
                 {
                   "activity": "retrieve latest refresh SM",
@@ -91,7 +91,7 @@
                 "secureInput": false,
                 "secureOutput": false
               },
-              "name": "Set objectEndTimeUtc",
+              "name": "Set objectEndTimeUtc SM",
               "dependsOn": [
                 {
                   "activity": "retrieve latest refresh SM",
@@ -106,7 +106,7 @@
               "typeProperties": {
                 "variableName": "objectErrorMessage",
                 "value": {
-                  "value": "@if(empty(activity('retrieve latest refresh SM').output.value[0].serviceExceptionJson), null, activity('retrieve latest refresh SM').output.value[0].serviceExceptionJson)",
+                  "value": "@if(contains(activity('retrieve latest refresh SM').output.value[0], 'serviceExceptionJson'), activity('retrieve latest refresh SM').output.value[0].serviceExceptionJson, null)",
                   "type": "Expression"
                 }
               },
@@ -114,7 +114,7 @@
                 "secureInput": false,
                 "secureOutput": false
               },
-              "name": "Set objectErrorMessage",
+              "name": "Set objectErrorMessage SM",
               "dependsOn": [
                 {
                   "activity": "retrieve latest refresh SM",
