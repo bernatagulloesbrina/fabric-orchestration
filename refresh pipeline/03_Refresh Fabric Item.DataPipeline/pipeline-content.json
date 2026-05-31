@@ -41,10 +41,18 @@
                   "type": "Expression"
                 }
               },
-              "policy": { "secureInput": false, "secureOutput": false },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
               "name": "Set itemStatus",
               "dependsOn": [
-                { "activity": "retrieve latest refresh SM", "dependencyConditions": ["Succeeded"] }
+                {
+                  "activity": "retrieve latest refresh SM",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
               ]
             },
             {
@@ -56,10 +64,18 @@
                   "type": "Expression"
                 }
               },
-              "policy": { "secureInput": false, "secureOutput": false },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
               "name": "Set objectStartTimeUtc",
               "dependsOn": [
-                { "activity": "retrieve latest refresh SM", "dependencyConditions": ["Succeeded"] }
+                {
+                  "activity": "retrieve latest refresh SM",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
               ]
             },
             {
@@ -71,10 +87,18 @@
                   "type": "Expression"
                 }
               },
-              "policy": { "secureInput": false, "secureOutput": false },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
               "name": "Set objectEndTimeUtc",
               "dependsOn": [
-                { "activity": "retrieve latest refresh SM", "dependencyConditions": ["Succeeded"] }
+                {
+                  "activity": "retrieve latest refresh SM",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
               ]
             },
             {
@@ -86,10 +110,18 @@
                   "type": "Expression"
                 }
               },
-              "policy": { "secureInput": false, "secureOutput": false },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
               "name": "Set objectErrorMessage",
               "dependsOn": [
-                { "activity": "retrieve latest refresh SM", "dependencyConditions": ["Succeeded"] }
+                {
+                  "activity": "retrieve latest refresh SM",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
               ]
             }
           ],
@@ -126,10 +158,18 @@
                   "type": "Expression"
                 }
               },
-              "policy": { "secureInput": false, "secureOutput": false },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
               "name": "Set itemStatus",
               "dependsOn": [
-                { "activity": "retrieve latest refresh", "dependencyConditions": ["Succeeded"] }
+                {
+                  "activity": "retrieve latest refresh",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
               ]
             },
             {
@@ -141,10 +181,18 @@
                   "type": "Expression"
                 }
               },
-              "policy": { "secureInput": false, "secureOutput": false },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
               "name": "Set objectStartTimeUtc",
               "dependsOn": [
-                { "activity": "retrieve latest refresh", "dependencyConditions": ["Succeeded"] }
+                {
+                  "activity": "retrieve latest refresh",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
               ]
             },
             {
@@ -156,10 +204,18 @@
                   "type": "Expression"
                 }
               },
-              "policy": { "secureInput": false, "secureOutput": false },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
               "name": "Set objectEndTimeUtc",
               "dependsOn": [
-                { "activity": "retrieve latest refresh", "dependencyConditions": ["Succeeded"] }
+                {
+                  "activity": "retrieve latest refresh",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
               ]
             },
             {
@@ -171,10 +227,18 @@
                   "type": "Expression"
                 }
               },
-              "policy": { "secureInput": false, "secureOutput": false },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
               "name": "Set objectErrorMessage",
               "dependsOn": [
-                { "activity": "retrieve latest refresh", "dependencyConditions": ["Succeeded"] }
+                {
+                  "activity": "retrieve latest refresh",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
               ]
             }
           ]
