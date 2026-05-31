@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
   "name": "94265d91916230675ca9",
   "position": {
     "x": 43.880597014925371,
@@ -165,6 +165,20 @@
           ]
         },
         "howCreated": "User"
+      },
+      {
+        "name": "380a4ab5e8196d76f483",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "workspace_name"
+          }
+        },
+        "type": "Categorical"
       }
     ]
   }

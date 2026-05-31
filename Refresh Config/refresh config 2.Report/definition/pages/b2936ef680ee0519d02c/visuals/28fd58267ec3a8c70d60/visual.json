@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
   "name": "28fd58267ec3a8c70d60",
   "position": {
     "x": 1151.641791044776,
@@ -110,8 +110,181 @@
               },
               "metadata": {
                 "dataFunction": {
-                  "autoRefresh": true,
-                  "parameters": []
+                  "name": "create_or_replace_refresh",
+                  "autoRefresh": false,
+                  "parameters": [
+                    {
+                      "name": "jobName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected job_name"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "workspaceId",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected workspace_id"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "workspaceName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected workspace_name"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "objectType",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected type"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "objectId",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected object_id"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "objectName",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Selected display_name"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "priority",
+                      "dataType": "number",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Priority"
+                              }
+                            },
+                            "Property": "Priority Value"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "precedentJobNames",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "jobs"
+                              }
+                            },
+                            "Property": "Selected Jobs"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "name": "modifiedBy",
+                      "dataType": "string",
+                      "isOptional": false,
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Current User"
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
