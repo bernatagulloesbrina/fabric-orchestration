@@ -307,8 +307,11 @@ def scan_workspaces(workspace_ids, pbi_headers):
     start_resp = requests.post(
         f"{ADMIN_BASE}/getInfo",
         params={
+            # datasourceDetails -> datasourceInstances[] (connection details);
+            # lineage -> datasourceUsages[] on each artifact (links artifact -> instance).
+            # Both are required to map a dataset/dataflow to its data sources.
             "datasourceDetails": "true",
-            "lineage": "false",
+            "lineage": "true",
             "datasetSchema": "false",
             "datasetExpressions": "false",
             "getArtifactUsers": "false",
