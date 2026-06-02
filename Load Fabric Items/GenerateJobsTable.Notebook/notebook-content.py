@@ -277,85 +277,28 @@ else:
 # MARKDOWN ********************
 
 # ## Extract Datasources for Refreshable Items
-# # Builds a child table `refresh_job_sources` (one row per refreshable item × datasource)
+#
+# Builds a child table `refresh_job_sources` (one row per refreshable item × datasource)
 # so we know what each semantic model / dataflow reads from (e.g. a SharePoint site).
-# # **How it works:**
-# - Reads the service principal credentials from `dbo.udf_config` in the **Metadata** Fabric SQL Database
-#   (same keys the `triggerOnDemandRefresh` UDF uses).
+#
+# **How it works:**
 # - Calls the **Power BI admin metadata scanner** (`admin/workspaces/getInfo` with `datasourceDetails=true`),
-#   which returns dataset & dataflow datasources tenant-wide.
+#   which returns dataset & dataflow datasources tenant-wide, authenticating with the notebook's
+#   own identity token (`notebookutils.credentials.getToken("pbi")`).
 # - Joins back to `fabric_items` on `object_id` to attach the authoritative `job_name`.
-# # **Prerequisites:**
-# - The SP must be allowed to call read-only admin APIs / metadata scanning (Fabric Admin Portal →
-#   *Admin API settings*: "Service principals can access read-only admin APIs" **and** "Enhanced metadata scanning").
-# - Spark properties `spark.fabric.metadata.sql.server` and `spark.fabric.metadata.sql.database`
-#   must be set on the attached Environment (see SETUP.md).
+#
+# **Prerequisites — the identity running this notebook must be allowed to call the read-only
+# admin APIs and metadata scanning** (Fabric Admin Portal -> *Admin API settings*:
+# "Service principals can access read-only admin APIs" AND "Enhanced metadata scanning"):
+# - Interactive runs use *your* identity (works if you are a Fabric admin).
+# - Pipeline runs use the **workspace identity** -- add it to the allowed security group for the
+#   two settings above. If that token is rejected for the admin APIs, switch to an explicit
+#   service principal (Key Vault secret + client-credentials grant); see SETUP.md section 6b.
 
 # CELL ********************
 
 import json
 import time
-
-# Metadata SQL Database coordinates (set as Spark properties on the Environment; see SETUP.md).
-def _required_conf(key: str) -> str:
-    value = spark.conf.get(key, None)
-    if not value:
-        raise ValueError(
-            f"Spark property '{key}' is not set. Attach the Environment with the Metadata SQL "
-            f"properties to this notebook (see SETUP.md) before extracting datasources."
-        )
-    return value
-
-def read_sp_config() -> dict:
-    """Read service principal credentials from dbo.udf_config in the Metadata SQL Database.
-
-    Uses the Spark connector for SQL databases (preinstalled in the Fabric runtime), which
-    authenticates automatically with the notebook's running identity. That identity (the
-    workspace identity when run from the pipeline) needs db_datareader on the Metadata DB.
-    """
-    sql_server = _required_conf("spark.fabric.metadata.sql.server")
-    sql_database = _required_conf("spark.fabric.metadata.sql.database")
-    url = f"jdbc:sqlserver://{sql_server}:1433;database={sql_database};"
-
-    wanted = ("SP_TENANT_ID", "SP_CLIENT_ID", "SP_CLIENT_SECRET")
-    config_df = spark.read.option("url", url).mssql("dbo.udf_config")
-    config = {
-        row["config_key"]: row["config_value"]
-        for row in config_df.filter(config_df.config_key.isin(list(wanted))).collect()
-    }
-
-    missing = [k for k in wanted if not config.get(k)]
-    if missing:
-        raise ValueError(f"Missing service principal config in dbo.udf_config: {missing}")
-    return config
-
-sp_config = read_sp_config()
-print(f"Loaded {len(sp_config)} service principal config values from dbo.udf_config")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-# Acquire a Power BI token for the service principal via the client-credentials grant.
-# Resource is analysis.windows.net/powerbi/api (NOT the Fabric resource used above).
-def get_powerbi_token(config: dict) -> str:
-    resp = requests.post(
-        f"https://login.microsoftonline.com/{config['SP_TENANT_ID']}/oauth2/v2.0/token",
-        data={
-            "grant_type": "client_credentials",
-            "client_id": config["SP_CLIENT_ID"],
-            "client_secret": config["SP_CLIENT_SECRET"],
-            "scope": "https://analysis.windows.net/powerbi/api/.default",
-        },
-        timeout=30,
-    )
-    resp.raise_for_status()
-    return resp.json()["access_token"]
 
 ADMIN_BASE = "https://api.powerbi.com/v1.0/myorg/admin/workspaces"
 
@@ -422,12 +365,12 @@ ARTIFACT_TYPES = [("datasets", "SemanticModel"), ("dataflows", "Dataflow")]
 SCAN_BATCH = 100
 
 # Datasource extraction is additive: fabric_items is already saved, so a failure here
-# (e.g. metadata scanning not enabled for the SP) degrades to an empty refresh_job_sources
-# table with a clear warning instead of failing the items load.
+# (e.g. metadata scanning not enabled, or the identity not authorized) degrades to an empty
+# refresh_job_sources table with a clear warning instead of failing the items load.
 source_rows = []
 if df_jobs:
     try:
-        pbi_headers = {"Authorization": f"Bearer {get_powerbi_token(sp_config)}"}
+        pbi_headers = {"Authorization": f"Bearer {notebookutils.credentials.getToken('pbi')}"}
         workspace_ids = workspaces_df["Id"].tolist()
         print(f"Scanning {len(workspace_ids)} workspaces for datasource details...")
 
