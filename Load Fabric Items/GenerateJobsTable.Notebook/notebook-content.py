@@ -339,16 +339,35 @@ def flatten_connection(details):
     """Reduce a connectionDetails dict to a single friendly string."""
     if not isinstance(details, dict):
         return None
-    if details.get("url"):
-        return details["url"]
+    # Single-value connection fields, in order of preference.
+    for key in ("url", "sharePointSiteUrl", "path"):
+        if details.get(key):
+            return details[key]
     server, database = details.get("server"), details.get("database")
     if server and database:
         return f"{server};{database}"
     if server:
         return server
-    if details.get("path"):
-        return details["path"]
     return json.dumps(details, sort_keys=True) if details else None
+
+def describe_datasource(di):
+    """Return (datasource_type, datasource_connection) from a scanner datasource instance.
+
+    'Extension' is the generic wrapper for Fabric-native sources; the concrete kind
+    (Lakehouse, Warehouse, Notebook, FabricSql, ...) lives in extensionDataSourceKind.
+    A semantic model on an Extension/Lakehouse (or /Warehouse) source is Direct Lake.
+    Note: the scanner only reports the generic kind, not which specific lakehouse/warehouse.
+    """
+    details = di.get("connectionDetails") or {}
+    dstype = di.get("datasourceType")
+    if dstype == "Extension":
+        kind = details.get("extensionDataSourceKind")
+        path = details.get("extensionDataSourcePath")
+        dstype = kind or "Extension"
+        # extensionDataSourcePath is usually just the kind again; only surface it if it adds info.
+        conn = path if (path and path != kind) else kind
+        return dstype, conn
+    return dstype, flatten_connection(details)
 
 # METADATA ********************
 
@@ -387,21 +406,29 @@ if df_jobs:
             }
 
             for ws in result.get("workspaces", []) or []:
+                ws_name = ws.get("name")
                 for collection, object_type in ARTIFACT_TYPES:
                     for artifact in ws.get(collection, []) or []:
                         object_id = artifact.get("objectId") or artifact.get("id")
-                        if not object_id:
+                        object_name = artifact.get("name")
+                        if not object_id or not object_name:
                             continue
+                        # Build job_name matching fabric_items ("display_name - type - workspace_name").
+                        # Used as a fallback for items whose scanner id != Fabric item id (e.g. dataflows);
+                        # semantic models still get the canonical job_name via the object_id join below.
+                        job_name_fallback = f"{object_name} - {object_type} - {ws_name}"
                         usages = (artifact.get("datasourceUsages", []) or []) \
                             + (artifact.get("misconfiguredDatasourceUsages", []) or [])
                         for usage in usages:
                             ds_id = usage.get("datasourceInstanceId")
                             di = instances.get(ds_id, {})
+                            ds_type, ds_conn = describe_datasource(di)
                             source_rows.append({
                                 "object_id": object_id,
                                 "object_type": object_type,
-                                "datasource_type": di.get("datasourceType"),
-                                "datasource_connection": flatten_connection(di.get("connectionDetails")),
+                                "job_name_fallback": job_name_fallback,
+                                "datasource_type": ds_type,
+                                "datasource_connection": ds_conn,
                                 "datasource_id": ds_id,
                             })
 
@@ -425,13 +452,15 @@ else:
 
 # CELL ********************
 
-# Attach the authoritative job_name (join on object_id) and save refresh_job_sources.
+# Resolve job_name and save refresh_job_sources.
 from pyspark.sql.types import StructType, StructField, StringType
+from pyspark.sql.functions import coalesce, col
 
 if df_jobs and source_rows:
     sources_schema = StructType([
         StructField("object_id", StringType(), True),
         StructField("object_type", StringType(), True),
+        StructField("job_name_fallback", StringType(), True),
         StructField("datasource_type", StringType(), True),
         StructField("datasource_connection", StringType(), True),
         StructField("datasource_id", StringType(), True),
@@ -447,20 +476,22 @@ if df_jobs and source_rows:
 
     df_sources_raw = spark.createDataFrame(unique_rows, schema=sources_schema)
 
-    # Join on object_id to attach job_name; inner join drops sources for items not in fabric_items.
+    # Left-join to fabric_items on object_id: semantic models get the canonical job_name,
+    # dataflows (scanner id != Fabric item id) fall back to the job_name built from the scan.
     df_sources = (
         df_sources_raw.join(
-            df_jobs.select("object_id", "job_name"),
+            df_jobs.select("object_id", col("job_name").alias("fi_job_name")),
             on="object_id",
-            how="inner",
+            how="left",
         )
+        .withColumn("job_name", coalesce("fi_job_name", "job_name_fallback"))
         .select(
             "job_name", "object_id", "object_type",
             "datasource_type", "datasource_connection", "datasource_id",
         )
     )
 
-    print(f"refresh_job_sources rows after join: {df_sources.count()}")
+    print(f"refresh_job_sources rows: {df_sources.count()}")
     df_sources.show(10, truncate=False)
 
     df_sources.write.format("delta").mode("overwrite").saveAsTable("refresh_job_sources")
