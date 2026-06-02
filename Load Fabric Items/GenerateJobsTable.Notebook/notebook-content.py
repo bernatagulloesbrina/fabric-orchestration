@@ -292,6 +292,7 @@ else:
 #   two settings above. If that token is rejected for the admin APIs, switch to an explicit
 #   service principal (Key Vault secret + client-credentials grant); see SETUP.md section 6b.
 
+
 # CELL ********************
 
 import json
