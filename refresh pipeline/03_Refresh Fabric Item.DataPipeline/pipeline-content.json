@@ -433,16 +433,20 @@
     ],
     "parameters": {
       "workspace_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "7555e06a-793f-4dae-888c-0b172c35983b"
       },
       "object_type": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "SemanticModel"
       },
       "object_id": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "8fb47d54-5847-4bd6-93c6-4d1a62f84310"
       },
       "job_name": {
-        "type": "string"
+        "type": "string",
+        "defaultValue": "Headcount360 - SemanticModel - Excel Datasources"
       }
     },
     "variables": {
