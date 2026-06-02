@@ -379,8 +379,14 @@ def describe_datasource(di):
 # CELL ********************
 
 # Scan all workspaces in batches and flatten dataset/dataflow datasources into rows.
-# Collections map to the same 'type' values fabric_items uses, so the later join works.
-ARTIFACT_TYPES = [("datasets", "SemanticModel"), ("dataflows", "Dataflow")]
+# The scanner groups artifacts two ways: classic lowercase plural keys (datasets, dataflows = Gen1)
+# and capitalized Fabric item-type keys (Dataflow = Gen2 / CI-CD, which use the Fabric item id so
+# they join cleanly to fabric_items). Iterate both; dedup on (object_id, datasource_id) below.
+ARTIFACT_TYPES = [
+    ("datasets", "SemanticModel"),
+    ("dataflows", "Dataflow"),
+    ("Dataflow", "Dataflow"),
+]
 SCAN_BATCH = 100
 
 # Datasource extraction is additive: fabric_items is already saved, so a failure here
