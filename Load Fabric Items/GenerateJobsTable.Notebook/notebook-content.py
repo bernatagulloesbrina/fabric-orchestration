@@ -277,18 +277,15 @@ else:
 # MARKDOWN ********************
 
 # ## Extract Datasources for Refreshable Items
-#
-# Builds a child table `refresh_job_sources` (one row per refreshable item × datasource)
+# # Builds a child table `refresh_job_sources` (one row per refreshable item × datasource)
 # so we know what each semantic model / dataflow reads from (e.g. a SharePoint site).
-#
-# **How it works:**
+# # **How it works:**
 # - Reads the service principal credentials from `dbo.udf_config` in the **Metadata** Fabric SQL Database
 #   (same keys the `triggerOnDemandRefresh` UDF uses).
 # - Calls the **Power BI admin metadata scanner** (`admin/workspaces/getInfo` with `datasourceDetails=true`),
 #   which returns dataset & dataflow datasources tenant-wide.
 # - Joins back to `fabric_items` on `object_id` to attach the authoritative `job_name`.
-#
-# **Prerequisites:**
+# # **Prerequisites:**
 # - The SP must be allowed to call read-only admin APIs / metadata scanning (Fabric Admin Portal →
 #   *Admin API settings*: "Service principals can access read-only admin APIs" **and** "Enhanced metadata scanning").
 # - Spark properties `spark.fabric.metadata.sql.server` and `spark.fabric.metadata.sql.database`
