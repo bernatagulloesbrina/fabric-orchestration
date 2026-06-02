@@ -108,6 +108,35 @@ The `triggerOnDemandRefresh` User Data Function calls the Fabric REST API using 
    - Add `azure-identity` and `requests` to the UDF libraries
    - Paste the contents of `Refresh Config/triggerOnDemandRefresh.UserDataFunction/function_app.py` into the editor
 
+## 6b. Enable Datasource Extraction (Metadata Scanning)
+
+The **LoadFabricItems** notebook builds a `refresh_job_sources` table describing what each
+refreshable item (semantic model / dataflow) reads from. It calls the Power BI **admin
+metadata scanner** (`admin/workspaces/getInfo`) using the **identity that runs the notebook**
+(`notebookutils.credentials.getToken("pbi")`) — no service principal secret is read.
+
+Whoever/whatever runs the notebook must be allowed to call read-only admin APIs + metadata
+scanning:
+
+1. **Fabric Admin Portal → Tenant settings → Admin API settings:**
+   - Enable **"Enhanced metadata scanning"** (required for `datasourceDetails=true`).
+   - Enable **"Service principals can access read-only admin APIs"** and add the **workspace
+     identity** (and/or your SP) to the allowed security group — needed for **pipeline
+     (headless)** runs, which execute as the workspace identity.
+2. **Interactive runs** use *your* signed-in identity, so they work as long as you are a
+   **Fabric admin**.
+
+> If scanning is not enabled, or the identity is not authorized, `refresh_job_sources` is
+> written as an empty table (with a warning) and the rest of the items load is unaffected.
+>
+> **Fallback (explicit service principal):** if the workspace-identity token is rejected for
+> the admin APIs in pipeline runs, store the SP secret in **Azure Key Vault**, read it in the
+> notebook with `notebookutils.credentials.getSecret(<vaultUri>, <secretName>)`, and exchange
+> it for a Power BI token via the client-credentials grant
+> (`scope=https://analysis.windows.net/powerbi/api/.default`). Reading the SP secret directly
+> from `dbo.udf_config` is **not** viable here: Fabric Spark notebooks can't obtain a SQL
+> access token via `notebookutils.credentials.getToken` (no database audience).
+
 ## 7. Create Warehouse Table (Optional)
 
 If using DW warehouse, run in **DW** query editor:

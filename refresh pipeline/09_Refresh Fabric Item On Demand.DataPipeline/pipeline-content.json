@@ -18,128 +18,291 @@
         "dependsOn": []
       },
       {
-        "type": "WebActivity",
+        "type": "IfCondition",
         "typeProperties": {
-          "method": "POST",
-          "relativeUrl": {
-            "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?jobType=', variables('jobType'))",
+          "expression": {
+            "value": "@equals(pipeline().parameters.object_type, 'SemanticModel')",
             "type": "Expression"
           },
-          "headers": {},
-          "body": {}
+          "ifTrueActivities": [
+            {
+              "type": "WebActivity",
+              "typeProperties": {
+                "method": "POST",
+                "relativeUrl": {
+                  "value": "@concat('v1.0/myorg/groups/', pipeline().parameters.workspace_id, '/datasets/', pipeline().parameters.object_id, '/refreshes')",
+                  "type": "Expression"
+                },
+                "headers": {},
+                "body": {
+                  "notifyOption": "NoNotification"
+                }
+              },
+              "externalReferences": {
+                "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
+              },
+              "policy": {
+                "timeout": "0.02:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "trigger refresh SM",
+              "dependsOn": []
+            },
+            {
+              "type": "WebActivity",
+              "typeProperties": {
+                "method": "GET",
+                "relativeUrl": {
+                  "value": "@concat('v1.0/myorg/groups/', pipeline().parameters.workspace_id, '/datasets/', pipeline().parameters.object_id, '/refreshes?$top=1')",
+                  "type": "Expression"
+                },
+                "headers": {}
+              },
+              "externalReferences": {
+                "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
+              },
+              "policy": {
+                "timeout": "0.02:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "retrieve result SM",
+              "dependsOn": [
+                {
+                  "activity": "trigger refresh SM",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "itemStatus",
+                "value": {
+                  "value": "@activity('retrieve result SM').output.value[0].status",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set itemStatus SM",
+              "dependsOn": [
+                {
+                  "activity": "retrieve result SM",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectStartTimeUtc",
+                "value": {
+                  "value": "@activity('retrieve result SM').output.value[0].startTime",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectStartTimeUtc SM",
+              "dependsOn": [
+                {
+                  "activity": "retrieve result SM",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectEndTimeUtc",
+                "value": {
+                  "value": "@activity('retrieve result SM').output.value[0].endTime",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectEndTimeUtc SM",
+              "dependsOn": [
+                {
+                  "activity": "retrieve result SM",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectErrorMessage",
+                "value": {
+                  "value": "@if(contains(activity('retrieve result SM').output.value[0], 'serviceExceptionJson'), activity('retrieve result SM').output.value[0].serviceExceptionJson, null)",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectErrorMessage SM",
+              "dependsOn": [
+                {
+                  "activity": "retrieve result SM",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            }
+          ],
+          "ifFalseActivities": [
+            {
+              "type": "WebActivity",
+              "typeProperties": {
+                "method": "POST",
+                "relativeUrl": {
+                  "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?jobType=', variables('jobType'))",
+                  "type": "Expression"
+                },
+                "headers": {},
+                "body": {}
+              },
+              "externalReferences": {
+                "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
+              },
+              "policy": {
+                "timeout": "0.02:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "trigger refresh",
+              "dependsOn": []
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "itemStatus",
+                "value": {
+                  "value": "@activity('trigger refresh').output.status",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set itemStatus",
+              "dependsOn": [
+                {
+                  "activity": "trigger refresh",
+                  "dependencyConditions": [
+                    "Succeeded",
+                    "Failed"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectStartTimeUtc",
+                "value": {
+                  "value": "@activity('trigger refresh').output.startTimeUtc",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectStartTimeUtc",
+              "dependsOn": [
+                {
+                  "activity": "trigger refresh",
+                  "dependencyConditions": [
+                    "Succeeded",
+                    "Failed"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectEndTimeUtc",
+                "value": {
+                  "value": "@activity('trigger refresh').output.endTimeUtc",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectEndTimeUtc",
+              "dependsOn": [
+                {
+                  "activity": "trigger refresh",
+                  "dependencyConditions": [
+                    "Succeeded",
+                    "Failed"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "SetVariable",
+              "typeProperties": {
+                "variableName": "objectErrorMessage",
+                "value": {
+                  "value": "@if(contains(activity('trigger refresh').output, 'failureReason'), activity('trigger refresh').output.failureReason.message, null)",
+                  "type": "Expression"
+                }
+              },
+              "policy": {
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set objectErrorMessage",
+              "dependsOn": [
+                {
+                  "activity": "trigger refresh",
+                  "dependencyConditions": [
+                    "Succeeded",
+                    "Failed"
+                  ]
+                }
+              ]
+            }
+          ]
         },
-        "externalReferences": {
-          "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
-        },
-        "policy": {
-          "timeout": "0.02:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "trigger refresh",
+        "name": "Branch on SM",
         "dependsOn": [
           {
             "activity": "Set jobType",
             "dependencyConditions": [
               "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "SetVariable",
-        "typeProperties": {
-          "variableName": "itemStatus",
-          "value": {
-            "value": "@activity('trigger refresh').output.status",
-            "type": "Expression"
-          }
-        },
-        "policy": {
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Set itemStatus",
-        "dependsOn": [
-          {
-            "activity": "trigger refresh",
-            "dependencyConditions": [
-              "Succeeded",
-              "Failed"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "SetVariable",
-        "typeProperties": {
-          "variableName": "objectStartTimeUtc",
-          "value": {
-            "value": "@activity('trigger refresh').output.startTimeUtc",
-            "type": "Expression"
-          }
-        },
-        "policy": {
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Set objectStartTimeUtc",
-        "dependsOn": [
-          {
-            "activity": "trigger refresh",
-            "dependencyConditions": [
-              "Succeeded",
-              "Failed"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "SetVariable",
-        "typeProperties": {
-          "variableName": "objectEndTimeUtc",
-          "value": {
-            "value": "@activity('trigger refresh').output.endTimeUtc",
-            "type": "Expression"
-          }
-        },
-        "policy": {
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Set objectEndTimeUtc",
-        "dependsOn": [
-          {
-            "activity": "trigger refresh",
-            "dependencyConditions": [
-              "Succeeded",
-              "Failed"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "SetVariable",
-        "typeProperties": {
-          "variableName": "objectErrorMessage",
-          "value": {
-            "value": "@if(empty(activity('trigger refresh').output.failureReason), null, activity('trigger refresh').output.failureReason.message)",
-            "type": "Expression"
-          }
-        },
-        "policy": {
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Set objectErrorMessage",
-        "dependsOn": [
-          {
-            "activity": "trigger refresh",
-            "dependencyConditions": [
-              "Succeeded",
-              "Failed"
             ]
           }
         ]
@@ -160,7 +323,7 @@
         "name": "Set objectStatus",
         "dependsOn": [
           {
-            "activity": "Set itemStatus",
+            "activity": "Branch on SM",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -255,24 +418,6 @@
         "dependsOn": [
           {
             "activity": "Set objectStatus",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          },
-          {
-            "activity": "Set objectStartTimeUtc",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          },
-          {
-            "activity": "Set objectEndTimeUtc",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          },
-          {
-            "activity": "Set objectErrorMessage",
             "dependencyConditions": [
               "Succeeded"
             ]
