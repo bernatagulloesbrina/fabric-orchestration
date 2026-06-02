@@ -277,17 +277,14 @@ else:
 # MARKDOWN ********************
 
 # ## Extract Datasources for Refreshable Items
-#
-# Builds a child table `refresh_job_sources` (one row per refreshable item × datasource)
+# # Builds a child table `refresh_job_sources` (one row per refreshable item × datasource)
 # so we know what each semantic model / dataflow reads from (e.g. a SharePoint site).
-#
-# **How it works:**
+# # **How it works:**
 # - Calls the **Power BI admin metadata scanner** (`admin/workspaces/getInfo` with `datasourceDetails=true`),
 #   which returns dataset & dataflow datasources tenant-wide, authenticating with the notebook's
 #   own identity token (`notebookutils.credentials.getToken("pbi")`).
 # - Joins back to `fabric_items` on `object_id` to attach the authoritative `job_name`.
-#
-# **Prerequisites — the identity running this notebook must be allowed to call the read-only
+# # **Prerequisites — the identity running this notebook must be allowed to call the read-only
 # admin APIs and metadata scanning** (Fabric Admin Portal -> *Admin API settings*:
 # "Service principals can access read-only admin APIs" AND "Enhanced metadata scanning"):
 # - Interactive runs use *your* identity (works if you are a Fabric admin).
