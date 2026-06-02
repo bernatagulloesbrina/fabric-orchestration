@@ -273,3 +273,275 @@ else:
 # META   "language": "python",
 # META   "language_group": "synapse_pyspark"
 # META }
+
+# MARKDOWN ********************
+
+# ## Extract Datasources for Refreshable Items
+#
+# Builds a child table `refresh_job_sources` (one row per refreshable item × datasource)
+# so we know what each semantic model / dataflow reads from (e.g. a SharePoint site).
+#
+# **How it works:**
+# - Reads the service principal credentials from `dbo.udf_config` in the **Metadata** Fabric SQL Database
+#   (same keys the `triggerOnDemandRefresh` UDF uses).
+# - Calls the **Power BI admin metadata scanner** (`admin/workspaces/getInfo` with `datasourceDetails=true`),
+#   which returns dataset & dataflow datasources tenant-wide.
+# - Joins back to `fabric_items` on `object_id` to attach the authoritative `job_name`.
+#
+# **Prerequisites:**
+# - The SP must be allowed to call read-only admin APIs / metadata scanning (Fabric Admin Portal →
+#   *Admin API settings*: "Service principals can access read-only admin APIs" **and** "Enhanced metadata scanning").
+# - Spark properties `spark.fabric.metadata.sql.server` and `spark.fabric.metadata.sql.database`
+#   must be set on the attached Environment (see SETUP.md).
+
+# CELL ********************
+
+import json
+import time
+
+# Metadata SQL Database coordinates (set as Spark properties on the Environment; see SETUP.md).
+def _required_conf(key: str) -> str:
+    value = spark.conf.get(key, None)
+    if not value:
+        raise ValueError(
+            f"Spark property '{key}' is not set. Attach the Environment with the Metadata SQL "
+            f"properties to this notebook (see SETUP.md) before extracting datasources."
+        )
+    return value
+
+def read_sp_config() -> dict:
+    """Read service principal credentials from dbo.udf_config in the Metadata SQL Database.
+
+    Uses the Spark connector for SQL databases (preinstalled in the Fabric runtime), which
+    authenticates automatically with the notebook's running identity. That identity (the
+    workspace identity when run from the pipeline) needs db_datareader on the Metadata DB.
+    """
+    sql_server = _required_conf("spark.fabric.metadata.sql.server")
+    sql_database = _required_conf("spark.fabric.metadata.sql.database")
+    url = f"jdbc:sqlserver://{sql_server}:1433;database={sql_database};"
+
+    wanted = ("SP_TENANT_ID", "SP_CLIENT_ID", "SP_CLIENT_SECRET")
+    config_df = spark.read.option("url", url).mssql("dbo.udf_config")
+    config = {
+        row["config_key"]: row["config_value"]
+        for row in config_df.filter(config_df.config_key.isin(list(wanted))).collect()
+    }
+
+    missing = [k for k in wanted if not config.get(k)]
+    if missing:
+        raise ValueError(f"Missing service principal config in dbo.udf_config: {missing}")
+    return config
+
+sp_config = read_sp_config()
+print(f"Loaded {len(sp_config)} service principal config values from dbo.udf_config")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+# Acquire a Power BI token for the service principal via the client-credentials grant.
+# Resource is analysis.windows.net/powerbi/api (NOT the Fabric resource used above).
+def get_powerbi_token(config: dict) -> str:
+    resp = requests.post(
+        f"https://login.microsoftonline.com/{config['SP_TENANT_ID']}/oauth2/v2.0/token",
+        data={
+            "grant_type": "client_credentials",
+            "client_id": config["SP_CLIENT_ID"],
+            "client_secret": config["SP_CLIENT_SECRET"],
+            "scope": "https://analysis.windows.net/powerbi/api/.default",
+        },
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()["access_token"]
+
+ADMIN_BASE = "https://api.powerbi.com/v1.0/myorg/admin/workspaces"
+
+def scan_workspaces(workspace_ids, pbi_headers):
+    """Run the admin metadata scanner for up to 100 workspace ids; return the scan result json."""
+    start_resp = requests.post(
+        f"{ADMIN_BASE}/getInfo",
+        params={
+            "datasourceDetails": "true",
+            "lineage": "false",
+            "datasetSchema": "false",
+            "datasetExpressions": "false",
+            "getArtifactUsers": "false",
+        },
+        headers=pbi_headers,
+        json={"workspaces": workspace_ids},
+        timeout=60,
+    )
+    start_resp.raise_for_status()
+    scan_id = start_resp.json()["id"]
+
+    # Poll until the scan finishes.
+    while True:
+        status_resp = requests.get(f"{ADMIN_BASE}/scanStatus/{scan_id}", headers=pbi_headers, timeout=30)
+        status_resp.raise_for_status()
+        status = status_resp.json().get("status")
+        if status == "Succeeded":
+            break
+        if status in ("Failed", "Disabled"):
+            raise RuntimeError(f"Workspace scan {scan_id} ended with status '{status}'")
+        time.sleep(2)
+
+    result_resp = requests.get(f"{ADMIN_BASE}/scanResult/{scan_id}", headers=pbi_headers, timeout=60)
+    result_resp.raise_for_status()
+    return result_resp.json()
+
+def flatten_connection(details):
+    """Reduce a connectionDetails dict to a single friendly string."""
+    if not isinstance(details, dict):
+        return None
+    if details.get("url"):
+        return details["url"]
+    server, database = details.get("server"), details.get("database")
+    if server and database:
+        return f"{server};{database}"
+    if server:
+        return server
+    if details.get("path"):
+        return details["path"]
+    return json.dumps(details, sort_keys=True) if details else None
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+# Scan all workspaces in batches and flatten dataset/dataflow datasources into rows.
+# Collections map to the same 'type' values fabric_items uses, so the later join works.
+ARTIFACT_TYPES = [("datasets", "SemanticModel"), ("dataflows", "Dataflow")]
+SCAN_BATCH = 100
+
+# Datasource extraction is additive: fabric_items is already saved, so a failure here
+# (e.g. metadata scanning not enabled for the SP) degrades to an empty refresh_job_sources
+# table with a clear warning instead of failing the items load.
+source_rows = []
+if df_jobs:
+    try:
+        pbi_headers = {"Authorization": f"Bearer {get_powerbi_token(sp_config)}"}
+        workspace_ids = workspaces_df["Id"].tolist()
+        print(f"Scanning {len(workspace_ids)} workspaces for datasource details...")
+
+        for start in range(0, len(workspace_ids), SCAN_BATCH):
+            batch_ids = workspace_ids[start:start + SCAN_BATCH]
+            result = scan_workspaces(batch_ids, pbi_headers)
+
+            # Root-level datasource instances (incl. misconfigured) keyed by datasourceId.
+            instances = {
+                di["datasourceId"]: di
+                for di in (result.get("datasourceInstances", []) or [])
+                + (result.get("misconfiguredDatasourceInstances", []) or [])
+                if di.get("datasourceId")
+            }
+
+            for ws in result.get("workspaces", []) or []:
+                for collection, object_type in ARTIFACT_TYPES:
+                    for artifact in ws.get(collection, []) or []:
+                        object_id = artifact.get("objectId") or artifact.get("id")
+                        if not object_id:
+                            continue
+                        usages = (artifact.get("datasourceUsages", []) or []) \
+                            + (artifact.get("misconfiguredDatasourceUsages", []) or [])
+                        for usage in usages:
+                            ds_id = usage.get("datasourceInstanceId")
+                            di = instances.get(ds_id, {})
+                            source_rows.append({
+                                "object_id": object_id,
+                                "object_type": object_type,
+                                "datasource_type": di.get("datasourceType"),
+                                "datasource_connection": flatten_connection(di.get("connectionDetails")),
+                                "datasource_id": ds_id,
+                            })
+
+            print(f"  workspaces {start + 1}-{start + len(batch_ids)}: {len(source_rows)} source rows so far")
+
+        print(f"\nCollected {len(source_rows)} datasource usage rows")
+    except Exception as exc:
+        source_rows = []
+        print(f"⚠️  Datasource extraction failed ({type(exc).__name__}: {exc}).")
+        print("    refresh_job_sources will be written empty. Check that the service principal")
+        print("    has read-only admin API + enhanced metadata scanning enabled (see SETUP.md §6b).")
+else:
+    print("No items loaded; skipping datasource extraction")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+# Attach the authoritative job_name (join on object_id) and save refresh_job_sources.
+from pyspark.sql.types import StructType, StructField, StringType
+
+if df_jobs and source_rows:
+    sources_schema = StructType([
+        StructField("object_id", StringType(), True),
+        StructField("object_type", StringType(), True),
+        StructField("datasource_type", StringType(), True),
+        StructField("datasource_connection", StringType(), True),
+        StructField("datasource_id", StringType(), True),
+    ])
+    # De-duplicate identical (item, datasource) pairs before building the DataFrame.
+    seen = set()
+    unique_rows = []
+    for r in source_rows:
+        key = (r["object_id"], r["datasource_id"])
+        if key not in seen:
+            seen.add(key)
+            unique_rows.append(r)
+
+    df_sources_raw = spark.createDataFrame(unique_rows, schema=sources_schema)
+
+    # Join on object_id to attach job_name; inner join drops sources for items not in fabric_items.
+    df_sources = (
+        df_sources_raw.join(
+            df_jobs.select("object_id", "job_name"),
+            on="object_id",
+            how="inner",
+        )
+        .select(
+            "job_name", "object_id", "object_type",
+            "datasource_type", "datasource_connection", "datasource_id",
+        )
+    )
+
+    print(f"refresh_job_sources rows after join: {df_sources.count()}")
+    df_sources.show(10, truncate=False)
+
+    df_sources.write.format("delta").mode("overwrite").saveAsTable("refresh_job_sources")
+    print("✓ Saved to Delta table: refresh_job_sources")
+else:
+    # No sources found: write/replace an empty table so downstream reads stay valid.
+    empty_schema = StructType([
+        StructField("job_name", StringType(), True),
+        StructField("object_id", StringType(), True),
+        StructField("object_type", StringType(), True),
+        StructField("datasource_type", StringType(), True),
+        StructField("datasource_connection", StringType(), True),
+        StructField("datasource_id", StringType(), True),
+    ])
+    spark.createDataFrame([], schema=empty_schema) \
+        .write.format("delta").mode("overwrite").saveAsTable("refresh_job_sources")
+    print("✓ Saved empty Delta table: refresh_job_sources (no datasources found)")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
