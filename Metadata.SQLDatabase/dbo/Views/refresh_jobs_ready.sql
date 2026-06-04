@@ -16,10 +16,10 @@ WITH ready AS (
     WHERE nr.job_name IS NULL
 ),
 sharepoint_jobs AS (
-    -- Jobs that read from SharePoint. refresh_job_sources lives in the MetadataLakehouse,
-    -- referenced here via three-part (cross-database) naming within the same workspace.
+    -- Jobs that read from SharePoint. Sourced from dbo.refresh_job_sources, a local copy of the
+    -- lakehouse table reloaded each run (the transactional SQL DB cannot cross-query the lakehouse).
     SELECT DISTINCT s.job_name
-    FROM [MetadataLakehouse].[dbo].[refresh_job_sources] AS s
+    FROM dbo.refresh_job_sources AS s
     WHERE s.datasource_type LIKE 'SharePoint%'
 ),
 flagged AS (
