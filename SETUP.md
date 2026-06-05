@@ -111,31 +111,57 @@ The `triggerOnDemandRefresh` User Data Function calls the Fabric REST API using 
 ## 6b. Enable Datasource Extraction (Metadata Scanning)
 
 The **LoadFabricItems** notebook builds a `refresh_job_sources` table describing what each
-refreshable item (semantic model / dataflow) reads from. It calls the Power BI **admin
-metadata scanner** (`admin/workspaces/getInfo`) using the **identity that runs the notebook**
-(`notebookutils.credentials.getToken("pbi")`) — no service principal secret is read.
+refreshable item (semantic model / dataflow) reads from. It calls the Power BI **admin metadata
+scanner** (`admin/workspaces/getInfo`) and enumerates workspaces via the admin API, so it needs
+an identity authorized for the read-only admin APIs.
 
-Whoever/whatever runs the notebook must be allowed to call read-only admin APIs + metadata
-scanning:
+When run **headless from the pipeline**, the notebook executes as the workspace identity, which
+is **not** authorized for admin APIs (and can only see its own workspace). So the pipeline passes
+the **service principal** from `dbo.udf_config` to the notebook, which authenticates via
+client-credentials. Interactive runs (empty SP parameters) fall back to your signed-in identity.
+
+**Setup:**
 
 1. **Fabric Admin Portal → Tenant settings → Admin API settings:**
    - Enable **"Enhanced metadata scanning"** (required for `datasourceDetails=true`).
-   - Enable **"Service principals can access read-only admin APIs"** and add the **workspace
-     identity** (and/or your SP) to the allowed security group — needed for **pipeline
-     (headless)** runs, which execute as the workspace identity.
-2. **Interactive runs** use *your* signed-in identity, so they work as long as you are a
-   **Fabric admin**.
+   - Enable **"Service principals can access read-only admin APIs"** and add the **service
+     principal** (the one in `dbo.udf_config`, step 6) to the allowed security group.
+   - The app must have **no** admin-consent-required Power BI *Application* permissions.
 
-> If scanning is not enabled, or the identity is not authorized, `refresh_job_sources` is
-> written as an empty table (with a warning) and the rest of the items load is unaffected.
->
-> **Fallback (explicit service principal):** if the workspace-identity token is rejected for
-> the admin APIs in pipeline runs, store the SP secret in **Azure Key Vault**, read it in the
-> notebook with `notebookutils.credentials.getSecret(<vaultUri>, <secretName>)`, and exchange
-> it for a Power BI token via the client-credentials grant
-> (`scope=https://analysis.windows.net/powerbi/api/.default`). Reading the SP secret directly
-> from `dbo.udf_config` is **not** viable here: Fabric Spark notebooks can't obtain a SQL
-> access token via `notebookutils.credentials.getToken` (no database audience).
+2. **Wire the SP credentials through the Load Fabric Items pipeline** (notebook can't read
+   `dbo.udf_config` itself — the transactional SQL DB and Spark are separate worlds):
+   - Add a **Lookup** activity on the **Metadata** SQL Database:
+     ```sql
+     SELECT
+       MAX(CASE WHEN config_key = 'SP_TENANT_ID'     THEN config_value END) AS sp_tenant_id,
+       MAX(CASE WHEN config_key = 'SP_CLIENT_ID'     THEN config_value END) AS sp_client_id,
+       MAX(CASE WHEN config_key = 'SP_CLIENT_SECRET' THEN config_value END) AS sp_client_secret
+     FROM dbo.udf_config;
+     ```
+   - On the **LoadFabricItems notebook** activity, pass base parameters:
+     `sp_tenant_id = @activity('Lookup').output.firstRow.sp_tenant_id` (and the same for
+     `sp_client_id`, `sp_client_secret`). These map to the notebook's parameters cell.
+   - Set **Secure input/output** on the Lookup and notebook activities so the secret isn't logged.
+
+> If scanning isn't enabled or the SP isn't authorized, `refresh_job_sources` is written empty
+> (with a warning) and the rest of the items load is unaffected.
+
+## 6c. Materialize refresh_job_sources into the Metadata SQL Database
+
+`refresh_jobs_ready` throttles SharePoint-dependent jobs by reading `dbo.refresh_job_sources` in
+the **Metadata SQL Database**. The transactional SQL DB can't cross-query the lakehouse
+(`Msg 40515`), so the lakehouse table must be copied into a local SQL table.
+
+- Deploy `dbo.refresh_job_sources` (table) and the updated `dbo.refresh_jobs_ready` (view).
+- In the **Load Fabric Items** pipeline, after the notebook, add a **Copy data** activity:
+  - **Source:** Lakehouse `MetadataLakehouse`, table `refresh_job_sources`.
+  - **Destination:** Metadata SQL Database, table `dbo.refresh_job_sources`.
+  - **Pre-copy script:** `TRUNCATE TABLE dbo.refresh_job_sources;` (full reload).
+  - Mapping auto-maps by name (`job_name, object_id, object_type, datasource_type,
+    datasource_connection, datasource_id`).
+
+> Until this Copy runs, `dbo.refresh_job_sources` is empty, so no job is flagged
+> SharePoint-dependent and `refresh_jobs_ready` returns all ready jobs (fails open).
 
 ## 7. Create Warehouse Table (Optional)
 

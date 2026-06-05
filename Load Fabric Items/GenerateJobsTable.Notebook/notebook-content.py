@@ -45,6 +45,22 @@ import re
 # META   "language_group": "synapse_pyspark"
 # META }
 
+# PARAMETERS CELL ********************
+
+# Service principal credentials for the admin metadata scanner, injected by the
+# "Load Fabric Items" pipeline via a Lookup on dbo.udf_config. Left empty for interactive
+# runs, where the notebook falls back to the signed-in user's identity (getToken("pbi")).
+sp_tenant_id = ""
+sp_client_id = ""
+sp_client_secret = ""
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
 # MARKDOWN ********************
 
 # ## Utility Functions
@@ -300,6 +316,45 @@ import time
 
 ADMIN_BASE = "https://api.powerbi.com/v1.0/myorg/admin/workspaces"
 
+def get_pbi_token():
+    """Power BI token for the admin scanner.
+
+    Uses the service principal (client-credentials) when the pipeline supplies credentials;
+    otherwise falls back to the signed-in identity. The SP path is what makes headless pipeline
+    runs work -- the workspace identity is not authorized for the read-only admin APIs.
+    """
+    if sp_tenant_id and sp_client_id and sp_client_secret:
+        resp = requests.post(
+            f"https://login.microsoftonline.com/{sp_tenant_id}/oauth2/v2.0/token",
+            data={
+                "grant_type": "client_credentials",
+                "client_id": sp_client_id,
+                "client_secret": sp_client_secret,
+                "scope": "https://analysis.windows.net/powerbi/api/.default",
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        return resp.json()["access_token"]
+    return notebookutils.credentials.getToken("pbi")
+
+def get_scan_workspace_ids(pbi_headers, fallback_ids):
+    """All workspace ids to scan, enumerated via the admin API (tenant-wide).
+
+    The member-scoped /v1/workspaces list only returns workspaces the running identity belongs to
+    (just 1 for the workspace identity in a pipeline), so enumerate via the admin API instead.
+    Falls back to the member-scoped list if the admin call isn't permitted.
+    """
+    try:
+        resp = requests.get(f"{ADMIN_BASE}/modified", headers=pbi_headers, timeout=60)
+        resp.raise_for_status()
+        ids = [w["id"] for w in resp.json() if w.get("id")]
+        return ids or fallback_ids
+    except Exception as exc:
+        print(f"  admin workspace enumeration failed ({type(exc).__name__}: {exc}); "
+              f"falling back to member-scoped workspace list")
+        return fallback_ids
+
 def scan_workspaces(workspace_ids, pbi_headers):
     """Run the admin metadata scanner for up to 100 workspace ids; return the scan result json."""
     start_resp = requests.post(
@@ -396,8 +451,8 @@ SCAN_BATCH = 100
 source_rows = []
 if df_jobs:
     try:
-        pbi_headers = {"Authorization": f"Bearer {notebookutils.credentials.getToken('pbi')}"}
-        workspace_ids = workspaces_df["Id"].tolist()
+        pbi_headers = {"Authorization": f"Bearer {get_pbi_token()}"}
+        workspace_ids = get_scan_workspace_ids(pbi_headers, workspaces_df["Id"].tolist())
         print(f"Scanning {len(workspace_ids)} workspaces for datasource details...")
 
         for start in range(0, len(workspace_ids), SCAN_BATCH):
