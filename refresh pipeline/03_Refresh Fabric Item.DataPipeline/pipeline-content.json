@@ -395,7 +395,9 @@
                   "value": "@if(equals(pipeline().parameters.object_type, 'SemanticModel'), concat('v1.0/myorg/groups/', pipeline().parameters.workspace_id, '/datasets/', pipeline().parameters.object_id, '/refreshes'), concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?jobType=', variables('jobType')))",
                   "type": "Expression"
                 },
-                "headers": {},
+                "headers": {
+                  "Content-Type": "application/json"
+                },
                 "body": {
                   "value": "@if(equals(pipeline().parameters.object_type, 'SemanticModel'), json('{\"notifyOption\":\"NoNotification\"}'), json('{}'))",
                   "type": "Expression"
