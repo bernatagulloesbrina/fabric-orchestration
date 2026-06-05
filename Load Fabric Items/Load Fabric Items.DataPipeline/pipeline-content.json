@@ -98,6 +98,33 @@
         "name": "Copy data1",
         "dependsOn": [
           {
+            "activity": "RefreshSqlEndpoint1",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "RefreshSqlEndpoint",
+        "typeProperties": {
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "sqlEndpointId": "2986ef9b-e8d5-4f85-ab15-4222ba8ad2cc",
+          "recreateTables": false
+        },
+        "externalReferences": {
+          "connection": "c08c23f9-9ef3-46e8-be5d-0048606eb7ac"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "RefreshSqlEndpoint1",
+        "dependsOn": [
+          {
             "activity": "Load Fabric Items",
             "dependencyConditions": [
               "Succeeded"

@@ -47,7 +47,7 @@
       {
         "type": "ForEach",
         "typeProperties": {
-          "isSequential": true,
+          "isSequential": false,
           "items": {
             "value": "@activity('check jobs ready').output.value",
             "type": "Expression"
