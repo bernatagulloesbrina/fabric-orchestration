@@ -19,6 +19,91 @@
         },
         "name": "Load Fabric Items",
         "dependsOn": []
+      },
+      {
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "LakehouseTableSource",
+            "datasetSettings": {
+              "type": "LakehouseTable",
+              "typeProperties": {
+                "schema": "dbo",
+                "table": "refresh_job_sources"
+              },
+              "schema": [],
+              "connectionSettings": {
+                "name": "MetadataLakehouse",
+                "properties": {
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "artifactId": "3a472e8f-e81a-a24d-4d36-6ef3c1d1fc8c",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000",
+                    "rootFolder": "Tables"
+                  },
+                  "externalReferences": {
+                    "connection": "8a8aa1c3-a8ff-47ad-aebe-1a9a994ab03b"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "sink": {
+            "type": "FabricSqlDatabaseSink",
+            "sqlWriterUseTableLock": false,
+            "writeBehavior": "insert",
+            "datasetSettings": {
+              "type": "FabricSqlDatabaseTable",
+              "typeProperties": {
+                "schema": "dbo",
+                "table": "refresh_job_sources"
+              },
+              "schema": [],
+              "connectionSettings": {
+                "name": "Metadata",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          },
+          "enableStaging": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Copy data1",
+        "dependsOn": [
+          {
+            "activity": "Load Fabric Items",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
       }
     ]
   }
