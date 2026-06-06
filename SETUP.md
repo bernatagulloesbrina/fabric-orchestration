@@ -115,6 +115,11 @@ refreshable item (semantic model / dataflow) reads from. It calls the Power BI *
 scanner** (`admin/workspaces/getInfo`) and enumerates workspaces via the admin API, so it needs
 an identity authorized for the read-only admin APIs.
 
+> The same SP admin access also makes the **item catalogue itself** (`fabric_items`) tenant-wide:
+> with the SP supplied, the notebook lists workspaces/items via the Fabric admin APIs
+> (`/v1/admin/workspaces`, `/v1/admin/items`) instead of the member-scoped APIs — otherwise the
+> workspace identity only sees its own workspace. No need to add the SP to every workspace.
+
 When run **headless from the pipeline**, the notebook executes as the workspace identity, which
 is **not** authorized for admin APIs (and can only see its own workspace). So the pipeline passes
 the **service principal** from `dbo.udf_config` to the notebook, which authenticates via

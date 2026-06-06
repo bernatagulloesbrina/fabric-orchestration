@@ -136,22 +136,54 @@ def normalize_dataframe_columns(df):
 
 spark = SparkSession.builder.getOrCreate()
 
-token = notebookutils.credentials.getToken("https://api.fabric.microsoft.com")
+def get_fabric_token():
+    """Fabric API token: the service principal (client-credentials) when supplied by the
+    pipeline, else the running identity. The SP path lets headless runs use the admin APIs."""
+    if sp_tenant_id and sp_client_id and sp_client_secret:
+        resp = requests.post(
+            f"https://login.microsoftonline.com/{sp_tenant_id}/oauth2/v2.0/token",
+            data={
+                "grant_type": "client_credentials",
+                "client_id": sp_client_id,
+                "client_secret": sp_client_secret,
+                "scope": "https://api.fabric.microsoft.com/.default",
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        return resp.json()["access_token"]
+    return notebookutils.credentials.getToken("https://api.fabric.microsoft.com")
+
+# With an SP we use the tenant-wide admin APIs; otherwise the member-scoped APIs (which only
+# see workspaces the running identity belongs to -- just 1 for the workspace identity headless).
+use_admin_apis = bool(sp_tenant_id and sp_client_id and sp_client_secret)
+token = get_fabric_token()
 headers = {"Authorization": f"Bearer {token}"}
 
-def fetch_all(url):
+def fetch_all(url, list_keys=("value",)):
     items = []
     while url:
         resp = requests.get(url, headers=headers)
         resp.raise_for_status()
         data = resp.json()
-        items.extend(data.get("value", []))
+        batch = next((data[k] for k in list_keys if data.get(k) is not None), [])
+        items.extend(batch)
         url = data.get("continuationUri")
     return items
 
-workspaces_raw = fetch_all("https://api.fabric.microsoft.com/v1/workspaces")
-workspaces_df = pd.DataFrame([{"Id": w["id"], "Name": w["displayName"]} for w in workspaces_raw])
-print(f'Workspaces found: {len(workspaces_df)}')
+if use_admin_apis:
+    workspaces_raw = fetch_all("https://api.fabric.microsoft.com/v1/admin/workspaces",
+                               list_keys=("workspaces", "value"))
+    # Skip personal "My workspaces" to match the member-scoped catalogue.
+    workspaces_df = pd.DataFrame([
+        {"Id": w["id"], "Name": w.get("name") or w.get("displayName")}
+        for w in workspaces_raw if w.get("type") != "Personal"
+    ])
+else:
+    workspaces_raw = fetch_all("https://api.fabric.microsoft.com/v1/workspaces")
+    workspaces_df = pd.DataFrame([{"Id": w["id"], "Name": w["displayName"]} for w in workspaces_raw])
+
+print(f'Workspaces found: {len(workspaces_df)} ({"admin" if use_admin_apis else "member"}-scoped)')
 print(workspaces_df.head())
 
 # METADATA ********************
@@ -168,35 +200,51 @@ print(workspaces_df.head())
 
 # CELL ********************
 
-# Collect all items from all workspaces
-all_items = []
-
-for _, workspace in workspaces_df.iterrows():
-    ws_id = workspace['Id']
-    ws_name = workspace['Name']
-    
-    try:
-        items_raw = fetch_all(f"https://api.fabric.microsoft.com/v1/workspaces/{ws_id}/items")
-
-        if items_raw:
-            items_df = pd.DataFrame([
-                {"Object Id": i["id"], "Display Name": i["displayName"], "Type": i["type"]}
-                for i in items_raw
-            ])
-            items_df['Workspace Id'] = ws_id
-            items_df['Workspace Name'] = ws_name
-            all_items.append(items_df)
-            print(f'{ws_name}: {len(items_df)} items')
-    except Exception as e:
-        print(f'Warning: Could not fetch items from {ws_name}: {e}')
-
-# Combine all items into a single DataFrame
-if all_items:
-    all_items_df = pd.concat(all_items, ignore_index=True)
-    print(f'\nTotal items collected: {len(all_items_df)}')
+if use_admin_apis:
+    # One tenant-wide admin call returns every item with its workspaceId (paginated).
+    ws_name_by_id = dict(zip(workspaces_df["Id"], workspaces_df["Name"]))
+    items_raw = fetch_all("https://api.fabric.microsoft.com/v1/admin/items",
+                          list_keys=("itemEntities", "value"))
+    all_items_df = pd.DataFrame([
+        {
+            "Object Id": i["id"],
+            "Display Name": i.get("name") or i.get("displayName"),
+            "Type": i["type"],
+            "Workspace Id": i["workspaceId"],
+            "Workspace Name": ws_name_by_id.get(i["workspaceId"]),
+        }
+        for i in items_raw
+        if i.get("workspaceId") in ws_name_by_id  # keep items in catalogued (non-personal) workspaces
+    ])
+    print(f'Total items collected: {len(all_items_df)} (admin, tenant-wide)')
 else:
-    print('\nNo items found in any workspace')
-    all_items_df = pd.DataFrame()
+    # Member-scoped: fetch items per workspace the running identity belongs to.
+    all_items = []
+    for _, workspace in workspaces_df.iterrows():
+        ws_id = workspace['Id']
+        ws_name = workspace['Name']
+
+        try:
+            items_raw = fetch_all(f"https://api.fabric.microsoft.com/v1/workspaces/{ws_id}/items")
+
+            if items_raw:
+                items_df = pd.DataFrame([
+                    {"Object Id": i["id"], "Display Name": i["displayName"], "Type": i["type"]}
+                    for i in items_raw
+                ])
+                items_df['Workspace Id'] = ws_id
+                items_df['Workspace Name'] = ws_name
+                all_items.append(items_df)
+                print(f'{ws_name}: {len(items_df)} items')
+        except Exception as e:
+            print(f'Warning: Could not fetch items from {ws_name}: {e}')
+
+    if all_items:
+        all_items_df = pd.concat(all_items, ignore_index=True)
+        print(f'\nTotal items collected: {len(all_items_df)}')
+    else:
+        print('\nNo items found in any workspace')
+        all_items_df = pd.DataFrame()
 
 # METADATA ********************
 
