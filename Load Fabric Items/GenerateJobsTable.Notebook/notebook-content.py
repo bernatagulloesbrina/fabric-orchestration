@@ -283,7 +283,11 @@ if len(all_items_df) > 0:
         'job_name',
         concat_ws(' - ', col('display_name'), col('type'), col('workspace_name'))
     )
-    
+
+    # Apps aren't refreshable items and (unlike normal items) aren't name-unique per workspace --
+    # a multi-audience app surfaces once per audience -- so exclude them from the catalogue.
+    df_jobs = df_jobs.filter(col('type') != 'App')
+
     # Display preview
     print('\nFabric Items Table Preview:')
     df_jobs.select('workspace_id', 'workspace_name', 'object_id', 'type', 'display_name', 'job_name').show(10, truncate=False)
