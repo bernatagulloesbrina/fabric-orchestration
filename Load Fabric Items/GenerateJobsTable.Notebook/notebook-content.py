@@ -588,9 +588,11 @@ if df_jobs and source_rows:
 
     # Left-join to fabric_items on object_id: semantic models get the canonical job_name,
     # dataflows (scanner id != Fabric item id) fall back to the job_name built from the scan.
+    # dropDuplicates on the join's right side prevents row multiplication if fabric_items has a
+    # repeated object_id; the final dropDuplicates guarantees the PK (object_id, datasource_id).
     df_sources = (
         df_sources_raw.join(
-            df_jobs.select("object_id", col("job_name").alias("fi_job_name")),
+            df_jobs.select("object_id", col("job_name").alias("fi_job_name")).dropDuplicates(["object_id"]),
             on="object_id",
             how="left",
         )
@@ -599,6 +601,7 @@ if df_jobs and source_rows:
             "job_name", "object_id", "object_type",
             "datasource_type", "datasource_connection", "datasource_id",
         )
+        .dropDuplicates(["object_id", "datasource_id"])
     )
 
     print(f"refresh_job_sources rows: {df_sources.count()}")
