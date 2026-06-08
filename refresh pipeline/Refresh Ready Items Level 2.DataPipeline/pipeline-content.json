@@ -6,6 +6,7 @@
         "typeProperties": {
           "source": {
             "type": "FabricSqlDatabaseSource",
+            "sqlReaderQuery": "SELECT job_name, workspace_id, workspace_name, object_type, object_id, object_name, priority FROM dbo.refresh_jobs_ready ORDER BY attempt_count, priority;",
             "partitionOption": "None",
             "queryTimeout": "02:00:00"
           },
