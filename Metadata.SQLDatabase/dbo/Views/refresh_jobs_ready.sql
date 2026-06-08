@@ -1,11 +1,8 @@
 CREATE VIEW [dbo].[refresh_jobs_ready]
 AS
-WITH cutoff AS (
-    -- Start of the current refresh cycle (yesterday 22:00 UTC), same boundary as completed_jobs.
-    SELECT DATEADD(HOUR, 22, CAST(DATEADD(DAY, -1, CAST(GETUTCDATE() AS DATE)) AS DATETIME2(7))) AS cutoff_utc
-),
-ready AS (
-    -- Pending refreshes whose precedents have all completed (original "ready" logic).
+WITH ready AS (
+    -- Pending refreshes whose precedents have all completed. The retry cap (max 3 attempts) is
+    -- already applied upstream in pending_refreshes, so nothing exhausted reaches here.
     SELECT
         pr.job_name,
         pr.workspace_id,
@@ -13,23 +10,12 @@ ready AS (
         pr.object_type,
         pr.object_id,
         pr.object_name,
-        pr.priority
+        pr.priority,
+        pr.attempt_count
     FROM dbo.pending_refreshes AS pr
     LEFT JOIN dbo.refresh_jobs_not_ready AS nr
         ON nr.job_name = pr.job_name
     WHERE nr.job_name IS NULL
-),
-attempts AS (
-    -- Failed attempts in the current cycle, per job. Used to push retried-and-failed jobs
-    -- to the back of the queue so untried jobs get their turn first.
-    SELECT
-        e.job_name,
-        COUNT_BIG(*) AS attempt_count
-    FROM dbo.executions AS e
-    CROSS JOIN cutoff AS c
-    WHERE e.result = 'Error'
-      AND e.start_time >= c.cutoff_utc
-    GROUP BY e.job_name
 ),
 sharepoint_jobs AS (
     -- Jobs that read from SharePoint. Sourced from dbo.refresh_job_sources, a local copy of the
@@ -47,18 +33,17 @@ flagged AS (
         r.object_id,
         r.object_name,
         r.priority,
-        CASE WHEN sp.job_name IS NOT NULL THEN 1 ELSE 0 END AS is_sharepoint,
-        COALESCE(a.attempt_count, 0) AS attempt_count
+        r.attempt_count,
+        CASE WHEN sp.job_name IS NOT NULL THEN 1 ELSE 0 END AS is_sharepoint
     FROM ready AS r
     LEFT JOIN sharepoint_jobs AS sp
         ON sp.job_name = r.job_name
-    LEFT JOIN attempts AS a
-        ON a.job_name = r.job_name
 ),
 sharepoint_ranked AS (
-    -- Rank SharePoint-dependent ready jobs so we can keep only the top two.
-    -- Order by failed attempts first (ascending) so jobs that already failed yield to untried
-    -- jobs, then by priority.
+    -- Keep only the top two SharePoint-dependent jobs, ordered by FAILED attempts then priority.
+    -- attempt_count is failed-only (from pending_refreshes), so in-flight / never-run jobs sit at
+    -- 0 alongside fresh ones and keep their slots (the throttle stays stable) -- only a job that
+    -- actually failed (attempt_count >= 1) is pushed to the back, yielding its slot to others.
     SELECT
         f.job_name,
         f.workspace_id,
@@ -73,7 +58,7 @@ sharepoint_ranked AS (
     WHERE f.is_sharepoint = 1
 )
 -- attempt_count is exposed so the consumer can ORDER BY attempt_count, priority -- this is what
--- pushes attempted-and-failed jobs to the back of the queue (for SharePoint and the rest alike).
+-- pushes attempted-and-failed jobs to the back of the processing order.
 -- All ready jobs that do NOT depend on SharePoint.
 SELECT
     job_name,
