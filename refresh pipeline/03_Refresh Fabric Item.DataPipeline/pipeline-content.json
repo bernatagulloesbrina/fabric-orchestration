@@ -37,7 +37,7 @@
               "typeProperties": {
                 "variableName": "itemStatus",
                 "value": {
-                  "value": "@activity('retrieve latest refresh SM').output.value[0].status",
+                  "value": "@if(empty(activity('retrieve latest refresh SM').output.value), 'NeverRun', activity('retrieve latest refresh SM').output.value[0].status)",
                   "type": "Expression"
                 }
               },
@@ -60,7 +60,7 @@
               "typeProperties": {
                 "variableName": "objectStartTimeUtc",
                 "value": {
-                  "value": "@activity('retrieve latest refresh SM').output.value[0].startTime",
+                  "value": "@if(empty(activity('retrieve latest refresh SM').output.value), utcnow(), activity('retrieve latest refresh SM').output.value[0].startTime)",
                   "type": "Expression"
                 }
               },
@@ -83,7 +83,7 @@
               "typeProperties": {
                 "variableName": "objectEndTimeUtc",
                 "value": {
-                  "value": "@activity('retrieve latest refresh SM').output.value[0].endTime",
+                  "value": "@if(empty(activity('retrieve latest refresh SM').output.value), utcnow(), activity('retrieve latest refresh SM').output.value[0].endTime)",
                   "type": "Expression"
                 }
               },
@@ -106,7 +106,7 @@
               "typeProperties": {
                 "variableName": "objectErrorMessage",
                 "value": {
-                  "value": "@if(contains(activity('retrieve latest refresh SM').output.value[0], 'serviceExceptionJson'), activity('retrieve latest refresh SM').output.value[0].serviceExceptionJson, null)",
+                  "value": "@if(empty(activity('retrieve latest refresh SM').output.value), null, if(contains(activity('retrieve latest refresh SM').output.value[0], 'serviceExceptionJson'), activity('retrieve latest refresh SM').output.value[0].serviceExceptionJson, null))",
                   "type": "Expression"
                 }
               },
@@ -154,7 +154,7 @@
               "typeProperties": {
                 "variableName": "itemStatus",
                 "value": {
-                  "value": "@activity('retrieve latest refresh').output.value[0].status",
+                  "value": "@if(empty(activity('retrieve latest refresh').output.value), 'NeverRun', activity('retrieve latest refresh').output.value[0].status)",
                   "type": "Expression"
                 }
               },
@@ -177,7 +177,7 @@
               "typeProperties": {
                 "variableName": "objectStartTimeUtc",
                 "value": {
-                  "value": "@activity('retrieve latest refresh').output.value[0].startTimeUtc",
+                  "value": "@if(empty(activity('retrieve latest refresh').output.value), utcnow(), activity('retrieve latest refresh').output.value[0].startTimeUtc)",
                   "type": "Expression"
                 }
               },
@@ -200,7 +200,7 @@
               "typeProperties": {
                 "variableName": "objectEndTimeUtc",
                 "value": {
-                  "value": "@activity('retrieve latest refresh').output.value[0].endTimeUtc",
+                  "value": "@if(empty(activity('retrieve latest refresh').output.value), utcnow(), activity('retrieve latest refresh').output.value[0].endTimeUtc)",
                   "type": "Expression"
                 }
               },
@@ -223,7 +223,7 @@
               "typeProperties": {
                 "variableName": "objectErrorMessage",
                 "value": {
-                  "value": "@if(empty(activity('retrieve latest refresh').output.value[0].failureReason), null, activity('retrieve latest refresh').output.value[0].failureReason.message)",
+                  "value": "@if(empty(activity('retrieve latest refresh').output.value), null, if(empty(activity('retrieve latest refresh').output.value[0].failureReason), null, activity('retrieve latest refresh').output.value[0].failureReason.message))",
                   "type": "Expression"
                 }
               },
@@ -383,7 +383,7 @@
         "type": "IfCondition",
         "typeProperties": {
           "expression": {
-            "value": "@or(\n    and(equals(variables('objectStatus'), 'OK'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 8)),\n    and(equals(variables('objectStatus'), 'Error'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 4))\n)",
+            "value": "@or(equals(variables('itemStatus'), 'NeverRun'), or(\n    and(equals(variables('objectStatus'), 'OK'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 8)),\n    and(equals(variables('objectStatus'), 'Error'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 4))\n))",
             "type": "Expression"
           },
           "ifTrueActivities": [
