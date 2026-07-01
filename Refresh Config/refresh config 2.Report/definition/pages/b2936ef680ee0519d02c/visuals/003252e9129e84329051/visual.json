@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
   "name": "003252e9129e84329051",
   "position": {
     "x": 1151.641791044776,
@@ -117,65 +117,172 @@
                       "name": "jobName",
                       "dataType": "string",
                       "isOptional": false,
-                      "type": "SlicerParameter",
-                      "slicer": null
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing job_name"
+                          }
+                        }
+                      }
                     },
                     {
                       "name": "workspaceId",
                       "dataType": "string",
                       "isOptional": false,
-                      "type": "SlicerParameter",
-                      "slicer": null
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing workspace_id"
+                          }
+                        }
+                      }
                     },
                     {
                       "name": "workspaceName",
                       "dataType": "string",
                       "isOptional": false,
-                      "type": "SlicerParameter",
-                      "slicer": null
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing workspace_name"
+                          }
+                        }
+                      }
                     },
                     {
                       "name": "objectType",
                       "dataType": "string",
                       "isOptional": false,
-                      "type": "SlicerParameter",
-                      "slicer": null
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing object_type"
+                          }
+                        }
+                      }
                     },
                     {
                       "name": "objectId",
                       "dataType": "string",
                       "isOptional": false,
-                      "type": "SlicerParameter",
-                      "slicer": null
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing object_id"
+                          }
+                        }
+                      }
                     },
                     {
                       "name": "objectName",
                       "dataType": "string",
                       "isOptional": false,
-                      "type": "SlicerParameter",
-                      "slicer": null
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_jobs"
+                              }
+                            },
+                            "Property": "Selected Existing object_name"
+                          }
+                        }
+                      }
                     },
                     {
                       "name": "priority",
                       "dataType": "number",
                       "isOptional": false,
-                      "type": "SlicerParameter",
-                      "slicer": null
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Priority"
+                              }
+                            },
+                            "Property": "Priority Value"
+                          }
+                        }
+                      }
                     },
                     {
                       "name": "precedentJobNames",
                       "dataType": "string",
                       "isOptional": false,
-                      "type": "SlicerParameter",
-                      "slicer": null
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "refresh_job_precedence"
+                              }
+                            },
+                            "Property": "New Precedents List (Value)"
+                          }
+                        }
+                      }
                     },
                     {
-                      "type": "SlicerParameter",
-                      "autoClear": false,
                       "name": "modifiedBy",
                       "dataType": "string",
                       "isOptional": false,
-                      "defaultValue": null
+                      "defaultValue": null,
+                      "type": "ValueParameter",
+                      "value": {
+                        "expr": {
+                          "Measure": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "fabric_items"
+                              }
+                            },
+                            "Property": "Current User"
+                          }
+                        }
+                      }
                     }
                   ]
                 }
