@@ -276,7 +276,7 @@
               "typeProperties": {
                 "variableName": "objectErrorMessage",
                 "value": {
-                  "value": "@if(contains(activity('trigger refresh').output, 'failureReason'), activity('trigger refresh').output.failureReason.message, null)",
+                  "value": "@if(and(contains(activity('trigger refresh').output, 'failureReason'), contains(activity('trigger refresh').output.failureReason, 'message')), activity('trigger refresh').output.failureReason.message, null)",
                   "type": "Expression"
                 }
               },
