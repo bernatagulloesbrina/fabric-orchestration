@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
   "name": "2298bd4de2506d00020e",
   "position": {
     "x": 986.865671641791,
@@ -37,7 +37,15 @@
     "objects": {
       "data": [
         {
-          "properties": {}
+          "properties": {
+            "numericStart": {
+              "expr": {
+                "Literal": {
+                  "Value": "3D"
+                }
+              }
+            }
+          }
         }
       ],
       "general": [
@@ -48,6 +56,42 @@
                 "Literal": {
                   "Value": "false"
                 }
+              }
+            },
+            "filter": {
+              "filter": {
+                "Version": 2,
+                "From": [
+                  {
+                    "Name": "p",
+                    "Entity": "Priority",
+                    "Type": 0
+                  }
+                ],
+                "Where": [
+                  {
+                    "Condition": {
+                      "Comparison": {
+                        "ComparisonKind": 0,
+                        "Left": {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "p"
+                              }
+                            },
+                            "Property": "Priority"
+                          }
+                        },
+                        "Right": {
+                          "Literal": {
+                            "Value": "3D"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
               }
             }
           }
