@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
   "name": "732dda6b8c57673a1c06",
   "position": {
     "x": 1151.641791044776,
@@ -136,23 +136,12 @@
                       }
                     },
                     {
-                      "name": "deleted",
+                      "type": "SlicerParameter",
+                      "autoClear": false,
+                      "name": "activeMarker",
                       "dataType": "string",
                       "isOptional": false,
-                      "defaultValue": null,
-                      "type": "ValueParameter",
-                      "value": {
-                        "expr": {
-                          "Measure": {
-                            "Expression": {
-                              "SourceRef": {
-                                "Entity": "refresh_jobs"
-                              }
-                            },
-                            "Property": "Selected Existing deleted"
-                          }
-                        }
-                      }
+                      "defaultValue": null
                     }
                   ]
                 }

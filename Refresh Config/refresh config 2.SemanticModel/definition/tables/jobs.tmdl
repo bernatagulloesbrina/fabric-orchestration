@@ -105,5 +105,7 @@ table jobs
 				in
 				    dbo_jobs
 
-	annotation PBI_ResultType = Table
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navigation
 

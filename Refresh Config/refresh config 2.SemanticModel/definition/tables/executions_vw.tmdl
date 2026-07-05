@@ -1,0 +1,82 @@
+table executions_vw
+	lineageTag: 5f98fb8f-cfe4-4dba-bf5e-7d5f2f91b9b0
+
+	column execution_id
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(50)
+		lineageTag: ae98e4f1-a569-4f96-8ffa-35e5f8c7fb2e
+		summarizeBy: none
+		sourceColumn: execution_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_name
+		dataType: string
+		isNullable: false
+		sourceProviderType: nvarchar(200)
+		lineageTag: 5bc664d7-7d3f-4422-b124-90b79d8bd6f3
+		summarizeBy: none
+		sourceColumn: job_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_time
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 9245e863-31aa-4616-b7f0-e71c0318ecac
+		summarizeBy: none
+		sourceColumn: start_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column end_time
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 8f3ce350-ef6e-4f09-96a2-ebee9554ab76
+		summarizeBy: none
+		sourceColumn: end_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column created_at
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 239f08bd-c76d-495f-830d-ec06864f8a57
+		summarizeBy: none
+		sourceColumn: created_at
+
+		annotation SummarizationSetBy = Automatic
+
+	column result
+		dataType: string
+		sourceProviderType: nvarchar(50)
+		lineageTag: 728d26c5-dae4-4e12-b69a-e5af71c3f6b7
+		summarizeBy: none
+		sourceColumn: result
+
+		annotation SummarizationSetBy = Automatic
+
+	column error_message
+		dataType: string
+		sourceProviderType: nvarchar(max)
+		lineageTag: 6a7370ef-9535-43af-bd6f-fef2144bad61
+		summarizeBy: none
+		sourceColumn: error_message
+
+		annotation SummarizationSetBy = Automatic
+
+	partition executions_vw = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.database.fabric.microsoft.com", "Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07"),
+				    dbo_vw_executions = Source{[Schema="dbo",Item="vw_executions"]}[Data]
+				in
+				    dbo_vw_executions
+
+	annotation PBI_ResultType = Table
+
