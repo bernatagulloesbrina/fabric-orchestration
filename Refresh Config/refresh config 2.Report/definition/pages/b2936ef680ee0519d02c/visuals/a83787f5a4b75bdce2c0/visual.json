@@ -1,19 +1,19 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
   "name": "a83787f5a4b75bdce2c0",
   "position": {
-    "x": 790.74626865671644,
-    "y": 321.49253731343282,
+    "x": 789.873417721519,
+    "y": 313.92405063291136,
     "z": 13000,
-    "height": 85.970149253731336,
-    "width": 461.19402985074623,
+    "height": 93.164556962025316,
+    "width": 358.48101265822783,
     "tabOrder": 11000
   },
   "visual": {
-    "visualType": "cardVisual",
+    "visualType": "card",
     "query": {
       "queryState": {
-        "Data": {
+        "Values": {
           "projections": [
             {
               "field": {
@@ -34,55 +34,7 @@
       }
     },
     "objects": {
-      "label": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          },
-          "selector": {
-            "id": "default"
-          }
-        }
-      ],
-      "outline": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          },
-          "selector": {
-            "id": "default"
-          }
-        }
-      ],
-      "divider": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          },
-          "selector": {
-            "id": "default"
-          }
-        }
-      ],
-      "fillCustom": [
+      "categoryLabels": [
         {
           "properties": {
             "show": {
@@ -95,23 +47,7 @@
           }
         }
       ],
-      "accentBar": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          },
-          "selector": {
-            "id": "default"
-          }
-        }
-      ],
-      "value": [
+      "labels": [
         {
           "properties": {
             "fontSize": {
@@ -120,17 +56,7 @@
                   "Value": "10D"
                 }
               }
-            },
-            "textWrap": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
             }
-          },
-          "selector": {
-            "id": "default"
           }
         }
       ]
