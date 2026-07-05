@@ -86,3 +86,4 @@ FROM sharepoint_ranked
 WHERE sp_rank <= 2;
 
 GO
+

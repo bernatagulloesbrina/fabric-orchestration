@@ -32,3 +32,4 @@ LEFT JOIN attempts AS a
 WHERE cj.job_name IS NULL;
 
 GO
+
