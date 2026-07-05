@@ -1,0 +1,81 @@
+table timeline_axis
+	lineageTag: 10a22047-7a4d-4b99-bcb8-c6e6f2ed9cac
+
+	measure 'Active Refreshes' = ```
+			
+			VAR AxisPoint = MAX(timeline_axis[axis_datetime])
+			RETURN
+			    IF(
+			        ISBLANK(AxisPoint),
+			        BLANK(),
+			        
+			            COUNTROWS(
+			            FILTER(
+			                executions_vw,
+			                executions_vw[start_time] <= AxisPoint
+			                    && (ISBLANK(executions_vw[end_time]) || executions_vw[end_time] > AxisPoint)
+			            ))
+			        
+			    )
+			```
+		formatString: 0
+		lineageTag: 4ab5d58e-f8d0-4317-afaf-5bbf7dff83cb
+
+	measure 'Active Refreshes (Failed Runs)' =
+			VAR AxisPoint = MAX(timeline_axis[axis_datetime])
+			RETURN
+			    IF(
+			        ISBLANK(AxisPoint),
+			        BLANK(),
+			        CALCULATE(
+			            COUNTROWS(executions_vw),
+			            FILTER(
+			                ALLSELECTED(executions_vw),
+			                executions_vw[start_time] <= AxisPoint
+			                    && (ISBLANK(executions_vw[end_time]) || executions_vw[end_time] > AxisPoint)
+			                    && executions_vw[result] = "Error"
+			            )
+			        )
+			    )
+		formatString: 0
+		lineageTag: c620f53f-48d6-46a4-bce4-eb865db83ea7
+
+	measure 'Axis Min DateTime' = MIN(timeline_axis[axis_datetime])
+		formatString: General Date
+		lineageTag: 43bc6bd7-d52e-4bcb-a757-62ec6d4a213f
+
+	measure 'Axis Max DateTime' = MAX(timeline_axis[axis_datetime])
+		formatString: General Date
+		lineageTag: 4e7b3803-0869-4ffa-b29d-9bbffec14f42
+
+	column axis_datetime
+		dataType: dateTime
+		formatString: General Date
+		sourceProviderType: datetime2
+		lineageTag: 307fbc9e-8f85-4345-aeb0-39f695f37e6c
+		summarizeBy: none
+		sourceColumn: axis_datetime
+
+		annotation SummarizationSetBy = Automatic
+
+	partition timeline_axis = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database("swgmcz5ied3urjsz7dt3fbj7w4-ntu4zuj6sv7ezc6dn5xdoxzqjq.database.fabric.microsoft.com", "Metadata-bffdcec2-818c-4e08-ba43-281a18f11b07"),
+				    timelineAxis = Value.NativeQuery(
+				        Source,
+				        "SELECT CAST(DATEADD(MINUTE, -1439 + n.n, CAST(SYSUTCDATETIME() AT TIME ZONE 'UTC' AT TIME ZONE 'Tokyo Standard Time' AS DATETIME2(7))) AS DATETIME2(7)) AS axis_datetime " &
+				        "FROM (" &
+				        " SELECT TOP (1440) ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 AS n" &
+				        " FROM sys.all_objects a" &
+				        " CROSS JOIN sys.all_objects b" &
+				        ") n"
+				    )
+				in
+				    timelineAxis
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

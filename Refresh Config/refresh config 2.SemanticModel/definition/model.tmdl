@@ -8,11 +8,11 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 0
 
-annotation PBI_QueryOrder = ["jobs","refresh_jobs","refresh_job_precedence","fabric_items"]
+annotation PBI_QueryOrder = ["jobs","refresh_jobs","refresh_job_precedence","fabric_items","executions_vw","timeline_axis"]
 
 annotation __TEdtr = 1
 
-annotation PBI_ProTooling = ["DevMode"]
+annotation PBI_ProTooling = ["DevMode","TMDL-Extension"]
 
 ref table jobs
 ref table refresh_jobs
@@ -22,6 +22,8 @@ ref table Priority
 ref table Mode
 ref table 'Update Priority'
 ref table 'Referential Integrity'
+ref table executions_vw
+ref table timeline_axis
 
 ref cultureInfo en-US
 

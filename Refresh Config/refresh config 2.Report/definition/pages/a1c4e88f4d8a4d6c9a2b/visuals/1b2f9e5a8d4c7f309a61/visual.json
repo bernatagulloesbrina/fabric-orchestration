@@ -1,0 +1,90 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
+  "name": "1b2f9e5a8d4c7f309a61",
+  "position": {
+    "x": 24,
+    "y": 16,
+    "z": 1000,
+    "height": 80,
+    "width": 460,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "slicer",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "timeline_axis"
+                    }
+                  },
+                  "Property": "axis_datetime"
+                }
+              },
+              "queryRef": "timeline_axis.axis_datetime",
+              "nativeQueryRef": "axis_datetime",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "data": [
+        {
+          "properties": {
+            "mode": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Between'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "header": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Date and Time Range'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "192eed23f59072864b31",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "timeline_axis"
+              }
+            },
+            "Property": "axis_datetime"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

@@ -123,5 +123,5 @@ table fabric_items
 				in
 				    dbo_fabric_items
 
-	annotation PBI_ResultType = Table
+	annotation PBI_ResultType = Exception
 
