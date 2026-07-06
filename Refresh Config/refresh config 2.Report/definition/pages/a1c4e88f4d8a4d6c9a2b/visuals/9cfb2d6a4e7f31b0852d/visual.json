@@ -1,0 +1,129 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
+  "name": "9cfb2d6a4e7f31b0852d",
+  "position": {
+    "x": 18.22784810126582,
+    "y": 20.253164556962023,
+    "z": 2000,
+    "height": 686.58227848101262,
+    "width": 838.48101265822777,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Columns": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "timeline_axis"
+                    }
+                  },
+                  "Property": "axis_datetime"
+                }
+              },
+              "queryRef": "timeline_axis.axis_datetime",
+              "nativeQueryRef": "axis_datetime",
+              "active": true,
+              "format": "H:mm"
+            }
+          ]
+        },
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "executions_vw"
+                    }
+                  },
+                  "Property": "job_name"
+                }
+              },
+              "queryRef": "executions_vw.job_name",
+              "nativeQueryRef": "job_name",
+              "active": true
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "timeline_axis"
+                    }
+                  },
+                  "Property": "Active Refreshes"
+                }
+              },
+              "queryRef": "timeline_axis.Active Refreshes",
+              "nativeQueryRef": "Active Refreshes"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "timeline_axis"
+                  }
+                },
+                "Property": "axis_datetime"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Active Refreshes Over Time'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualTooltip": [
+        {
+          "properties": {
+            "section": {
+              "expr": {
+                "Literal": {
+                  "Value": "'7f1db10cdc04bd65632b'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

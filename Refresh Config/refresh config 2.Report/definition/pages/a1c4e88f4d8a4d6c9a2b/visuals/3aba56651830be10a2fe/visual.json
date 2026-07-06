@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
+  "name": "3aba56651830be10a2fe",
+  "position": {
+    "x": 874.9367088607595,
+    "y": 204.55696202531644,
+    "z": 2001,
+    "height": 202.53164556962025,
+    "width": 405.0632911392405,
+    "tabOrder": 2001
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "executions_vw"
+                    }
+                  },
+                  "Property": "job_name"
+                }
+              },
+              "queryRef": "executions_vw.job_name",
+              "nativeQueryRef": "job_name"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "general": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

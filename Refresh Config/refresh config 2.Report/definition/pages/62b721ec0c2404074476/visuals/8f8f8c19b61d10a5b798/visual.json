@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "4ee64e0577640e450012",
+  "name": "8f8f8c19b61d10a5b798",
   "position": {
-    "x": 790.74626865671644,
-    "y": 243.58208955223881,
-    "z": 11000,
-    "height": 71.641791044776113,
-    "width": 358.20895522388059,
-    "tabOrder": 9000
+    "x": 246.26865671641789,
+    "y": 575.820895522388,
+    "z": 4000,
+    "height": 64.4776119402985,
+    "width": 114.6268656716418,
+    "tabOrder": 1000
   },
   "visual": {
     "visualType": "slicer",
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "jobs"
+                      "Entity": "Priority"
                     }
                   },
-                  "Property": "job_name"
+                  "Property": "Priority"
                 }
               },
-              "queryRef": "jobs.job_name",
-              "nativeQueryRef": "job_name",
+              "queryRef": "Priority.Priority",
+              "nativeQueryRef": "Priority",
               "active": true
             }
           ]
@@ -37,24 +37,16 @@
     "objects": {
       "data": [
         {
-          "properties": {
-            "mode": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Dropdown'"
-                }
-              }
-            }
-          }
+          "properties": {}
         }
       ],
       "general": [
         {
           "properties": {
-            "selfFilterEnabled": {
+            "responsive": {
               "expr": {
                 "Literal": {
-                  "Value": "true"
+                  "Value": "false"
                 }
               }
             }
@@ -64,10 +56,22 @@
       "header": [
         {
           "properties": {
-            "text": {
+            "textSize": {
               "expr": {
                 "Literal": {
-                  "Value": "'Precedent Jobs'"
+                  "Value": "12D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 1,
+                      "Percent": 0
+                    }
+                  }
                 }
               }
             }

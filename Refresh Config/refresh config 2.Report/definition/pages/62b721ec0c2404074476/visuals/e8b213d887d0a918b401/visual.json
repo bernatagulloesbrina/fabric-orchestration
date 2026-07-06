@@ -1,85 +1,100 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "249967cf372d1085e914",
+  "name": "e8b213d887d0a918b401",
   "position": {
-    "x": 44.883851419593732,
-    "y": 575.52463247671415,
-    "z": 7000,
-    "height": 94.73684210526315,
-    "width": 182.70676691729324,
-    "tabOrder": 4000
+    "x": 729.85074626865674,
+    "y": 491.64179104477608,
+    "z": 9000,
+    "height": 179.1044776119403,
+    "width": 359.1044776119403,
+    "tabOrder": 6000
   },
   "visual": {
-    "visualType": "slicer",
+    "visualType": "card",
     "query": {
       "queryState": {
         "Values": {
           "projections": [
             {
               "field": {
-                "Column": {
+                "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "fabric_items"
+                      "Entity": "jobs"
                     }
                   },
-                  "Property": "type"
+                  "Property": "Selected Jobs (Display)"
                 }
               },
-              "queryRef": "fabric_items.type",
-              "nativeQueryRef": "type",
-              "active": true
+              "queryRef": "jobs.Selected Jobs (Display)",
+              "nativeQueryRef": "Selected Jobs (Display)"
             }
           ]
         }
       }
     },
     "objects": {
-      "data": [
+      "labels": [
         {
           "properties": {
-            "mode": {
+            "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "'Dropdown'"
+                  "Value": "10D"
                 }
               }
             }
           }
         }
       ],
-      "general": [
-        {
-          "properties": {}
-        }
-      ],
-      "selection": [
+      "categoryLabels": [
         {
           "properties": {
-            "strictSingleSelect": {
+            "show": {
               "expr": {
                 "Literal": {
                   "Value": "false"
                 }
               }
-            },
-            "singleSelect": {
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
               "expr": {
                 "Literal": {
-                  "Value": "true"
+                  "Value": "false"
                 }
               }
             }
           }
         }
       ],
-      "header": [
+      "border": [
         {
           "properties": {
-            "text": {
+            "show": {
               "expr": {
                 "Literal": {
-                  "Value": "'Object Type'"
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }
@@ -88,23 +103,5 @@
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "3b60760a86346c49e87d",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fabric_items"
-              }
-            },
-            "Property": "type"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

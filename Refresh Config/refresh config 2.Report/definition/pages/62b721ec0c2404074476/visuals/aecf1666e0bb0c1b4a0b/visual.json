@@ -1,6 +1,6 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "003252e9129e84329051",
+  "name": "aecf1666e0bb0c1b4a0b",
   "position": {
     "x": 1151.641791044776,
     "y": 78.805970149253724,
@@ -46,22 +46,6 @@
               "expr": {
                 "Literal": {
                   "Value": "'Modify Refresh'"
-                }
-              }
-            }
-          },
-          "selector": {
-            "id": "default"
-          }
-        }
-      ],
-      "outline": [
-        {
-          "properties": {
-            "weight": {
-              "expr": {
-                "Literal": {
-                  "Value": "1D"
                 }
               }
             }

@@ -1,0 +1,272 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "e3ef921d7c6c5b6bd4b6",
+  "position": {
+    "x": 34.029850746268657,
+    "y": 145.97014925373134,
+    "z": 5000,
+    "height": 248.955223880597,
+    "width": 739.70149253731336,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_jobs"
+                    }
+                  },
+                  "Property": "job_name"
+                }
+              },
+              "queryRef": "refresh_jobs.job_name",
+              "nativeQueryRef": "Job",
+              "displayName": "Job"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_jobs"
+                    }
+                  },
+                  "Property": "priority"
+                }
+              },
+              "queryRef": "refresh_jobs.priority",
+              "nativeQueryRef": "priority"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_jobs"
+                    }
+                  },
+                  "Property": "object_type"
+                }
+              },
+              "queryRef": "refresh_jobs.object_type",
+              "nativeQueryRef": "object_type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "refresh_jobs"
+                    }
+                  },
+                  "Property": "object_name"
+                }
+              },
+              "queryRef": "refresh_jobs.object_name",
+              "nativeQueryRef": "object_name"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "292.8059710480951D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "refresh_jobs.job_name"
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {}
+        }
+      ],
+      "values": [
+        {
+          "properties": {
+            "backColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "SelectRef": {
+                      "ExpressionName": "select"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ],
+            "metadata": "refresh_jobs.job_name"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "visualTooltip": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "section": {
+              "expr": {
+                "Literal": {
+                  "Value": "'069615dac35190e0b49a'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Fabric Refresh Jobs'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "1819930b04e91e1b2623",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "job_name"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "a54a26e56305a0028a04",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "priority"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "74281265ba70441bdd1b",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "object_type"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "d0794b613080de9c2186",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "refresh_jobs"
+              }
+            },
+            "Property": "object_name"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

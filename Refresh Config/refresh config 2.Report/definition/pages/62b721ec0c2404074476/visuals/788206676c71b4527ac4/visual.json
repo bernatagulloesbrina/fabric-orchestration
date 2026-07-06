@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
-  "name": "303c625f3e23874e5282",
+  "name": "788206676c71b4527ac4",
   "position": {
-    "x": 43.988329031534029,
-    "y": 493.06924026484114,
-    "z": 6000,
-    "height": 69.022556390977442,
-    "width": 238.19548872180451,
-    "tabOrder": 3000
+    "x": 43.880597014925371,
+    "y": 79.701492537313428,
+    "z": 20000,
+    "height": 66.268656716417908,
+    "width": 238.20895522388059,
+    "tabOrder": 16000
   },
   "visual": {
     "visualType": "slicer",
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "fabric_items"
+                      "Entity": "refresh_jobs"
                     }
                   },
                   "Property": "workspace_name"
                 }
               },
-              "queryRef": "fabric_items.workspace_name",
-              "nativeQueryRef": "workspace_name",
+              "queryRef": "refresh_jobs.workspace_name",
+              "nativeQueryRef": "workspace_name1",
               "active": true
             }
           ]
@@ -44,14 +44,8 @@
                   "Value": "'Dropdown'"
                 }
               }
-            }
-          }
-        }
-      ],
-      "general": [
-        {
-          "properties": {
-            "selfFilterEnabled": {
+            },
+            "isInvertedSelectionMode": {
               "expr": {
                 "Literal": {
                   "Value": "true"
@@ -59,6 +53,11 @@
               }
             }
           }
+        }
+      ],
+      "general": [
+        {
+          "properties": {}
         }
       ],
       "selection": [
@@ -112,21 +111,60 @@
           }
         },
         "type": "Categorical",
-        "howCreated": "User"
-      },
-      {
-        "name": "bdf57fd0e7aedb2ed6ad",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fabric_items"
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "f",
+              "Entity": "fabric_items",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "f"
+                          }
+                        },
+                        "Property": "type"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Dataflow'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'DataPipeline'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'SemanticModel'"
+                        }
+                      }
+                    ]
+                  ]
+                }
               }
-            },
-            "Property": "workspace_name"
-          }
+            }
+          ]
         },
-        "type": "Categorical"
+        "howCreated": "User"
       }
     ]
   }

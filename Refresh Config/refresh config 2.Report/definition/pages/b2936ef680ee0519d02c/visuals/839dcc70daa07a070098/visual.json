@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "839dcc70daa07a070098",
   "position": {
     "x": 34.029850746268657,
@@ -139,24 +139,14 @@
               "field": {
                 "NativeVisualCalculation": {
                   "Language": "dax",
-                  "Expression": "IF([Deleted On] = \"\", BLANK(), \"#E3E3E3\")",
-                  "Name": "Background"
+                  "Expression": "IF([Deleted On] = \"\", BLANK(), \"#D9D9D9\")",
+                  "Name": "Background",
+                  "DataType": "Text"
                 }
               },
               "queryRef": "select",
               "nativeQueryRef": "Background",
               "hidden": true
-            },
-            {
-              "field": {
-                "NativeVisualCalculation": {
-                  "Language": "dax",
-                  "Expression": "IF([Deleted On] = \"\", BLANK(), \"#999999\")",
-                  "Name": "Font"
-                }
-              },
-              "queryRef": "select1",
-              "nativeQueryRef": "Font"
             }
           ]
         }
@@ -180,6 +170,27 @@
       }
     },
     "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "292.8059710480951D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "refresh_jobs.job_name"
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {}
+        }
+      ],
       "values": [
         {
           "properties": {
@@ -189,17 +200,6 @@
                   "expr": {
                     "SelectRef": {
                       "ExpressionName": "select"
-                    }
-                  }
-                }
-              }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
                     }
                   }
                 }
@@ -225,17 +225,6 @@
                   "expr": {
                     "SelectRef": {
                       "ExpressionName": "select"
-                    }
-                  }
-                }
-              }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
                     }
                   }
                 }
@@ -265,17 +254,6 @@
                   }
                 }
               }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
-                    }
-                  }
-                }
-              }
             }
           },
           "selector": {
@@ -297,17 +275,6 @@
                   "expr": {
                     "SelectRef": {
                       "ExpressionName": "select"
-                    }
-                  }
-                }
-              }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
                     }
                   }
                 }
@@ -337,17 +304,6 @@
                   }
                 }
               }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
-                    }
-                  }
-                }
-              }
             }
           },
           "selector": {
@@ -369,17 +325,6 @@
                   "expr": {
                     "SelectRef": {
                       "ExpressionName": "select"
-                    }
-                  }
-                }
-              }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
                     }
                   }
                 }
@@ -409,17 +354,6 @@
                   }
                 }
               }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
-                    }
-                  }
-                }
-              }
             }
           },
           "selector": {
@@ -445,17 +379,6 @@
                   }
                 }
               }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
-                    }
-                  }
-                }
-              }
             }
           },
           "selector": {
@@ -468,123 +391,10 @@
             ],
             "metadata": "refresh_jobs.last_modified_by"
           }
-        },
-        {
-          "properties": {
-            "backColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select"
-                    }
-                  }
-                }
-              }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "selector": {
-            "data": [
-              {
-                "dataViewWildcard": {
-                  "matchingOption": 1
-                }
-              }
-            ],
-            "metadata": "select"
-          }
-        },
-        {
-          "properties": {
-            "backColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select"
-                    }
-                  }
-                }
-              }
-            },
-            "fontColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "SelectRef": {
-                      "ExpressionName": "select1"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "selector": {
-            "data": [
-              {
-                "dataViewWildcard": {
-                  "matchingOption": 1
-                }
-              }
-            ],
-            "metadata": "select1"
-          }
-        }
-      ],
-      "columnWidth": [
-        {
-          "properties": {
-            "value": {
-              "expr": {
-                "Literal": {
-                  "Value": "292.8059710480951D"
-                }
-              }
-            }
-          },
-          "selector": {
-            "metadata": "refresh_jobs.job_name"
-          }
-        }
-      ],
-      "columnHeaders": [
-        {
-          "properties": {}
         }
       ]
     },
     "visualContainerObjects": {
-      "title": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Fabric Refresh Jobs'"
-                }
-              }
-            }
-          }
-        }
-      ],
       "visualTooltip": [
         {
           "properties": {
@@ -599,6 +409,26 @@
               "expr": {
                 "Literal": {
                   "Value": "'069615dac35190e0b49a'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Fabric Refresh Jobs'"
                 }
               }
             }

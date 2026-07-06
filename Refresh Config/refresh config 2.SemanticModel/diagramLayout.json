@@ -4,7 +4,7 @@
     {
       "ordinal": 0,
       "scrollPosition": {
-        "x": 56,
+        "x": 2261.333251953125,
         "y": 0
       },
       "nodes": [
@@ -96,6 +96,45 @@
             "width": 234
           },
           "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 1988,
+            "y": 159
+          },
+          "nodeIndex": "executions_vw",
+          "nodeLineageTag": "5f98fb8f-cfe4-4dba-bf5e-7d5f2f91b9b0",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2272,
+            "y": 133
+          },
+          "nodeIndex": "Referential Integrity",
+          "nodeLineageTag": "aa40f5b5-3948-46c7-b035-7dc67abe574a",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2556,
+            "y": 183
+          },
+          "nodeIndex": "timeline_axis",
+          "nodeLineageTag": "10a22047-7a4d-4b99-bcb8-c6e6f2ed9cac",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "All tables",
@@ -104,8 +143,62 @@
       "showExtraHeaderInfo": false,
       "hideKeyFieldsWhenCollapsed": false,
       "tablesLocked": false
+    },
+    {
+      "ordinal": 1,
+      "scrollPosition": {
+        "x": 0,
+        "y": 155.33332824707031
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 0,
+            "y": 104
+          },
+          "nodeIndex": "executions_vw",
+          "nodeLineageTag": "5f98fb8f-cfe4-4dba-bf5e-7d5f2f91b9b0",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 358.33333206176758,
+            "y": 50
+          },
+          "nodeIndex": "refresh_jobs",
+          "nodeLineageTag": "010e42b1-9119-48a9-a04d-0de99be9d58f",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 236.33333206176758,
+            "y": 409
+          },
+          "nodeIndex": "jobs",
+          "nodeLineageTag": "e60b9750-f22a-4797-ba96-d74f6145a19e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "Layout 1",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
     }
   ],
-  "selectedDiagram": "All tables",
+  "selectedDiagram": "Layout 1",
   "defaultDiagram": "All tables"
 }
