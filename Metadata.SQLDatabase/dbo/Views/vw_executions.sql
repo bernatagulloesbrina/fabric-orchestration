@@ -15,6 +15,15 @@ SELECT
         ) AS TIME(0)
     ) AS start_hour,
     j.object_type,
+    CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM dbo.refresh_job_sources s
+            WHERE s.job_name = e.job_name
+              AND s.datasource_type LIKE 'SharePoint%'
+        ) THEN 'Sharepoint'
+        ELSE 'Other'
+    END AS datasource,
     e.result,
     e.error_message
 FROM dbo.executions e
