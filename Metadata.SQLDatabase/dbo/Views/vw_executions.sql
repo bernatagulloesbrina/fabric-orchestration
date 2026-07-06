@@ -12,7 +12,7 @@ SELECT
             HOUR,
             DATEDIFF(HOUR, 0, CAST(e.start_time AT TIME ZONE 'UTC' AT TIME ZONE 'Tokyo Standard Time' AS DATETIME2(7))),
             0
-        ) AS DATETIME2(7)
+        ) AS TIME(0)
     ) AS start_hour,
     j.object_type,
     e.result,
