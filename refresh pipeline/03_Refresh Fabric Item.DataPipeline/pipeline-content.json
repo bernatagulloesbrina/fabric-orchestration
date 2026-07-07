@@ -288,6 +288,114 @@
       {
         "type": "SqlServerStoredProcedure",
         "typeProperties": {
+          "storedProcedureName": "[dbo].[usp_LogRefreshAttempt]",
+          "storedProcedureParameters": {
+            "api_response_json": {
+              "value": {
+                "value": "@if(equals(pipeline().parameters.object_type, 'SemanticModel'), string(activity('retrieve latest refresh SM').output), string(activity('retrieve latest refresh').output))",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "error_message": {
+              "value": {
+                "value": "@variables('objectErrorMessage')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "http_status": {
+              "value": {
+                "value": "@if(equals(pipeline().parameters.object_type, 'SemanticModel'), if(contains(activity('retrieve latest refresh SM').output, 'statusCode'), string(activity('retrieve latest refresh SM').output.statusCode), null), if(contains(activity('retrieve latest refresh').output, 'statusCode'), string(activity('retrieve latest refresh').output.statusCode), null))",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "item_status": {
+              "value": {
+                "value": "@variables('itemStatus')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "job_name": {
+              "value": {
+                "value": "@pipeline().parameters.job_name",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "object_id": {
+              "value": {
+                "value": "@pipeline().parameters.object_id",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "object_type": {
+              "value": {
+                "value": "@pipeline().parameters.object_type",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "phase": {
+              "value": {
+                "value": "'latest_refresh_get'",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "pipeline_run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "workspace_id": {
+              "value": {
+                "value": "@pipeline().parameters.workspace_id",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "connectionSettings": {
+          "name": "Metadata",
+          "properties": {
+            "type": "FabricSqlDatabase",
+            "typeProperties": {
+              "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "externalReferences": {
+              "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Log latest refresh response",
+        "dependsOn": [
+          {
+            "activity": "Set objectStatus",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
           "storedProcedureName": "[dbo].[usp_RegisterRefresh]",
           "storedProcedureParameters": {
             "end_time": {
@@ -415,9 +523,218 @@
               },
               "name": "trigger refresh",
               "dependsOn": []
+            },
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[dbo].[usp_LogRefreshAttempt]",
+                "storedProcedureParameters": {
+                  "api_response_json": {
+                    "value": {
+                      "value": "@string(activity('trigger refresh').output)",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "error_message": {
+                    "value": {
+                      "value": "@if(contains(activity('trigger refresh').output, 'error'), string(activity('trigger refresh').output.error), null)",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "http_status": {
+                    "value": {
+                      "value": "@if(contains(activity('trigger refresh').output, 'statusCode'), string(activity('trigger refresh').output.statusCode), null)",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "item_status": {
+                    "value": {
+                      "value": "@variables('itemStatus')",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "job_name": {
+                    "value": {
+                      "value": "@pipeline().parameters.job_name",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "object_id": {
+                    "value": {
+                      "value": "@pipeline().parameters.object_id",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "object_type": {
+                    "value": {
+                      "value": "@pipeline().parameters.object_type",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "phase": {
+                    "value": {
+                      "value": "'trigger_refresh_post'",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "workspace_id": {
+                    "value": {
+                      "value": "@pipeline().parameters.workspace_id",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "Metadata",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Log trigger refresh response",
+              "dependsOn": [
+                {
+                  "activity": "trigger refresh",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
             }
           ],
-          "ifFalseActivities": []
+          "ifFalseActivities": [
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[dbo].[usp_LogRefreshAttempt]",
+                "storedProcedureParameters": {
+                  "api_response_json": {
+                    "value": {
+                      "value": "@string(json('{\"skipped\":true}'))",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "error_message": {
+                    "value": {
+                      "value": "@string(json('{\"reason\":\"trigger condition was false\"}'))",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "http_status": {
+                    "value": {
+                      "value": "null",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "item_status": {
+                    "value": {
+                      "value": "@variables('itemStatus')",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "job_name": {
+                    "value": {
+                      "value": "@pipeline().parameters.job_name",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "object_id": {
+                    "value": {
+                      "value": "@pipeline().parameters.object_id",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "object_type": {
+                    "value": {
+                      "value": "@pipeline().parameters.object_type",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "phase": {
+                    "value": {
+                      "value": "'trigger_skipped'",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "pipeline_run_id": {
+                    "value": {
+                      "value": "@pipeline().RunId",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "workspace_id": {
+                    "value": {
+                      "value": "@pipeline().parameters.workspace_id",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "Metadata",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Log trigger skipped"
+            }
+          ]
         },
         "name": "trigger if needed",
         "dependsOn": [
