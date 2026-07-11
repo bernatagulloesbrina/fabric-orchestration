@@ -131,7 +131,7 @@
               "typeProperties": {
                 "method": "GET",
                 "relativeUrl": {
-                  "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?$top=100')",
+                  "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?$top=1')",
                   "type": "Expression"
                 },
                 "headers": {}
@@ -154,7 +154,7 @@
               "typeProperties": {
                 "variableName": "itemStatus",
                 "value": {
-                  "value": "@if(empty(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))), 'NeverRun', first(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))).status)",
+                  "value": "@if(empty(activity('retrieve latest refresh').output.value), 'NeverRun', activity('retrieve latest refresh').output.value[0].status)",
                   "type": "Expression"
                 }
               },
@@ -177,7 +177,7 @@
               "typeProperties": {
                 "variableName": "objectStartTimeUtc",
                 "value": {
-                  "value": "@if(empty(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))), utcnow(), first(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))).startTimeUtc)",
+                  "value": "@if(empty(activity('retrieve latest refresh').output.value), utcnow(), activity('retrieve latest refresh').output.value[0].startTimeUtc)",
                   "type": "Expression"
                 }
               },
@@ -200,7 +200,7 @@
               "typeProperties": {
                 "variableName": "objectEndTimeUtc",
                 "value": {
-                  "value": "@if(empty(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))), utcnow(), first(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))).endTimeUtc)",
+                  "value": "@if(empty(activity('retrieve latest refresh').output.value), utcnow(), activity('retrieve latest refresh').output.value[0].endTimeUtc)",
                   "type": "Expression"
                 }
               },
@@ -223,7 +223,7 @@
               "typeProperties": {
                 "variableName": "objectErrorMessage",
                 "value": {
-                  "value": "@if(empty(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))), null, if(or(empty(first(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))).failureReason), empty(first(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))).failureReason.message)), null, first(filter(activity('retrieve latest refresh').output.value, and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled'))))).failureReason.message))",
+                  "value": "@if(empty(activity('retrieve latest refresh').output.value), null, if(empty(activity('retrieve latest refresh').output.value[0].failureReason), null, activity('retrieve latest refresh').output.value[0].failureReason.message))",
                   "type": "Expression"
                 }
               },
