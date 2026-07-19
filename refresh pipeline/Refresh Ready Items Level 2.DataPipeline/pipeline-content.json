@@ -75,7 +75,7 @@
                     "type": "Expression"
                   }
                 },
-                "waitOnCompletion": true,
+                "waitOnCompletion": false,
                 "workspaceId": "00000000-0000-0000-0000-000000000000",
                 "pipelineId": "34615249-d371-8a88-48b7-881a6f989580",
                 "operationType": "InvokeFabricPipeline"
