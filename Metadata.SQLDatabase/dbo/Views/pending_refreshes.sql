@@ -1,17 +1,14 @@
 CREATE VIEW [dbo].[pending_refreshes]
 AS
-WITH cutoff AS (
-    -- Start of the current refresh cycle (yesterday 22:00 UTC), same boundary as completed_jobs.
-    SELECT DATEADD(HOUR, 22, CAST(DATEADD(DAY, -1, CAST(GETUTCDATE() AS DATE)) AS DATETIME2(7))) AS cutoff_utc
-),
-attempts AS (
+WITH attempts AS (
     -- Failed attempts (result = 'Error') per job in the current cycle, exposed so downstream
-    -- ordering can push attempted-and-failed jobs to the back of the queue.
+    -- ordering can push attempted-and-failed jobs to the back of the queue. The cycle boundary
+    -- comes from dbo.vw_refresh_cutoff (override row or yesterday 22:00 UTC), same as completed_jobs.
     SELECT
         e.job_name,
         COUNT_BIG(CASE WHEN e.result = 'Error' THEN 1 END) AS failed_attempts
     FROM dbo.executions AS e
-    CROSS JOIN cutoff AS c
+    CROSS JOIN dbo.vw_refresh_cutoff AS c
     WHERE e.start_time >= c.cutoff_utc
     GROUP BY e.job_name
 )

@@ -2,6 +2,58 @@
   "properties": {
     "activities": [
       {
+        "type": "IfCondition",
+        "typeProperties": {
+          "expression": {
+            "value": "@pipeline().parameters.useCurrentTimeStamp",
+            "type": "Expression"
+          },
+          "ifTrueActivities": [
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[dbo].[usp_SetRefreshCutoff]",
+                "storedProcedureParameters": {
+                  "cutoff_utc": {
+                    "value": {
+                      "value": "@pipeline().TriggerTime",
+                      "type": "Expression"
+                    },
+                    "type": "DateTime"
+                  }
+                }
+              },
+              "connectionSettings": {
+                "name": "Metadata",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Set refresh cutoff to now",
+              "dependsOn": []
+            }
+          ],
+          "ifFalseActivities": []
+        },
+        "name": "Set cutoff if requested",
+        "dependsOn": []
+      },
+      {
         "type": "Lookup",
         "typeProperties": {
           "source": {
@@ -42,7 +94,14 @@
           "secureOutput": false
         },
         "name": "check pending refreshes",
-        "dependsOn": []
+        "dependsOn": [
+          {
+            "activity": "Set cutoff if requested",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
       },
       {
         "type": "Until",
@@ -187,8 +246,64 @@
             ]
           }
         ]
+      },
+      {
+        "type": "IfCondition",
+        "typeProperties": {
+          "expression": {
+            "value": "@pipeline().parameters.useCurrentTimeStamp",
+            "type": "Expression"
+          },
+          "ifTrueActivities": [
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[dbo].[usp_ClearRefreshCutoff]"
+              },
+              "connectionSettings": {
+                "name": "Metadata",
+                "properties": {
+                  "type": "FabricSqlDatabase",
+                  "typeProperties": {
+                    "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000"
+                  },
+                  "externalReferences": {
+                    "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "Clear refresh cutoff",
+              "dependsOn": []
+            }
+          ],
+          "ifFalseActivities": []
+        },
+        "name": "Clear cutoff if requested",
+        "dependsOn": [
+          {
+            "activity": "Until no pending refreshes",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ]
       }
     ],
+    "parameters": {
+      "useCurrentTimeStamp": {
+        "type": "Bool",
+        "defaultValue": true
+      }
+    },
     "variables": {
       "pendingRefreshes": {
         "type": "Integer"
