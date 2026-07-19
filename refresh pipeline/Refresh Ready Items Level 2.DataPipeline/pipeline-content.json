@@ -73,6 +73,10 @@
                   "job_name": {
                     "value": "@item().job_name",
                     "type": "Expression"
+                  },
+                  "execution_id": {
+                    "value": "@pipeline().parameters.execution_id",
+                    "type": "Expression"
                   }
                 },
                 "waitOnCompletion": false,
@@ -106,6 +110,12 @@
         ]
       }
     ],
+    "parameters": {
+      "execution_id": {
+        "type": "string",
+        "defaultValue": "00000000-0000-0000-0000-000000000000"
+      }
+    },
     "variables": {
       "objectStatus": {
         "type": "String"

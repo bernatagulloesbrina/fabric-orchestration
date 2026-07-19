@@ -2,6 +2,49 @@
   "properties": {
     "activities": [
       {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "FabricSqlDatabaseSource",
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "FabricSqlDatabaseTable",
+            "typeProperties": {
+              "schema": "dbo",
+              "table": "vw_refresh_cutoff"
+            },
+            "schema": [],
+            "connectionSettings": {
+              "name": "Metadata",
+              "properties": {
+                "type": "FabricSqlDatabase",
+                "typeProperties": {
+                  "artifactId": "18f11b07-281a-ba43-4e08-818cbffdcec2",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "externalReferences": {
+                  "connection": "321a1d84-b910-4170-886a-a5f34cea8960"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "firstRowOnly": true
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "get refresh cutoff",
+        "dependsOn": []
+      },
+      {
         "type": "IfCondition",
         "typeProperties": {
           "expression": {
@@ -436,7 +479,7 @@
             },
             "execution_id": {
               "value": {
-                "value": "@pipeline().RunId",
+                "value": "@pipeline().parameters.execution_id",
                 "type": "Expression"
               },
               "type": "String"
@@ -513,7 +556,7 @@
         "type": "IfCondition",
         "typeProperties": {
           "expression": {
-            "value": "@or(equals(variables('itemStatus'), 'NeverRun'), or(\n    and(equals(variables('objectStatus'), 'OK'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 8)),\n    and(equals(variables('objectStatus'), 'Error'), greater(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 4))\n))",
+            "value": "@if(equals(variables('itemStatus'), 'NeverRun'),\n    true,\n    if(equals(variables('objectStatus'), 'Ongoing'),\n        false,\n        if(and(\n                equals(variables('objectStatus'), 'OK'),\n                greaterOrEquals(ticks(variables('objectEndTimeUtc')), ticks(activity('get refresh cutoff').output.firstRow.cutoff_utc))\n            ),\n            false,\n            or(\n                less(ticks(variables('objectEndTimeUtc')), ticks(activity('get refresh cutoff').output.firstRow.cutoff_utc)),\n                greaterOrEquals(div(sub(ticks(utcNow()), ticks(variables('objectEndTimeUtc'))), 36000000000), 1)\n            )\n        )\n    )\n)",
             "type": "Expression"
           },
           "ifTrueActivities": [
@@ -771,6 +814,12 @@
             "dependencyConditions": [
               "Succeeded"
             ]
+          },
+          {
+            "activity": "get refresh cutoff",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
           }
         ]
       }
@@ -791,6 +840,10 @@
       "job_name": {
         "type": "string",
         "defaultValue": "Headcount360 - SemanticModel - Excel Datasources"
+      },
+      "execution_id": {
+        "type": "string",
+        "defaultValue": "00000000-0000-0000-0000-000000000000"
       }
     },
     "variables": {

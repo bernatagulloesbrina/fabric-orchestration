@@ -56,7 +56,12 @@
             {
               "type": "InvokePipeline",
               "typeProperties": {
-                "parameters": {},
+                "parameters": {
+                  "execution_id": {
+                    "value": "@pipeline().RunId",
+                    "type": "Expression"
+                  }
+                },
                 "waitOnCompletion": true,
                 "workspaceId": "00000000-0000-0000-0000-000000000000",
                 "pipelineId": "3a6cf6b2-a539-a34f-4a26-adb3dc8dee54",
