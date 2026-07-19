@@ -47,7 +47,8 @@
               "name": "Set refresh cutoff to now",
               "dependsOn": []
             }
-          ]
+          ],
+          "ifFalseActivities": []
         },
         "name": "Set cutoff if requested",
         "dependsOn": []
@@ -115,7 +116,7 @@
               "type": "InvokePipeline",
               "typeProperties": {
                 "parameters": {},
-                "waitOnCompletion": true,
+                "waitOnCompletion": false,
                 "workspaceId": "00000000-0000-0000-0000-000000000000",
                 "pipelineId": "3a6cf6b2-a539-a34f-4a26-adb3dc8dee54",
                 "operationType": "InvokeFabricPipeline"
@@ -278,7 +279,8 @@
               "name": "Clear refresh cutoff",
               "dependsOn": []
             }
-          ]
+          ],
+          "ifFalseActivities": []
         },
         "name": "Clear cutoff if requested",
         "dependsOn": [
@@ -294,7 +296,7 @@
     "parameters": {
       "useCurrentTimeStamp": {
         "type": "Bool",
-        "defaultValue": false
+        "defaultValue": true
       }
     },
     "variables": {
