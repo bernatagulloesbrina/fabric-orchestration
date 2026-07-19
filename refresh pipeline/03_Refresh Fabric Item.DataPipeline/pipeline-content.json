@@ -131,7 +131,7 @@
               "typeProperties": {
                 "method": "GET",
                 "relativeUrl": {
-                  "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?$top=1')",
+                  "value": "@concat('v1/workspaces/', pipeline().parameters.workspace_id, '/items/', pipeline().parameters.object_id, '/jobs/instances?$top=100')",
                   "type": "Expression"
                 },
                 "headers": {}
@@ -150,11 +150,33 @@
               "dependsOn": []
             },
             {
+              "type": "Filter",
+              "typeProperties": {
+                "items": {
+                  "value": "@activity('retrieve latest refresh').output.value",
+                  "type": "Expression"
+                },
+                "condition": {
+                  "value": "@and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled')))",
+                  "type": "Expression"
+                }
+              },
+              "name": "filter latest refresh",
+              "dependsOn": [
+                {
+                  "activity": "retrieve latest refresh",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
               "type": "SetVariable",
               "typeProperties": {
                 "variableName": "itemStatus",
                 "value": {
-                  "value": "@if(empty(activity('retrieve latest refresh').output.value), 'NeverRun', activity('retrieve latest refresh').output.value[0].status)",
+                  "value": "@if(empty(activity('filter latest refresh').output.value), 'NeverRun', first(activity('filter latest refresh').output.value).status)",
                   "type": "Expression"
                 }
               },
@@ -165,7 +187,7 @@
               "name": "Set itemStatus",
               "dependsOn": [
                 {
-                  "activity": "retrieve latest refresh",
+                  "activity": "filter latest refresh",
                   "dependencyConditions": [
                     "Succeeded"
                   ]
@@ -177,7 +199,7 @@
               "typeProperties": {
                 "variableName": "objectStartTimeUtc",
                 "value": {
-                  "value": "@if(empty(activity('retrieve latest refresh').output.value), utcnow(), activity('retrieve latest refresh').output.value[0].startTimeUtc)",
+                  "value": "@if(empty(activity('filter latest refresh').output.value), utcnow(), first(activity('filter latest refresh').output.value).startTimeUtc)",
                   "type": "Expression"
                 }
               },
@@ -188,7 +210,7 @@
               "name": "Set objectStartTimeUtc",
               "dependsOn": [
                 {
-                  "activity": "retrieve latest refresh",
+                  "activity": "filter latest refresh",
                   "dependencyConditions": [
                     "Succeeded"
                   ]
@@ -200,7 +222,7 @@
               "typeProperties": {
                 "variableName": "objectEndTimeUtc",
                 "value": {
-                  "value": "@if(empty(activity('retrieve latest refresh').output.value), utcnow(), activity('retrieve latest refresh').output.value[0].endTimeUtc)",
+                  "value": "@if(empty(activity('filter latest refresh').output.value), utcnow(), first(activity('filter latest refresh').output.value).endTimeUtc)",
                   "type": "Expression"
                 }
               },
@@ -211,7 +233,7 @@
               "name": "Set objectEndTimeUtc",
               "dependsOn": [
                 {
-                  "activity": "retrieve latest refresh",
+                  "activity": "filter latest refresh",
                   "dependencyConditions": [
                     "Succeeded"
                   ]
@@ -223,7 +245,7 @@
               "typeProperties": {
                 "variableName": "objectErrorMessage",
                 "value": {
-                  "value": "@if(empty(activity('retrieve latest refresh').output.value), null, if(empty(activity('retrieve latest refresh').output.value[0].failureReason), null, activity('retrieve latest refresh').output.value[0].failureReason.message))",
+                  "value": "@if(empty(activity('filter latest refresh').output.value), null, if(empty(first(activity('filter latest refresh').output.value).failureReason), null, first(activity('filter latest refresh').output.value).failureReason.message))",
                   "type": "Expression"
                 }
               },
@@ -234,7 +256,7 @@
               "name": "Set objectErrorMessage",
               "dependsOn": [
                 {
-                  "activity": "retrieve latest refresh",
+                  "activity": "filter latest refresh",
                   "dependencyConditions": [
                     "Succeeded"
                   ]
