@@ -205,6 +205,7 @@
                 }
               },
               "name": "filter latest refresh",
+              "description": "Only Dataflow mixes job types in the instances list (Refresh + Publish), so the jobType test applies to Dataflow alone. Every other item type has a single jobType (Pipeline, RunNotebook, Execute, sparkjob), and filtering those on 'Refresh' would match nothing, leaving itemStatus = NeverRun and re-triggering the item on every wave.",
               "dependsOn": [
                 {
                   "activity": "retrieve latest refresh",
