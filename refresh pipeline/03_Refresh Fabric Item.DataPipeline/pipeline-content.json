@@ -200,7 +200,7 @@
                   "type": "Expression"
                 },
                 "condition": {
-                  "value": "@and(equals(item().jobType, 'Refresh'), not(equals(item().status, 'Cancelled')))",
+                  "value": "@and(or(not(equals(pipeline().parameters.object_type, 'Dataflow')), equals(item().jobType, 'Refresh')), not(equals(item().status, 'Cancelled')))",
                   "type": "Expression"
                 }
               },
@@ -574,7 +574,8 @@
                 "body": {
                   "value": "@if(equals(pipeline().parameters.object_type, 'SemanticModel'), json('{\"notifyOption\":\"NoNotification\"}'), json('{}'))",
                   "type": "Expression"
-                }
+                },
+                "turnOffAsync": true
               },
               "externalReferences": {
                 "connection": "c478624c-9a61-4cc9-8775-a7610608cc73"
