@@ -1,3 +1,6 @@
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
+
+# Visual Studio local state (solution cache, FileContentIndex/*.vsidx)
+.vs/
 .claude/worktrees/vigilant-heyrovsky-6e3a1e
